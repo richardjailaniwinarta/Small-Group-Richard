@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — SG Richard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b0e14;
+    --card: #12161f;
+    --border: rgba(255,255,255,0.09);
+    --border-focus: #6c63ff;
+    --text: #e8eaf0;
+    --muted: #808a9e;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --gold: #f7b733;
+    --error: #f87171;
+    --success: #2fd0a3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'DM Sans', sans-serif;
+    background:
+      radial-gradient(ellipse 700px 400px at 15% 0%, rgba(108,99,255,0.16), transparent 60%),
+      radial-gradient(ellipse 600px 400px at 90% 100%, rgba(247,183,51,0.10), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+
+  .card{
+    width:100%;
+    max-width:400px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:40px 32px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:'';
+    position:absolute; top:0; left:0; right:0;
+    height:2px;
+    background:linear-gradient(90deg, transparent, var(--accent), var(--gold), transparent);
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--accent2);
+    margin-bottom:18px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);}
+
+  h1{
+    font-family:'Syne', sans-serif;
+    font-weight:800;
+    font-size:28px;
+    line-height:1.15;
+    margin-bottom:8px;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:13.5px;
+    line-height:1.6;
+    margin-bottom:28px;
+  }
+
+  label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    color:var(--muted);
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .field{margin-bottom:18px;}
+  .field-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  input{
+    width:100%;
+    background:#171d2b;
+    border:1px solid var(--border);
+    border-radius:11px;
+    padding:13px 16px;
+    font-size:15px;
+    font-family:'DM Sans', sans-serif;
+    color:var(--text);
+    outline:none;
+    transition:border-color 0.15s, box-shadow 0.15s;
+  }
+  input::placeholder{color:#555f74;}
+  input:focus{
+    border-color:var(--border-focus);
+    box-shadow:0 0 0 3px rgba(108,99,255,0.18);
+  }
+  .hint{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5;}
+
+  .forgot-link{
+    font-size:12px;
+    font-weight:600;
+    color:var(--accent2);
+    text-decoration:none;
+    text-transform:none;
+    letter-spacing:normal;
+  }
+  .forgot-link:hover{text-decoration:underline;}
+
+  button{
+    width:100%;
+    background:linear-gradient(135deg, var(--accent), var(--accent2));
+    border:none;
+    border-radius:11px;
+    padding:14px;
+    font-family:'DM Sans', sans-serif;
+    font-size:14.5px;
+    font-weight:600;
+    color:#fff;
+    cursor:pointer;
+    margin-top:6px;
+    transition:opacity 0.15s, transform 0.1s;
+  }
+  button:hover{opacity:0.9;}
+  button:active{transform:scale(0.98);}
+  button:disabled{opacity:0.5; cursor:not-allowed;}
+
+  .msg{
+    margin-top:16px;
+    padding:12px 14px;
+    border-radius:10px;
+    font-size:13.5px;
+    line-height:1.5;
+    display:none;
+  }
+  .msg.show{display:block;}
+  .msg.error{background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--error);}
+  .msg.success{background:rgba(47,208,163,0.1); border:1px solid rgba(47,208,163,0.3); color:var(--success);}
+
+  .footer-link{
+    text-align:center;
+    margin-top:22px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .footer-link a{color:var(--accent2); text-decoration:none; font-weight:600;}
+  .footer-link a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="eyebrow"><span class="dot"></span> SG RICHARD</div>
+  <h1>Selamat Datang</h1>
+  <p class="subtitle">Login dengan Student ID dan password kamu untuk mengakses Directory, Hall of Fame, dan Tracker.</p>
+
+  <form id="loginForm">
+    <div class="field">
+      <label for="studentId">Student ID</label>
+      <input type="text" id="studentId" placeholder="Contoh: 20263401122" autocomplete="off" required>
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label for="password" style="margin-bottom:0;">Password</label>
+        <a href="forgot-password.html" class="forgot-link">Lupa password?</a>
+      </div>
+      <input type="password" id="password" placeholder="Password kamu" required style="margin-top:8px;">
+    </div>
+
+    <button type="submit" id="submitBtn">Login</button>
+
+    <div class="msg" id="msgBox"></div>
+  </form>
+
+  <div class="footer-link">Belum punya akun? <a href="register.html">Daftar di sini</a></div>
+</div>
+
+<script>
+  // ============ KONFIGURASI ============
+  // Sama dengan API_URL yang dipakai di register.html & forgot-password.html
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyOp0tEIYlUKxh8T9c8_-7zE4FFjR2RZO1ixfUBCRbKTfUgFyQBMvGcL007n_GTzWdcVA/exec';
+
+  // Halaman tujuan setelah login berhasil — GANTI sesuai struktur folder kamu
+  const REDIRECT_AFTER_LOGIN = 'directory/index.html';
+
+  const form      = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const msgBox    = document.getElementById('msgBox');
+
+  function showMessage(text, type) {
+    msgBox.textContent = text;
+    msgBox.className = 'msg show ' + type; // type = 'error' atau 'success'
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const studentId = document.getElementById('studentId').value.trim();
+    const password  = document.getElementById('password').value;
+
+    if (!studentId || !password) {
+      showMessage('Student ID dan Password wajib diisi.', 'error');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Memproses...';
+
+    try {
+      const url = `${API_URL}?action=login&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`;
+      const res  = await fetch(url);
+      const data = await res.json();
+
+      if (data.error) {
+        showMessage(data.error, 'error');
+      } else {
+        // Simpan token & info student untuk dipakai di halaman lain (Directory, dst)
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('studentId', data.studentId);
+        sessionStorage.setItem('nama', data.nama);
+        sessionStorage.setItem('batch', data.batch);
+
+        showMessage('Login berhasil! Mengalihkan...', 'success');
+        setTimeout(() => { window.location.href = REDIRECT_AFTER_LOGIN; }, 1000);
+      }
+    } catch (err) {
+      showMessage('Gagal terhubung ke server. Coba lagi.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Login';
+    }
+  });
+</script>
+
+</body>
+</html>
