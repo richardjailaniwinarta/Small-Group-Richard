@@ -23,6 +23,11 @@
     --orange-deep: #C96F36;
     --orange-glow: #F0A465;
     --line: #ECE5D8;
+    --purple-tint: #ECE6F5;
+    --teal-tint: #E3F5F2;
+    --orange-tint: #FBEEE3;
+    --gold: #B98A2E;
+    --gold-tint: #F5ECD9;
     --radius-lg: 28px;
     --radius-md: 18px;
   }
@@ -103,21 +108,46 @@
   .student-name { font-size: 18px; font-weight: 600; margin: 18px 0 2px; }
   .student-id { font-size: 13px; color: var(--ink-soft); margin-bottom: 32px; }
 
-  nav { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+  nav { display: flex; flex-direction: column; gap: 6px; width: 100%; }
   .nav-item {
     display: flex; align-items: center; gap: 12px;
-    font-size: 15px; color: var(--ink-soft);
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 14px;
+    font-size: 14.5px; font-weight: 500; color: var(--ink-soft);
     text-decoration: none;
     cursor: default;
+    transition: background .15s, color .15s;
   }
-  .nav-item .dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    border: 1.5px solid #D8D2C8;
+  .nav-icon {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
   }
-  .nav-item.active { color: var(--ink); font-weight: 600; }
-  .nav-item.active .dot { background: var(--purple-deep); border-color: var(--purple-deep); }
+  .nav-icon svg { width: 16px; height: 16px; stroke: currentColor; }
+  .nav-icon-purple { background: var(--purple-tint); color: var(--purple-deep); }
+  .nav-icon-teal { background: var(--teal-tint); color: var(--teal-deep); }
+  .nav-icon-orange { background: var(--orange-tint); color: var(--orange-deep); }
+  .nav-icon-gold { background: var(--gold-tint); color: var(--gold); }
+
+  .nav-item.active { background: #F7F3EB; color: var(--ink); font-weight: 700; }
+  .nav-item.active .nav-icon-purple { background: var(--purple-deep); color: #fff; }
+  .nav-item.active .nav-icon-teal { background: var(--teal-deep); color: #fff; }
+  .nav-item.active .nav-icon-orange { background: var(--orange-deep); color: #fff; }
+  .nav-item.active .nav-icon-gold { background: var(--gold); color: #fff; }
+
   .nav-item.link { cursor: pointer; }
-  .nav-item.link:hover { color: var(--ink); }
+  .nav-item.link:hover { background: #F7F3EB; color: var(--ink); }
+
+  .nav-item.disabled { opacity: .6; }
+  .soon-tag {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    background: #F1EDE3; color: var(--ink-soft);
+    padding: 3px 8px; border-radius: 999px;
+    white-space: nowrap;
+  }
 
   .logout-mini {
     margin-top: auto;
@@ -283,10 +313,32 @@
     <div class="student-id" id="studentIdLabel">—</div>
 
     <nav>
-      <span class="nav-item active"><span class="dot"></span>Dashboard</span>
-      <a class="nav-item link" href="../directory/index.html"><span class="dot"></span>Directory</a>
-      <span class="nav-item"><span class="dot"></span>Task Tracker</span>
-      <span class="nav-item"><span class="dot"></span>Hall of Fame</span>
+      <span class="nav-item active">
+        <span class="nav-icon nav-icon-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+        </span>
+        Dashboard
+      </span>
+      <a class="nav-item link" href="../directory/index.html">
+        <span class="nav-icon nav-icon-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        Directory
+      </a>
+      <span class="nav-item disabled">
+        <span class="nav-icon nav-icon-orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="6" height="6" rx="1"/><path d="M3 17l2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>
+        </span>
+        Task Tracker
+        <span class="soon-tag">Segera</span>
+      </span>
+      <span class="nav-item disabled">
+        <span class="nav-icon nav-icon-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h2a2 2 0 0 1 2 2 4 4 0 0 1-4 4"/><path d="M7 5H5a2 2 0 0 0-2 2 4 4 0 0 0 4 4"/></svg>
+        </span>
+        Hall of Fame
+        <span class="soon-tag">Segera</span>
+      </span>
     </nav>
 
     <button class="logout-mini" onclick="logout()">Logout</button>

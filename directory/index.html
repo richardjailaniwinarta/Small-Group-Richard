@@ -860,7 +860,7 @@
     </button>
   </div>
   <div class="header-tag">Small Group Richard Internal</div>
-  <h1><span>B34</span> Directory</h1>
+  <h1><span id="batchLabelHeader">B34</span> Directory</h1>
   <p class="header-sub">Directory ini, Berisi semua hal yang penting yang mendukung jalan nya SGB VA Course. <br> Khusus Small Group Richard!!</p>
   <div class="header-meta">
   </div>
@@ -959,9 +959,26 @@
 
 <script src="../shared/auth.js"></script>
 <script>
-// ============ KONFIGURASI PROXY ============
-const API_URL_B64 = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4T2ZOaTVtcG9vTzVBRVkwa0hid0ZGS180cVN2UDJkQnJyVkNlYjlraHd1eTdUbFRaRDYzUWd3ZHEwREp1VHZid1MvZXhlYw==';
-const API_URL = atob(API_URL_B64);
+// ============ KONFIGURASI PROXY (per Batch) ============
+// Tiap Batch punya Sheet & Apps Script sendiri-sendiri.
+// URL disimpan dalam base64 (bukan enkripsi, cuma menyamarkan dari sekilas pandang).
+const BATCH_API_URLS_B64 = {
+  '34': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4T2ZOaTVtcG9vTzVBRVkwa0hid0ZGS180cVN2UDJkQnJyVkNlYjlraHd1eTdUbFRaRDYzUWd3ZHEwREp1VHZid1MvZXhlYw==',
+  '35': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T0RySG54bXBkdm9qVi1sVnFMVlJCQ09VdHNxNUcwS0FoX2liamxIQ1RrdHdyRDB3MTBmUjJjTXdYUlZhY0oxaVVqZy9leGVj',
+};
+
+// Ditentukan saat runtime, sesuai Batch student yang login (lihat boot() di bawah)
+let API_URL = null;
+
+function resolveApiUrlForBatch(batch) {
+  const key = String(batch || '').trim();
+  const encoded = BATCH_API_URLS_B64[key];
+  if (!encoded) {
+    console.warn('Tidak ada API_URL untuk Batch "' + key + '", pakai default Batch 34');
+    return atob(BATCH_API_URLS_B64['34']);
+  }
+  return atob(encoded);
+}
 
 function parseCSVRaw(raw) {
   const result = [];
@@ -1516,7 +1533,9 @@ document.getElementById('searchInput').addEventListener('input', applyFilters);
 
   document.getElementById('studentNameText').textContent = session.nama;
   document.getElementById('studentNameBadge').classList.add('visible');
+  document.getElementById('batchLabelHeader').textContent = 'B' + session.batch;
 
+  API_URL = resolveApiUrlForBatch(session.batch); // pilih Sheet/Apps Script sesuai Batch student ini
   loadData();
 })();
 </script>
