@@ -463,15 +463,17 @@
       }
       if (taskService && skipList.includes(taskService)) continue;
 
-      const scoreRaw = row[idx];
-      const flag = (row[idx + 1] || "").toString().trim().toUpperCase();
+      // PENTING: "selesai" ditentukan dari ADA/TIDAKNYA skor — sama persis
+      // dengan cara Task Tracker menghitung (bukan dari kolom Status TRUE/FALSE
+      // terpisah, yang bisa saja lupa di-update walau skor sudah diisi).
+      const scoreRaw = (row[idx] || "").toString().trim();
 
-      if (flag === "TRUE") {
+      if (!scoreRaw || scoreRaw === "0") {
+        pending++;
+      } else {
         completed++;
         const score = parseFloat(scoreRaw);
         if (!isNaN(score)) totalScore += score;
-      } else if (flag === "FALSE") {
-        pending++;
       }
     }
 
