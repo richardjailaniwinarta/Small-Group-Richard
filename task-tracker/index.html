@@ -370,6 +370,7 @@
     .stat-green .stat-num { color: var(--success); }
     .stat-red .stat-num   { color: var(--danger); }
     .stat-gray .stat-num  { color: var(--skip); }
+    .stat-blue .stat-num  { color: var(--accent2); }
 
     /* ── TASK LIST ── */
     .section-heading {
@@ -560,7 +561,9 @@ const NON_TASK_COLS = [
   "Students Name",
   "SA Name",
   "Package",
-  "Chosen Highlight Service"
+  "Chosen Highlight Service",
+  "Total Score",
+  "Completion Rate"
 ];
 
 // 
@@ -734,7 +737,11 @@ function renderResult(s, el) {
     </div>`;
   }).filter(Boolean).join("");
 
-  const pct     = total > 0 ? Math.round((done / total) * 100) : 0;
+  // Diambil langsung dari kolom "Completion Rate" & "Total Score" di Sheet — tidak dihitung ulang.
+  const pctRaw   = (s["Completion Rate"] || "0").toString().trim();
+  const pct      = Math.round((parseFloat(pctRaw.replace("%", "").trim()) || 0) * 10) / 10;
+  const totalScoreRaw = (s["Total Score"] || "0").toString().trim();
+  const totalScore    = parseFloat(totalScoreRaw.replace(/[^0-9.\-]/g, "")) || 0;
   const initStr = initials(name);
 
   const hlBadge = highlight
@@ -764,6 +771,10 @@ function renderResult(s, el) {
         <div class="stat-card stat-red">
           <div class="stat-num">${miss}</div>
           <div class="stat-lbl">Belum</div>
+        </div>
+        <div class="stat-card stat-blue">
+          <div class="stat-num">${totalScore.toLocaleString("id-ID")}</div>
+          <div class="stat-lbl">Total Score</div>
         </div>
         <!-- <div class="stat-card stat-gray">
           <div class="stat-num">${skip}</div>

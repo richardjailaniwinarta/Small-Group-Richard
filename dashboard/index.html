@@ -385,7 +385,9 @@
   const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRr6-XZsGCIoKV_42xhBzt6lzyA8TiothqCv1BXOr89Pt8hJsT1j5pCToTZicf5uwL13IEkMH47cORX/pub?output=csv";
   const PORTFOLIO_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRr6-XZsGCIoKV_42xhBzt6lzyA8TiothqCv1BXOr89Pt8hJsT1j5pCToTZicf5uwL13IEkMH47cORX/pub?gid=758194686&single=true&output=csv";
 
-  const MASTER_TASK_START_COL = 6;   // kolom index tempat data task dimulai
+  const MASTER_TOTAL_SCORE_COL = 6;      // kolom "Total Score" (sudah dihitung di Sheet)
+  const MASTER_COMPLETION_RATE_COL = 7;  // kolom "Completion Rate" (sudah dihitung di Sheet, format "66.67%")
+  const MASTER_TASK_START_COL = 8;   // kolom index tempat data task dimulai (geser +2 karena ada 2 kolom baru)
   const MASTER_TASK_COUNT = 49;      // jumlah task (triplet Score/Status/Alasan)
   const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di sheet Portfolio Status
   const TOTAL_MAX_SCORE = 5400;      // skor maksimum untuk status "Full Score"
@@ -445,10 +447,12 @@
     return null;
   }
 
+  // Hanya menghitung JUMLAH task selesai/belum (untuk teks "X dari Y task") —
+  // Total Score dan % Completion TIDAK dihitung ulang di sini lagi, tapi diambil
+  // langsung dari kolom "Total Score" & "Completion Rate" di Sheet (lihat readTotalScore/readCompletionRate).
   function computeTaskStats(row, headerRow, highlightService) {
     let completed = 0;
     let pending = 0;
-    let totalScore = 0;
     const skipList = HIGHLIGHT_SKIP[highlightService] || [];
 
     for (let t = 0; t < MASTER_TASK_COUNT; t++) {
@@ -463,26 +467,29 @@
       }
       if (taskService && skipList.includes(taskService)) continue;
 
-      // PENTING: "selesai" ditentukan dari ADA/TIDAKNYA skor — sama persis
-      // dengan cara Task Tracker menghitung (bukan dari kolom Status TRUE/FALSE
-      // terpisah, yang bisa saja lupa di-update walau skor sudah diisi).
       const scoreRaw = (row[idx] || "").toString().trim();
-
       if (!scoreRaw || scoreRaw === "0") {
         pending++;
       } else {
         completed++;
-        const score = parseFloat(scoreRaw);
-        if (!isNaN(score)) totalScore += score;
       }
     }
 
-    const applicable = completed + pending;
-    // dibulatkan ke 1 desimal dengan aman (hindari 27.799999999999997)
-    const completedPct = applicable > 0 ? Math.round((completed / applicable) * 1000) / 10 : 0;
-    const pendingPct = applicable > 0 ? Math.round((pending / applicable) * 1000) / 10 : 0;
+    return { completed, pending };
+  }
 
-    return { completed, pending, completedPct, pendingPct, totalScore };
+  // Ambil langsung dari kolom "Total Score" di Sheet — tidak dihitung ulang.
+  function readTotalScore(row) {
+    const raw = (row[MASTER_TOTAL_SCORE_COL] || "0").toString().trim();
+    const num = parseFloat(raw.replace(/[^0-9.\-]/g, ""));
+    return isNaN(num) ? 0 : num;
+  }
+
+  // Ambil langsung dari kolom "Completion Rate" di Sheet (format "66.67%") — tidak dihitung ulang.
+  function readCompletionRate(row) {
+    const raw = (row[MASTER_COMPLETION_RATE_COL] || "0").toString().trim();
+    const num = parseFloat(raw.replace("%", "").trim());
+    return isNaN(num) ? 0 : Math.round(num * 10) / 10;
   }
 
   function titleCaseService(raw) {
@@ -675,7 +682,10 @@
       const hidsRaw = masterRow[4]; // kolom "Chosen Highlight Service"
       const hidsTrim = (hidsRaw || "").toString().trim();
       const highlightCanonical = HIGHLIGHT_CANONICAL[hidsTrim] || HIGHLIGHT_CANONICAL[hidsTrim.toUpperCase()] || hidsTrim;
-      const { completed, pending, completedPct, pendingPct, totalScore } = computeTaskStats(masterRow, masterRows[1], highlightCanonical);
+      const { completed, pending } = computeTaskStats(masterRow, masterRows[1], highlightCanonical);
+      const totalScore = readTotalScore(masterRow);
+      const completedPct = readCompletionRate(masterRow);
+      const pendingPct = Math.round((100 - completedPct) * 10) / 10;
 
       const portfolioRow = findStudentRow(portfolioRows, session.studentId);
       const portfolioStatus = portfolioRow ? portfolioRow[PORTFOLIO_STATUS_COL] : "";
