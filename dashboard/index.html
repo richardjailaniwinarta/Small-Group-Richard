@@ -390,6 +390,33 @@
   const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di sheet Portfolio Status
   const TOTAL_MAX_SCORE = 5400;      // skor maksimum untuk status "Full Score"
 
+  // Sama persis dengan yang dipakai di Task Tracker — supaya kedua halaman
+  // menghitung completion rate dengan cara yang konsisten (skip task di luar track siswa)
+  const SERVICE_KEYWORDS = [
+    { keyword: /\bEM\b/i,           service: "Email Marketing" },
+    { keyword: /\bLG\b/i,           service: "Lead Generation" },
+    { keyword: /\bSMM\b/i,          service: "Social Media Management" },
+    { keyword: /Email.*Marketing/i, service: "Email Marketing" },
+    { keyword: /Lead.*Gen/i,        service: "Lead Generation" },
+    { keyword: /Social.*Media/i,    service: "Social Media Management" },
+  ];
+
+  const HIGHLIGHT_CANONICAL = {
+    "LEAD GENERATION":         "Lead Generation",
+    "EMAIL MARKETING":         "Email Marketing",
+    "SMM":                     "Social Media Management",
+    "SOCIAL MEDIA MANAGEMENT": "Social Media Management",
+    "Lead Generation":         "Lead Generation",
+    "Email Marketing":         "Email Marketing",
+    "Social Media Management": "Social Media Management",
+  };
+
+  const HIGHLIGHT_SKIP = {
+    "Lead Generation":         ["Email Marketing", "Social Media Management"],
+    "Email Marketing":         ["Lead Generation", "Social Media Management"],
+    "Social Media Management": ["Lead Generation", "Email Marketing"],
+  };
+
   const ICONS = {
     check: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
     clock: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>`,
@@ -418,13 +445,24 @@
     return null;
   }
 
-  function computeTaskStats(row) {
+  function computeTaskStats(row, headerRow, highlightService) {
     let completed = 0;
     let pending = 0;
     let totalScore = 0;
+    const skipList = HIGHLIGHT_SKIP[highlightService] || [];
 
     for (let t = 0; t < MASTER_TASK_COUNT; t++) {
       const idx = MASTER_TASK_START_COL + t * 3;
+
+      // Lewati task yang bukan milik track Highlight Service siswa ini —
+      // sama seperti yang dilakukan Task Tracker, supaya angkanya konsisten
+      const headerLabel = (headerRow && headerRow[idx]) || "";
+      let taskService = null;
+      for (const { keyword, service } of SERVICE_KEYWORDS) {
+        if (keyword.test(headerLabel)) { taskService = service; break; }
+      }
+      if (taskService && skipList.includes(taskService)) continue;
+
       const scoreRaw = row[idx];
       const flag = (row[idx + 1] || "").toString().trim().toUpperCase();
 
@@ -633,7 +671,9 @@
       }
 
       const hidsRaw = masterRow[4]; // kolom "Chosen Highlight Service"
-      const { completed, pending, completedPct, pendingPct, totalScore } = computeTaskStats(masterRow);
+      const hidsTrim = (hidsRaw || "").toString().trim();
+      const highlightCanonical = HIGHLIGHT_CANONICAL[hidsTrim] || HIGHLIGHT_CANONICAL[hidsTrim.toUpperCase()] || hidsTrim;
+      const { completed, pending, completedPct, pendingPct, totalScore } = computeTaskStats(masterRow, masterRows[1], highlightCanonical);
 
       const portfolioRow = findStudentRow(portfolioRows, session.studentId);
       const portfolioStatus = portfolioRow ? portfolioRow[PORTFOLIO_STATUS_COL] : "";
