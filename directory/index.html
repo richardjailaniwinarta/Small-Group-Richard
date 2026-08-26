@@ -959,15 +959,11 @@
 
 <script src="../shared/auth.js"></script>
 <script>
-// ============ KONFIGURASI PROXY (per Batch) ============
-// Tiap Batch punya Sheet & Apps Script sendiri-sendiri.
-// URL disimpan dalam base64 (bukan enkripsi, cuma menyamarkan dari sekilas pandang).
 const BATCH_API_URLS_B64 = {
   '34': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4T2ZOaTVtcG9vTzVBRVkwa0hid0ZGS180cVN2UDJkQnJyVkNlYjlraHd1eTdUbFRaRDYzUWd3ZHEwREp1VHZid1MvZXhlYw==',
   '35': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T0RySG54bXBkdm9qVi1sVnFMVlJCQ09VdHNxNUcwS0FoX2liamxIQ1RrdHdyRDB3MTBmUjJjTXdYUlZhY0oxaVVqZy9leGVj',
 };
 
-// Ditentukan saat runtime, sesuai Batch student yang login (lihat boot() di bawah)
 let DIRECTORY_API_URL = null;
 
 function resolveApiUrlForBatch(batch) {
@@ -1013,7 +1009,6 @@ let tasks = [];
 
 // ============ FETCH DATA ============
 async function loadData() {
-  // Tampilkan loading state
   document.getElementById('scheduleContent').innerHTML = `
     <div class="empty-state">
       <div class="loading-spinner"></div>
@@ -1021,7 +1016,12 @@ async function loadData() {
     </div>`;
 
   try {
-    const res = await fetch(`${DIRECTORY_API_URL}?action=data`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 detik timeout
+
+    const res = await fetch(`${DIRECTORY_API_URL}?action=data`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
     const json = await res.json();
 
     if (json.error) {
@@ -1031,6 +1031,7 @@ async function loadData() {
     tasks = json.rows || [];
     renderAll();
   } catch (err) {
+    const isTimeout = err.name === 'AbortError';
     document.getElementById('scheduleContent').innerHTML = `
       <div class="empty-state">
         <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -1038,7 +1039,7 @@ async function loadData() {
         </svg>
         <div style="color:var(--error-color);font-weight:600;margin-top:8px">Gagal memuat data</div>
         <div style="font-size:12px;margin-top:6px;max-width:400px">
-          ${err.message || 'Silakan login ulang.'}<br>
+          ${isTimeout ? 'Server terlalu lama merespons (timeout).' : (err.message || 'Silakan login ulang.')}<br>
           <a href="#" onclick="location.reload()" style="color:var(--accent);text-decoration:none">🔄 Muat ulang halaman</a>
         </div>
       </div>`;
@@ -1046,6 +1047,62 @@ async function loadData() {
   }
 }
 
+const CLIENT_CACHE_KEY = 'directory_cache_' + (DIRECTORY_API_URL || '');
+const CLIENT_CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit, samakan dengan TTL CacheService di Apps Script
+
+async function loadData() {
+  // Coba pakai cache browser dulu
+  try {
+    const cached = sessionStorage.getItem(CLIENT_CACHE_KEY);
+    if (cached) {
+      const { data, ts } = JSON.parse(cached);
+      if (Date.now() - ts < CLIENT_CACHE_TTL_MS) {
+        tasks = data;
+        renderAll();
+        return; // langsung tampil, tidak perlu fetch
+      }
+    }
+  } catch (e) { /* cache tidak valid, lanjut fetch normal */ }
+
+  document.getElementById('scheduleContent').innerHTML = `
+    <div class="empty-state">
+      <div class="loading-spinner"></div>
+      <div style="margin-top:12px">Memuat data...</div>
+    </div>`;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+    const res = await fetch(`${DIRECTORY_API_URL}?action=data`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+
+    tasks = json.rows || [];
+
+    try {
+      sessionStorage.setItem(CLIENT_CACHE_KEY, JSON.stringify({ data: tasks, ts: Date.now() }));
+    } catch (e) { /* storage penuh/tidak tersedia, abaikan saja */ }
+
+    renderAll();
+  } catch (err) {
+    const isTimeout = err.name === 'AbortError';
+    document.getElementById('scheduleContent').innerHTML = `
+      <div class="empty-state">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div style="color:var(--error-color);font-weight:600;margin-top:8px">Gagal memuat data</div>
+        <div style="font-size:12px;margin-top:6px;max-width:400px">
+          ${isTimeout ? 'Server terlalu lama merespons (timeout).' : (err.message || 'Silakan login ulang.')}<br>
+          <a href="#" onclick="location.reload()" style="color:var(--accent);text-decoration:none">🔄 Muat ulang halaman</a>
+        </div>
+      </div>`;
+    console.error('Error loading data:', err);
+  }
+}
 
 // ============ PARSE DATA (LEGACY) ============
 function _legacyParse(raw) {
