@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B34 SG Richard — Directory</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf8ea;
+    --surface: #ffffff;
+    --surface2: #fbf0c8;
+    --border: #e6d9a3;
+    --accent: #e8730e;
+    --accent-rgb: 232,115,14;
+    --accent2: #485d7c;
+    --accent2-rgb: 72,93,124;
+    --accent3: #b8860f;
+    --accent3-rgb: 184,134,15;
+    --text: #393840;
+    --text-muted: #6b6a72;
+    --text-muted-rgb: 107,106,114;
+    --text-dim: #a09c8e;
+    --week0: #e8730e; --week0-rgb: 232,115,14;
+    --week1: #b8860f; --week1-rgb: 184,134,15;
+    --week2: #2f8f6e; --week2-rgb: 47,143,110;
+    --week3: #485d7c; --week3-rgb: 72,93,124;
+    --week4: #7a5299; --week4-rgb: 122,82,153;
+    --week5: #c14f7a; --week5-rgb: 193,79,122;
+    --week6: #2a8f94; --week6-rgb: 42,143,148;
+    --week7: #c7981a; --week7-rgb: 199,152,26;
+    --course: #485d7c; --course-rgb: 72,93,124;
+    --product: #7a5299; --product-rgb: 122,82,153;
+    --community: #2a8f94; --community-rgb: 42,143,148;
+    --sa: #e8730e; --sa-rgb: 232,115,14;
+    --shadow-rgb: 57,56,64;
+    --error-color: #c0392b;
+    --header-grad-1: #fdf8ea;
+    --header-grad-2: #f9ecc4;
+    --recording-grad-1: #e8730e;
+    --recording-grad-2: #f2954a;
+    --all-week-dot: #393840;
+    --link-canva: #c1447a; --link-canva-rgb: 193,68,122;
+    --link-google: #4285f4; --link-google-rgb: 66,133,244;
+    --link-zoom: #2d8cff; --link-zoom-rgb: 45,140,255;
+    --link-default: #485d7c; --link-default-rgb: 72,93,124;
+    --toggle-icon: "🌙";
+  }
+
+  [data-theme="dark"] {
+    --bg: #0a0d14;
+    --surface: #111520;
+    --surface2: #171d2e;
+    --border: #1f2942;
+    --accent: #4f7fff;
+    --accent-rgb: 79,127,255;
+    --accent2: #7c5cfc;
+    --accent2-rgb: 124,92,252;
+    --accent3: #00d4aa;
+    --accent3-rgb: 0,212,170;
+    --text: #e8edf8;
+    --text-muted: #6e7fa8;
+    --text-muted-rgb: 110,127,168;
+    --text-dim: #3d4d70;
+    --week0: #ff7c5c; --week0-rgb: 255,124,92;
+    --week1: #ffc85c; --week1-rgb: 255,200,92;
+    --week2: #5cffb8; --week2-rgb: 92,255,184;
+    --week3: #5cc8ff; --week3-rgb: 92,200,255;
+    --week4: #b85cff; --week4-rgb: 184,92,255;
+    --week5: #ff5cad; --week5-rgb: 255,92,173;
+    --week6: #5cffff; --week6-rgb: 92,255,255;
+    --week7: #ffff5c; --week7-rgb: 255,255,92;
+    --course: #4f7fff; --course-rgb: 79,127,255;
+    --product: #7c5cfc; --product-rgb: 124,92,252;
+    --community: #00d4aa; --community-rgb: 0,212,170;
+    --sa: #ff7c5c; --sa-rgb: 255,124,92;
+    --shadow-rgb: 0,0,0;
+    --error-color: #ff7c5c;
+    --header-grad-1: #0a0d14;
+    --header-grad-2: #111828;
+    --recording-grad-1: #ff4d4d;
+    --recording-grad-2: #ff7c5c;
+    --all-week-dot: #4f7fff;
+    --link-canva: #ff6b6b; --link-canva-rgb: 255,107,107;
+    --link-google: #4285f4; --link-google-rgb: 66,133,244;
+    --link-zoom: #2d8cff; --link-zoom-rgb: 45,140,255;
+    --link-default: #4f7fff; --link-default-rgb: 79,127,255;
+    --toggle-icon: "☀️";
+  }
+
+  body { transition: background 0.2s, color 0.2s; }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    padding: 48px 48px 15px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    background: linear-gradient(135deg, var(--header-grad-1) 0%, var(--header-grad-2) 100%);
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(var(--accent-rgb),0.14) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: 30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(var(--accent2-rgb),0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: rgba(var(--accent-rgb),0.1);
+    border: 1px solid rgba(var(--accent-rgb),0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+  h1 span { color: var(--accent); }
+  .header-sub {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 300;
+  }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .meta-chip span {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .meta-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent3);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* HEADER ACTIONS */
+  .header-actions {
+    position: absolute;
+    top: 24px; right: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 2;
+  }
+  .student-name-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 14px;
+    white-space: nowrap;
+  }
+  .student-name-badge.visible { display: flex; }
+  .student-name-badge .badge-welcome {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+  .student-name-badge span {
+    white-space: nowrap;
+  }
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px 6px 6px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--text); }
+  .theme-toggle-icon {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+  @media (max-width: 900px) {
+    .header-actions { top: 16px; right: 16px; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100vw - 32px); }
+    .theme-toggle { padding: 5px 10px 5px 5px; }
+    .theme-toggle-label { display: none; }
+    .student-name-badge { font-size: 11.5px; padding: 6px 10px; }
+    .student-name-badge .badge-welcome { display: none; }
+  }
+
+  /* LAYOUT */
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 180px);
+  }
+
+  /* SIDEBAR */
+  aside {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 180px);
+    overflow-y: auto;
+  }
+  aside::-webkit-scrollbar { width: 4px; }
+  aside::-webkit-scrollbar-track { background: transparent; }
+  aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .sidebar-section {
+    padding: 0 16px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 8px;
+    margin-bottom: 10px;
+  }
+
+  .week-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 10px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-align: left;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .week-btn:hover { background: var(--surface2); color: var(--text); }
+  .week-btn.active { background: var(--surface2); color: var(--text); }
+  .week-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .week-count {
+    margin-left: auto;
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .week-btn.active .week-count { background: rgba(var(--accent-rgb),0.15); color: var(--accent); }
+
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-align: left;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .filter-btn:hover { background: var(--surface2); color: var(--text); }
+  .filter-btn.active { background: var(--surface2); color: var(--text); }
+  .dept-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* TABS */
+  .tab-area {
+    display: flex;
+    flex-direction: column;
+  }
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .tab-btn {
+    padding: 16px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    white-space: nowrap;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SEARCH */
+  .search-bar {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .search-input-wrap {
+    position: relative;
+    max-width: 480px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+  #searchInput {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px 10px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  #searchInput:focus { border-color: var(--accent); }
+  #searchInput::placeholder { color: var(--text-dim); }
+
+  /* MAIN CONTENT */
+  .content {
+    padding: 28px 32px;
+    overflow-y: auto;
+  }
+
+  /* ---- TAB: SCHEDULE ---- */
+  .week-section { margin-bottom: 40px; }
+  .week-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .week-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .week-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .week-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* TASK CARDS */
+  .task-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+  }
+  .task-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .task-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+  .task-card:hover { border-color: rgba(var(--accent-rgb),0.35); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(var(--shadow-rgb),0.2); }
+  .task-card:hover::before { opacity: 1; }
+  .task-card.expanded { border-color: rgba(var(--accent-rgb),0.4); background: var(--surface2); }
+  .task-card.expanded::before { opacity: 1; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .task-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-dim);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .task-content {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .day-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .day-tag svg { opacity: 0.5; }
+  .dept-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+  }
+  .time-tag {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .has-links-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--accent3);
+    background: rgba(var(--accent3-rgb),0.1);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(var(--accent3-rgb),0.2);
+  }
+  .has-updates-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--accent2);
+    background: rgba(var(--accent2-rgb),0.1);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(var(--accent2-rgb),0.2);
+  }
+
+  /* EXPANDED CARD DETAIL */
+  .card-detail {
+    display: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .task-card.expanded .card-detail { display: block; }
+  .detail-section {
+    margin-bottom: 14px;
+  }
+  .detail-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 7px;
+  }
+  .detail-value {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .link-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .link-item:hover { border-color: var(--accent); }
+  .link-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .link-text {
+    flex: 1;
+  }
+  .link-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    display: block;
+    line-height: 1.3;
+  }
+  .link-url {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 280px;
+  }
+  .link-arrow {
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .link-item:hover .link-name { color: var(--accent); }
+  .link-item:hover .link-arrow { color: var(--accent); }
+
+  .update-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+    align-items: center;
+  }
+  .update-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ref-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 5px 11px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+  .ref-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+  .recording-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+    background: linear-gradient(135deg, var(--recording-grad-1), var(--recording-grad-2));
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .recording-btn:hover { opacity: 0.85; }
+
+
+  /* ---- TAB: UPDATES ---- */
+  .updates-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .updates-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .updates-panel-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .updates-panel-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .updates-panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .update-row {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: background 0.15s;
+  }
+  .update-row:last-child { border-bottom: none; }
+  .update-row:hover { background: var(--surface2); }
+  .update-row-num {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .update-row-body { flex: 1; }
+  .update-row-task {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .update-row-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .update-row-week {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ---- TAB: CHANGES LOG ---- */
+  .changelog-list { max-width: 680px; }
+  .changelog-item {
+    display: flex;
+    gap: 20px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .changelog-item:last-child { border-bottom: none; }
+  .changelog-date {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 70px;
+    padding-top: 2px;
+  }
+  .changelog-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 5px;
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb),0.15);
+  }
+  .changelog-body { flex: 1; }
+  .changelog-task { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+  .changelog-change { font-size: 14px; font-weight: 500; color: var(--text); }
+
+  /* Utilities */
+  .hidden { display: none !important; }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  .empty-state svg { margin-bottom: 12px; opacity: 0.3; }
+
+  @media (max-width: 900px) {
+    .app { grid-template-columns: 1fr; }
+    aside { display: none; }
+    header { padding: 28px 20px 24px; }
+    .content { padding: 20px; }
+    .tab-bar { padding: 0 16px; overflow-x: auto; }
+    .task-grid { grid-template-columns: 1fr; }
+    .updates-layout { grid-template-columns: 1fr; }
+  }
+
+  /* Scrollbar */
+  .content::-webkit-scrollbar { width: 5px; }
+  .content::-webkit-scrollbar-track { background: transparent; }
+  .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+
+  /* Loading */
+  .loading-spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---- FOOTER STYLING ---- */
+  footer {
+    text-align: center;
+    padding: 10px 20px;
+    border-top: 1px solid var(--border);
+    background: linear-gradient(to bottom, transparent, var(--surface2));
+    margin-top: auto;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .footer-text {
+    font-family: 'Hyper Oxide', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .footer-link {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.15s;
+    font-size: 12px;
+  }
+  .footer-link:hover {
+    color: var(--text);
+    text-decoration: underline;
+  }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-actions">
+    <a href="../dashboard/index.html" class="theme-toggle" style="text-decoration:none;">
+      <span class="theme-toggle-icon">🏠</span>
+      <span class="theme-toggle-label">Dashboard</span>
+    </a>
+    <div class="student-name-badge" id="studentNameBadge">
+      <span class="badge-welcome">Halo,</span>
+      <span id="studentNameText">...</span>
+    </div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+      <span class="theme-toggle-icon" id="themeToggleIcon">🌙</span>
+      <span class="theme-toggle-label" id="themeToggleLabel">Mode Gelap</span>
+    </button>
+    <button class="theme-toggle" onclick="logout()">
+      <span class="theme-toggle-icon">🚪</span>
+      <span class="theme-toggle-label">Logout</span>
+    </button>
+  </div>
+  <div class="header-tag">Small Group Richard Internal</div>
+  <h1><span>B34</span> Directory</h1>
+  <p class="header-sub">Directory ini, Berisi semua hal yang penting yang mendukung jalan nya SGB VA Course. <br> Khusus Small Group Richard!!</p>
+  <div class="header-meta">
+  </div>
+</header>
+
+<div class="app">
+  <aside>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Filter by Week</div>
+      <button class="week-btn active" onclick="filterWeek('all')" id="btn-all">
+        <span class="week-dot" style="background:var(--all-week-dot)"></span>
+        All Weeks
+        <span class="week-count" id="cnt-all">0</span>
+      </button> <button class="week-btn" onclick="filterWeek('Week 1')" id="btn-w1">
+        <span class="week-dot" style="background:var(--week1)"></span>
+        Week 1
+        <span class="week-count" id="cnt-w1">0</span>
+      </button>
+      <button class="week-btn" onclick="filterWeek('Week 2')" id="btn-w2">
+        <span class="week-dot" style="background:var(--week2)"></span>
+        Week 2
+        <span class="week-count" id="cnt-w2">0</span>
+      </button>
+      <button class="week-btn" onclick="filterWeek('Week 3')" id="btn-w3">
+        <span class="week-dot" style="background:var(--week3)"></span>
+        Week 3
+        <span class="week-count" id="cnt-w3">0</span>
+      </button>
+      <button class="week-btn" onclick="filterWeek('Week 4')" id="btn-w4">
+        <span class="week-dot" style="background:var(--week4)"></span>
+        Week 4
+        <span class="week-count" id="cnt-w4">0</span>
+      </button>
+      <button class="week-btn" onclick="filterWeek('Week 5')" id="btn-w5">
+        <span class="week-dot" style="background:var(--week5)"></span>
+        Week 5
+        <span class="week-count" id="cnt-w5">0</span>
+      </button>
+      <button class="week-btn" onclick="filterWeek('Week 6')" id="btn-w6">
+        <span class="week-dot" style="background:var(--week6)"></span>
+        Week 6
+        <span class="week-count" id="cnt-w6">0</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="tab-area">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('schedule')">📋 Home</button>
+      <!-- <button class="tab-btn" onclick="switchTab('links')">🔗 Useful Links</button> -->
+    </div>
+
+    <div class="search-bar" id="searchBar">
+      <div class="search-input-wrap">
+        <svg class="search-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search for File">
+      </div>
+    </div>
+
+    <div class="content" id="tab-schedule">
+      <div id="scheduleContent"></div>
+    </div>
+
+    <div class="content hidden" id="tab-links">
+      <div id="linksContent"></div>
+    </div>
+
+    <div class="content hidden" id="tab-updates">
+      <div class="updates-layout">
+        <div class="updates-panel">
+          <div class="updates-panel-header">
+            <div class="updates-panel-icon" style="background:rgba(var(--product-rgb),0.15)">
+              <svg width="16" height="16" fill="none" stroke="var(--product)" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="updates-panel-title">Updates from Product Team</div>
+          </div>
+          <div id="productUpdatesContent"></div>
+        </div>
+        <div class="updates-panel">
+          <div class="updates-panel-header">
+            <div class="updates-panel-icon" style="background:rgba(var(--community-rgb),0.15)">
+              <svg width="16" height="16" fill="none" stroke="var(--community)" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="updates-panel-title">Updates from Other Dept</div>
+          </div>
+          <div id="otherUpdatesContent"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content hidden" id="tab-changelog">
+      <div class="changelog-list" id="changelogContent"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../shared/auth.js"></script>
+<script>
+// ============ KONFIGURASI PROXY ============
+const API_URL_B64 = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4T2ZOaTVtcG9vTzVBRVkwa0hid0ZGS180cVN2UDJkQnJyVkNlYjlraHd1eTdUbFRaRDYzUWd3ZHEwREp1VHZid1MvZXhlYw==';
+const API_URL = atob(API_URL_B64);
+
+function parseCSVRaw(raw) {
+  const result = [];
+  let currentRow = [];
+  let currentCell = '';
+  let inQuotes = false;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    const nextCh = raw[i + 1];
+    if (ch === '"') {
+      if (inQuotes && nextCh === '"') { currentCell += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === ',' && !inQuotes) {
+      currentRow.push(currentCell.trim()); currentCell = '';
+    } else if ((ch === '\r' || ch === '\n') && !inQuotes) {
+      if (ch === '\r' && nextCh === '\n') i++;
+      currentRow.push(currentCell.trim());
+      if (currentRow.some(v => v !== '')) result.push(currentRow);
+      currentRow = []; currentCell = '';
+    } else {
+      currentCell += ch;
+    }
+  }
+  if (currentCell !== '' || currentRow.length > 0) {
+    currentRow.push(currentCell.trim());
+    if (currentRow.some(v => v !== '')) result.push(currentRow);
+  }
+  return result;
+}
+
+let tasks = [];
+
+// ============ FETCH DATA ============
+async function loadData() {
+  // Tampilkan loading state
+  document.getElementById('scheduleContent').innerHTML = `
+    <div class="empty-state">
+      <div class="loading-spinner"></div>
+      <div style="margin-top:12px">Memuat data...</div>
+    </div>`;
+
+  try {
+    const res = await fetch(`${API_URL}?action=data`);
+    const json = await res.json();
+
+    if (json.error) {
+      throw new Error(json.error);
+    }
+
+    tasks = json.rows || [];
+    renderAll();
+  } catch (err) {
+    document.getElementById('scheduleContent').innerHTML = `
+      <div class="empty-state">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div style="color:var(--error-color);font-weight:600;margin-top:8px">Gagal memuat data</div>
+        <div style="font-size:12px;margin-top:6px;max-width:400px">
+          ${err.message || 'Silakan login ulang.'}<br>
+          <a href="#" onclick="location.reload()" style="color:var(--accent);text-decoration:none">🔄 Muat ulang halaman</a>
+        </div>
+      </div>`;
+    console.error('Error loading data:', err);
+  }
+}
+
+
+// ============ PARSE DATA (LEGACY) ============
+function _legacyParse(raw) {
+  const lines = raw.trim().split('\n');
+  if (lines.length < 2) return [];
+
+  // Parse header row
+  const headers = parseLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''));
+
+  const result = [];
+  for (let i = 1; i < lines.length; i++) {
+    const values = parseLine(lines[i]);
+    if (values.every(v => !v.trim())) continue; // skip baris kosong
+    const row = {};
+    headers.forEach((h, idx) => {
+      row[h] = (values[idx] || '').trim();
+    });
+    if (row.no || row.content) result.push(row);
+  }
+  return result;
+}
+
+// ============ PARSE RECORDS ============
+function parseRecords(raw) {
+  const result = [];
+  let currentRow = [];
+  let currentCell = '';
+  let inQuotes = false;
+  
+  // 
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    const nextCh = raw[i + 1];
+    
+    if (ch === '"') {
+      if (inQuotes && nextCh === '"') {
+        currentCell += '"';
+        i++; // Lewati kutip ganda kedua
+      } else {
+        inQuotes = !inQuotes; // Masuk atau keluar dari mode kutip
+      }
+    } else if (ch === ',' && !inQuotes) {
+      currentRow.push(currentCell.trim());
+      currentCell = '';
+    } else if ((ch === '\r' || ch === '\n') && !inQuotes) {
+      if (ch === '\r' && nextCh === '\n') i++; // Tangani sistem Windows (\r\n)
+      currentRow.push(currentCell.trim());
+      if (currentRow.some(v => v !== '')) {
+        result.push(currentRow);
+      }
+      currentRow = [];
+      currentCell = '';
+    } else {
+      currentCell += ch;
+    }
+  }
+  
+  // 
+  if (currentCell !== '' || currentRow.length > 0) {
+    currentRow.push(currentCell.trim());
+    if (currentRow.some(v => v !== '')) result.push(currentRow);
+  }
+
+  if (result.length < 2) return [];
+
+  // 
+  const headers = result[0].map(h => h.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''));
+  
+  const finalTasks = [];
+  for (let i = 1; i < result.length; i++) {
+    const values = result[i];
+    const row = {};
+    headers.forEach((h, idx) => {
+      row[h] = (values[idx] || '').trim();
+    });
+    if (row.no || row.content) finalTasks.push(row);
+  }
+  
+  return finalTasks;
+}
+
+function renderAll() {
+  renderSchedule(tasks);
+  renderLinks();
+  renderUpdates();
+  renderChangelog();
+  updateSidebarCounts();
+}
+
+function updateSidebarCounts() {
+  const weeks = ['Week 1','Week 2','Week 3','Week 4','Week 5','Week 6'];
+  const allCount = document.getElementById('cnt-all');
+  if (allCount) allCount.textContent = tasks.length;
+  weeks.forEach((w, i) => {
+    const el = document.getElementById(`cnt-w${i+1}`);
+    if (el) el.textContent = tasks.filter(t => t.week === w).length;
+  });
+}
+
+// ============ CONFIGS ============
+const weekColorVars = {
+  'Week 0': 'week0',
+  'Week 1': 'week1',
+  'Week 2': 'week2',
+  'Week 3': 'week3',
+  'Week 4': 'week4',
+  'Week 5': 'week5',
+  'Week 6': 'week6',
+  'Week 7': 'week7'
+};
+const deptColorVars = {
+  'Course': 'course',
+  'Product': 'product',
+  'Community': 'community',
+  'SA': 'sa',
+  'Course Dept': 'course',
+  'Product Dept': 'product'
+};
+const linkIcons = { 'canva': '🎨', 'docs.google': '📄', 'zoom': '🎥', 'portal': '🔐', 'default': '🔗' };
+const dayEmojis = { 'Monday':'Mon','Tuesday':'Tue','Wednesday':'Wed','Thursday':'Thu','Friday':'Fri','Saturday':'Sat','Sunday':'Sun' };
+
+let currentWeek = 'all';
+let currentDept = 'all';
+let expandedCards = new Set();
+let currentTab = 'schedule';
+
+// ============ HELPERS ============
+function getLinkIcon(url) {
+  if (!url) return '🔗';
+  if (url.includes('canva')) return '🎨';
+  if (url.includes('docs.google') || url.includes('forms')) return '📄';
+  if (url.includes('zoom')) return '🎥';
+  if (url.includes('portal')) return '🔐';
+  return '🔗';
+}
+
+
+function getLinkColorVar(url) {
+  if (!url) return 'link-default';
+  if (url.includes('canva')) return 'link-canva';
+  if (url.includes('docs.google') || url.includes('forms')) return 'link-google';
+  if (url.includes('zoom')) return 'link-zoom';
+  if (url.includes('portal')) return 'community';
+  return 'link-default';
+}
+
+// 
+// 
+function badgeStyle(varBase) {
+  return `background:rgba(var(--${varBase}-rgb),0.13);color:var(--${varBase});border:1px solid rgba(var(--${varBase}-rgb),0.27)`;
+}
+
+function parseLinks(str) {
+  if (!str) return [];
+  const lines = str.split('\n').map(s => s.trim()).filter(Boolean);
+  const result = [];
+  let currentName = '';
+  for (const line of lines) {
+    if (line.startsWith('http')) {
+      result.push({ name: currentName || line, url: line });
+      currentName = '';
+    } else {
+      if (currentName) result.push({ name: currentName, url: '' });
+      currentName = line;
+    }
+  }
+  if (currentName) result.push({ name: currentName, url: '' });
+  return result;
+}
+
+function getDeptTag(dept) {
+  if (!dept) return '';
+  const d = dept.replace(' Dept', '');
+  const varBase = deptColorVars[dept] || deptColorVars[d] || 'accent2';
+  return `<span class="dept-tag" style="${badgeStyle(varBase)}">${dept}</span>`;
+}
+
+function getWeekColorVar(week) { return weekColorVars[week] || 'course'; }
+
+// ============ RENDER SCHEDULE ============
+function renderSchedule(filtered) {
+  const container = document.getElementById('scheduleContent');
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><div>Tidak ada File</div></div>`;
+    return;
+  }
+
+  const grouped = {};
+  filtered.forEach(t => {
+    if (!grouped[t.week]) grouped[t.week] = [];
+    grouped[t.week].push(t);
+  });
+
+  const weeks = ['Week 1','Week 2','Week 3','Week 4','Week 5','Week 6','Week 7'];
+  let html = '';
+
+  for (const week of weeks) {
+    if (!grouped[week]) continue;
+    const colorVar = getWeekColorVar(week);
+    html += `<div class="week-section" id="section-${week.replace(' ','')}">
+      <div class="week-header">
+        <span class="week-badge" style="${badgeStyle(colorVar)}">${week}</span>
+        <span class="week-title">${week === 'Week 0' ? 'Preparation' : week === 'Week 7' ? 'Graduation' : `${week.split(' ')[1]}`}</span>
+        <span class="week-line"></span>
+        <span style="font-size:12px;color:var(--text-dim);font-family:'Syne',sans-serif">${grouped[week].length} file</span>
+      </div>
+      <div class="task-grid">`;
+
+    grouped[week].forEach(task => {
+      const links = parseLinks(task.useful_links);
+      const hasLinks = links.length > 0;
+      const hasUpdates = task.product_updates || task.other_dept_updates;
+      const isExpanded = expandedCards.has(task.no);
+
+      html += `<div class="task-card ${isExpanded ? 'expanded' : ''}" id="card-${task.no}" onclick="toggleCard('${task.no}')">
+        <div class="card-top">
+          <span class="task-num">#${task.no}</span>
+          <span class="task-content">${task.content}</span>
+        </div>
+        <div class="card-meta">
+          <span class="day-tag">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            ${task.day}
+          </span>
+          ${task.time ? `<span class="time-tag"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${task.time}</span>` : ''}
+          ${task.department ? getDeptTag(task.department) : ''}
+          ${hasLinks ? `<span class="has-links-badge">🔗 Links</span>` : ''}
+          ${hasUpdates ? `<span class="has-updates-badge">📢 Updates</span>` : ''}
+        </div>
+
+        <div class="card-detail">
+          ${task.remark ? `<div class="detail-section">
+            <div class="detail-label">Remark</div> 
+            <span style="cursor: default; white-space: pre-line; text-align: left; display: inline-block; width: 100%;">📌 ${task.remark}</span>
+          </div>` : ''}
+
+          ${task.recording ? `<div class="detail-section">
+            <div class="detail-label">Recording / Material</div>
+            <a href="${task.recording}" target="_blank" class="recording-btn">
+              <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Open Recording
+            </a>
+          </div>` : ''}
+
+          ${task.pic ? `<div class="detail-section">
+            <div class="detail-label">PIC</div>
+            <div class="detail-value">${getDeptTag(task.pic)}</div>
+          </div>` : ''}
+
+          ${hasLinks ? `<div class="detail-section">
+            <div class="detail-label">Useful Links</div>
+            ${links.map(l => l.url ?
+              `<a href="${l.url}" target="_blank" class="link-item">
+                <div class="link-icon" style="background:rgba(var(--${getLinkColorVar(l.url)}-rgb),0.15)">${getLinkIcon(l.url)}</div>
+                <div class="link-text">
+                  <span class="link-name">${l.name}</span>
+                  <span class="link-url">${l.url}</span>
+                </div>
+                <svg class="link-arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>` :
+              `<div class="link-item" style="cursor:default">
+                <div class="link-icon" style="background:rgba(var(--accent-rgb),0.1)">📌</div>
+                <div class="link-text"><span class="link-name">${l.name}</span></div>
+              </div>`
+            ).join('')}
+          </div>` : ''}
+
+          ${task.product_updates ? `<div class="detail-section">
+            <div class="detail-label">Updates from Product Team</div>
+            <div class="update-item">
+              <span class="update-dot" style="background:var(--product)"></span>
+              <span>${task.product_updates}</span>
+            </div>
+          </div>` : ''}
+
+          ${task.other_dept_updates ? `<div class="detail-section">
+            <div class="detail-label">Updates from Other Dept</div>
+            <div class="update-item">
+              <span class="update-dot" style="background:var(--community)"></span>
+              <span>${task.other_dept_updates}</span>
+            </div>
+          </div>` : ''}
+        </div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ============ RENDER LINKS TAB ============
+function renderLinks() {
+  const container = document.getElementById('linksContent');
+  const allLinks = [];
+
+  tasks.forEach(task => {
+    const links = parseLinks(task.useful_links);
+    links.forEach(l => {
+      if (!allLinks.find(x => x.name === l.name)) {
+        allLinks.push({ ...l, taskNo: task.no, taskContent: task.content, week: task.week });
+      }
+    });
+  });
+
+  const withUrl = allLinks.filter(l => l.url);
+  const withoutUrl = allLinks.filter(l => !l.url);
+
+  let html = `<div class="links-section-title">Direct Links (${withUrl.length})</div>`;
+  html += `<div class="links-grid">`;
+  withUrl.forEach(l => {
+    html += `<a href="${l.url}" target="_blank" class="link-card">
+      <div class="link-card-icon" style="background:rgba(var(--${getLinkColorVar(l.url)}-rgb),0.15);font-size:20px">${getLinkIcon(l.url)}</div>
+      <div class="link-card-body">
+        <span class="link-card-name">${l.name}</span>
+        <span class="link-card-src">${l.url}</span>
+      </div>
+      <svg class="link-card-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </a>`;
+  });
+  html += `</div>`;
+
+  if (withoutUrl.length) {
+    html += `<div class="links-section-title">Documents & Resources (${withoutUrl.length})</div>`;
+    html += `<div class="links-grid">`;
+    withoutUrl.forEach(l => {
+      html += `<div class="link-card" style="cursor:default;opacity:0.7">
+        <div class="link-card-icon" style="background:rgba(var(--text-muted-rgb),0.12);font-size:20px">📌</div>
+        <div class="link-card-body">
+          <span class="link-card-name">${l.name}</span>
+          <span class="link-card-src">Task #${l.taskNo} — ${l.week}</span>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ============ RENDER UPDATES ============
+function renderUpdates() {
+  const prodContainer = document.getElementById('productUpdatesContent');
+  const otherContainer = document.getElementById('otherUpdatesContent');
+
+  const prodUpdates = tasks.filter(t => t.product_updates);
+  const otherUpdates = tasks.filter(t => t.other_dept_updates);
+
+  let prodHtml = '';
+  prodUpdates.forEach(t => {
+    prodHtml += `<div class="update-row">
+      <div class="update-row-num">${t.no}</div>
+      <div class="update-row-body">
+        <div class="update-row-task">${t.week} · ${t.day}</div>
+        <div class="update-row-value">${t.product_updates}</div>
+        <div class="update-row-week">${t.content}</div>
+      </div>
+    </div>`;
+  });
+  prodContainer.innerHTML = prodHtml || `<div class="empty-state" style="padding:30px">Tidak ada update dari Product Team</div>`;
+
+  let otherHtml = '';
+  otherUpdates.forEach(t => {
+    otherHtml += `<div class="update-row">
+      <div class="update-row-num">${t.no}</div>
+      <div class="update-row-body">
+        <div class="update-row-task">${t.week} · ${t.day}</div>
+        <div class="update-row-value">${t.other_dept_updates}</div>
+        <div class="update-row-week">${t.content}</div>
+      </div>
+    </div>`;
+  });
+  otherContainer.innerHTML = otherHtml || `<div class="empty-state" style="padding:30px">Tidak ada update dari dept lain</div>`;
+}
+
+// ============ RENDER CHANGELOG ============
+function renderChangelog() {
+  const container = document.getElementById('changelogContent');
+  const withLog = tasks.filter(t => t.changes_log || t.date);
+
+  let html = '';
+  withLog.forEach(t => {
+    html += `<div class="changelog-item">
+      <div class="changelog-date">${t.date || '—'}</div>
+      <div class="changelog-dot"></div>
+      <div class="changelog-body">
+        <div class="changelog-task">Task #${t.no} — ${t.week}</div>
+        <div class="changelog-change">${t.changes_log || t.content}</div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html || `<div class="empty-state">Tidak ada perubahan yang dicatat</div>`;
+}
+
+// ============ INTERACTIONS ============
+function toggleCard(no) {
+  if (expandedCards.has(no)) expandedCards.delete(no);
+  else expandedCards.add(no);
+  applyFilters();
+}
+
+function filterWeek(week) {
+  currentWeek = week;
+  document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + (week === 'all' ? 'all' : 'w' + week.replace('Week ',''))).classList.add('active');
+  applyFilters();
+}
+
+function filterDept(dept) {
+  currentDept = dept;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('dept-' + dept.toLowerCase().replace(' ','')).classList.add('active');
+  applyFilters();
+}
+
+
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = tasks.filter(t => {
+    const matchWeek = currentWeek === 'all' || t.week === currentWeek;
+    const matchDept = currentDept === 'all' ||
+      t.department === currentDept ||
+      t.pic === currentDept ||
+      t.pic === currentDept + ' Dept' ||
+      t.department === currentDept + ' Dept';
+    
+    const contentText = t.content ? t.content.toLowerCase() : '';
+    const deptText = t.department ? t.department.toLowerCase() : '';
+    const whenText = t.when ? t.when.toLowerCase() : '';
+    const linksText = t.useful_links ? t.useful_links.toLowerCase() : '';
+
+    const matchSearch = !search || 
+      contentText.includes(search) ||
+      deptText.includes(search) ||
+      whenText.includes(search) ||
+      linksText.includes(search);
+    return matchWeek && matchDept && matchSearch;
+  });
+  renderSchedule(filtered);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn')[['schedule','links','updates','changelog'].indexOf(tab)].classList.add('active');
+  document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  document.getElementById('searchBar').style.display = tab === 'schedule' ? '' : 'none';
+}
+
+// ============ THEME TOGGLE ============
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeToggleIcon').textContent = '☀️';
+    document.getElementById('themeToggleLabel').textContent = 'Mode Cerah';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('themeToggleIcon').textContent = '🌙';
+    document.getElementById('themeToggleLabel').textContent = 'Mode Gelap';
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  applyTheme(next);
+  try { localStorage.setItem('b34-theme', next); } catch (e) { /* storage unavailable, theme still applies for this session */ }
+}
+
+function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem('b34-theme'); } catch (e) { /* storage unavailable, default to light */ }
+  applyTheme(saved === 'dark' ? 'dark' : 'light');
+}
+
+// ============ INIT ============
+initTheme();
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+(async function boot() {
+  const session = await checkLogin(); // checkLogin() sudah handle redirect ke login.html kalau gagal
+  if (!session) return;
+
+  document.getElementById('studentNameText').textContent = session.nama;
+  document.getElementById('studentNameBadge').classList.add('visible');
+
+  loadData();
+})();
+</script>
+<footer>
+  <div class="footer-text">Made by Richard</div>
+  <a href="https://www.instagram.com/assistby.rjw/" target="_blank" class="footer-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 5px;">
+      <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+    </svg> @assistby.rjw
+  </a>
+</footer>
+</body>
+</html>
