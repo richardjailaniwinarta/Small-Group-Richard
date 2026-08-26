@@ -545,20 +545,50 @@
   }
 
   function renderError(message) {
-    document.getElementById("dashboardBody").innerHTML = `<div class="state-msg">${message}</div>`;
+    document.getElementById("dashboardBody").innerHTML = `
+      <div class="state-msg">
+        ${message}
+        <div style="margin-top:14px">
+          <button class="logout-btn" style="background:var(--purple-deep)" onclick="init()">Coba Lagi</button>
+        </div>
+      </div>`;
+  }
+
+  function withTimeout(promise, ms, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`${label} timeout setelah ${ms / 1000}s`)), ms)
+      ),
+    ]);
   }
 
   async function init() {
-    const session = await checkLogin();
-    if (!session) return; // checkLogin sudah handle redirect kalau gagal
+    document.getElementById("dashboardBody").innerHTML = `<div class="state-msg">Memuat data kamu...</div>`;
+
+    // Mulai checkLogin() DAN fetch CSV secara BERSAMAAN (bukan berurutan),
+    // supaya total waktu tunggu = proses paling lambat, bukan jumlah semuanya.
+    const sessionPromise = withTimeout(checkLogin(), 15000, "Verifikasi login");
+    const csvPromise = withTimeout(
+      Promise.all([fetchCsvRows(MASTER_CSV_URL), fetchCsvRows(PORTFOLIO_CSV_URL)]),
+      15000,
+      "Ambil data Sheet"
+    );
+
+    let session;
+    try {
+      session = await sessionPromise;
+    } catch (err) {
+      console.error(err);
+      renderError("Gagal verifikasi login (server mungkin lambat merespons). Coba lagi ya.");
+      return;
+    }
+    if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
 
     document.getElementById("studentIdLabel").textContent = session.studentId;
 
     try {
-      const [masterRows, portfolioRows] = await Promise.all([
-        fetchCsvRows(MASTER_CSV_URL),
-        fetchCsvRows(PORTFOLIO_CSV_URL),
-      ]);
+      const [masterRows, portfolioRows] = await csvPromise;
 
       const masterRow = findStudentRow(masterRows, session.studentId);
       if (!masterRow) {
@@ -585,7 +615,7 @@
       });
     } catch (err) {
       console.error(err);
-      renderError("Gagal memuat data. Coba refresh halaman ini.");
+      renderError("Gagal memuat data Sheet (server mungkin lambat merespons). Coba lagi ya.");
     }
   }
 
