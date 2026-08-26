@@ -427,12 +427,46 @@
     target: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="#fff"/></svg>`,
   };
 
-  function fetchRows(url) {
+  // ===== Caching layer (point #1: sessionStorage cache, TTL 5 menit) =====
+  // Tujuannya: kalau user pindah halaman lalu balik lagi ke Dashboard,
+  // atau refresh berkali-kali dalam waktu singkat, data TIDAK ditarik ulang
+  // dari Google Sheets — cukup dibaca dari cache browser (instan).
+  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — silakan ubah kalau mau lebih pendek/panjang
+  const CACHE_PREFIX = "sgr_cache_";
+
+  function getCache(key) {
+    try {
+      const raw = sessionStorage.getItem(CACHE_PREFIX + key);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (Date.now() - parsed.ts > CACHE_TTL_MS) return null; // sudah kadaluarsa
+      return parsed.data;
+    } catch (e) {
+      return null; // sessionStorage error/disabled -> anggap saja tidak ada cache
+    }
+  }
+
+  function setCache(key, data) {
+    try {
+      sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ ts: Date.now(), data }));
+    } catch (e) {
+      // Kalau storage penuh/diblok browser, abaikan saja — tidak fatal, cuma berarti tidak ke-cache.
+    }
+  }
+
+  function fetchRows(url, cacheKey) {
+    if (cacheKey) {
+      const cached = getCache(cacheKey);
+      if (cached) return Promise.resolve(cached); // langsung pakai cache, tidak fetch sama sekali
+    }
     return new Promise((resolve, reject) => {
       Papa.parse(url, {
         download: true,
         skipEmptyLines: false,
-        complete: (results) => resolve(results.data),
+        complete: (results) => {
+          if (cacheKey) setCache(cacheKey, results.data);
+          resolve(results.data);
+        },
         error: (err) => reject(err),
       });
     });
@@ -655,7 +689,7 @@
     // supaya total waktu tunggu = proses paling lambat, bukan jumlah semuanya.
     const sessionPromise = withTimeout(checkLogin(), 15000, "Verifikasi login");
     const dataPromise = withTimeout(
-      Promise.all([fetchRows(_SRC_A), fetchRows(_SRC_B)]),
+      Promise.all([fetchRows(_SRC_A, "master_students"), fetchRows(_SRC_B, "portfolio_status")]),
       15000,
       "Ambil data"
     );
