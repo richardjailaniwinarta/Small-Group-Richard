@@ -1,798 +1,702 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Progress Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — SG Richard Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --cream: #F4EEE3;
+    --panel: #FFFFFF;
+    --ink: #262129;
+    --ink-soft: #6E6875;
+    --purple: #5A3E85;
+    --purple-deep: #4A3170;
+    --purple-glow: #8A6FC2;
+    --teal: #8FD6CE;
+    --teal-deep: #3E9C92;
+    --teal-glow: #6FCFC3;
+    --orange: #E58A4F;
+    --orange-deep: #C96F36;
+    --orange-glow: #F0A465;
+    --line: #ECE5D8;
+    --purple-tint: #ECE6F5;
+    --teal-tint: #E3F5F2;
+    --orange-tint: #FBEEE3;
+    --gold: #B98A2E;
+    --gold-tint: #F5ECD9;
+    --radius-lg: 28px;
+    --radius-md: 18px;
+  }
 
-    :root {
-      --bg:        #0b0e14;
-      --bg2:       #12161f;
-      --bg3:       #1a1f2e;
-      --border:    rgba(255,255,255,0.07);
-      --border2:   rgba(255,255,255,0.13);
-      --text:      #e8eaf0;
-      --muted:     #6b7280;
-      --accent:    #6c63ff;
-      --accent2:   #a78bfa;
-      --success:   #22d3a4;
-      --danger:    #f87171;
-      --warn:      #fbbf24;
-      --skip:      #4b5563;
-      --card:      #141821;
-    }
+  * { box-sizing: border-box; }
 
-    html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+  h1, h2, h3, .display {
+    font-family: 'Fraunces', serif;
+  }
 
-    /* ── GRID BACKGROUND ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-      z-index: 0;
-    }
+  /* decorative background shapes */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .blob-teal { width: 260px; height: 260px; background: var(--teal); opacity: .55; left: -90px; bottom: -90px; }
+  .blob-orange { width: 190px; height: 190px; background: var(--orange); opacity: .5; left: 40px; bottom: -110px; }
 
-    /* ── AMBIENT GLOW ── */
-    .glow {
-      position: fixed;
-      width: 600px; height: 600px;
-      border-radius: 50%;
-      filter: blur(120px);
-      opacity: 0.12;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .glow-1 { background: #6c63ff; top: -200px; left: -100px; }
-    .glow-2 { background: #22d3a4; bottom: -200px; right: -100px; }
+  .shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 40px auto;
+    padding: 40px;
+    background: var(--panel);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 60px -30px rgba(70, 50, 30, 0.18);
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 44px;
+  }
 
-    /* ── LAYOUT ── */
-    .shell {
-      position: relative;
-      z-index: 1;
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 0 20px 80px;
-    }
+  /* Sidebar */
+  .sidebar { display: flex; flex-direction: column; align-items: flex-start; }
+  .logo-mark {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: #FBF8F1;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 30px;
+    padding: 6px;
+  }
+  .logo-mark img { width: 100%; height: 100%; object-fit: contain; }
 
-    /* ── HEADER ── */
-    header {
-      padding: 56px 0 48px;
-      text-align: center;
-    }
+  .avatar {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: var(--purple);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 30px; font-weight: 600;
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .batch-badge {
+    position: absolute;
+    bottom: -10px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .student-name { font-size: 18px; font-weight: 600; margin: 18px 0 2px; }
+  .student-id { font-size: 13px; color: var(--ink-soft); margin-bottom: 32px; }
 
-    .logo-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(108,99,255,0.12);
-      border: 1px solid rgba(108,99,255,0.3);
-      border-radius: 999px;
-      padding: 6px 16px;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--accent2);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 24px;
-    }
+  nav { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 14px;
+    font-size: 14.5px; font-weight: 500; color: var(--ink-soft);
+    text-decoration: none;
+    cursor: default;
+    transition: background .15s, color .15s;
+  }
+  .nav-icon {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background .15s, color .15s;
+  }
+  .nav-icon svg { width: 16px; height: 16px; stroke: currentColor; }
+  .nav-icon-purple { background: var(--purple-tint); color: var(--purple-deep); }
+  .nav-icon-teal { background: var(--teal-tint); color: var(--teal-deep); }
+  .nav-icon-orange { background: var(--orange-tint); color: var(--orange-deep); }
+  .nav-icon-gold { background: var(--gold-tint); color: var(--gold); }
 
-    .logo-pill svg { width: 14px; height: 14px; fill: currentColor; }
+  .nav-item.active { background: #F7F3EB; color: var(--ink); font-weight: 700; }
+  .nav-item.active .nav-icon-purple { background: var(--purple-deep); color: #fff; }
+  .nav-item.active .nav-icon-teal { background: var(--teal-deep); color: #fff; }
+  .nav-item.active .nav-icon-orange { background: var(--orange-deep); color: #fff; }
+  .nav-item.active .nav-icon-gold { background: var(--gold); color: #fff; }
 
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted);
-      text-decoration: none;
-      margin-bottom: 22px;
-      transition: color 0.15s;
-    }
-    .back-link:hover { color: var(--text); }
-    .back-link svg { width: 14px; height: 14px; }
+  .nav-item.link { cursor: pointer; }
+  .nav-item.link:hover { background: #F7F3EB; color: var(--ink); }
 
-    h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: clamp(32px, 6vw, 52px);
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      color: #fff;
-    }
+  .nav-item.disabled { opacity: .6; }
+  .soon-tag {
+    margin-left: auto;
+    font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    background: #F1EDE3; color: var(--ink-soft);
+    padding: 3px 8px; border-radius: 999px;
+    white-space: nowrap;
+  }
 
-    h1 span {
-      background: linear-gradient(135deg, #6c63ff, #a78bfa, #22d3a4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+  .logout-mini {
+    margin-top: auto;
+    padding-top: 30px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
 
-    .subtitle {
-      margin-top: 14px;
-      font-size: 15px;
-      color: var(--muted);
-      font-weight: 300;
-      line-height: 1.6;
-    }
+  /* Main content */
+  main { min-width: 0; }
+  .top-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 30px;
+  }
+  .greeting h1 { font-size: 32px; margin: 0; font-weight: 600; }
+  .greeting .sub { color: var(--ink-soft); font-size: 14px; margin-top: 6px; }
 
-    /* ── SEARCH BOX ── */
-    .search-card {
-      background: var(--bg2);
-      border: 1px solid var(--border2);
-      border-radius: 20px;
-      padding: 28px 28px;
-      margin-bottom: 32px;
-      position: relative;
-      overflow: hidden;
-    }
+  .logout-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
 
-    .search-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #6c63ff, #22d3a4, transparent);
-    }
+  .cards-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 34px;
+  }
+  .card {
+    position: relative;
+    border-radius: var(--radius-md);
+    padding: 22px;
+    color: #fff;
+    min-height: 176px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: .5;
+    background-image: radial-gradient(circle, rgba(255,255,255,.16) 1.5px, transparent 1.5px);
+    background-size: 14px 14px;
+  }
+  .card::after {
+    content: '';
+    position: absolute;
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    right: -50px; top: -60px;
+    background: rgba(255,255,255,.10);
+    z-index: -1;
+  }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .card h3 { font-size: 20px; margin: 0; font-weight: 600; }
+  .card-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: rgba(255,255,255,.18);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .card-icon svg { width: 18px; height: 18px; }
 
-    .search-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
+  .card-body { display: flex; align-items: center; gap: 16px; margin-top: 10px; }
+  .ring-wrap { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: rgba(255,255,255,.28); stroke-width: 6; }
+  .ring-fill { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+  .ring-label {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px;
+  }
+  .card-stat-text .count { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; line-height: 1; }
+  .card-stat-text .label { font-size: 12px; opacity: .88; margin-top: 4px; }
 
-    .search-row {
-      display: flex;
-      gap: 10px;
-    }
+  .card-selesai { background: linear-gradient(155deg, var(--purple), var(--purple-deep)); }
+  .card-belum { background: linear-gradient(155deg, var(--teal-glow), var(--teal-deep)); }
+  .card-hids { background: linear-gradient(155deg, var(--orange-glow), var(--orange-deep)); }
+  .card-hids .card-body { align-items: flex-start; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .card-hids .hids-value { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 600; }
+  .card-hids .hids-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px;
+  }
 
-    #sidInput {
-      flex: 1;
-      background: var(--bg3);
-      border: 1px solid var(--border2);
-      border-radius: 12px;
-      padding: 13px 18px;
-      font-size: 15px;
-      font-family: 'Inter', sans-serif;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      letter-spacing: 0.02em;
-    }
+  .section-title { font-size: 20px; font-weight: 600; margin: 0 0 16px; }
 
-    #sidInput::placeholder { color: var(--muted); }
-    #sidInput:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
-    }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .stat-box {
+    background: #F7F3EB;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 20px;
+  }
+  .stat-box .big { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .stat-box .label { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
 
-    #searchBtn {
-      background: linear-gradient(135deg, #6c63ff, #8b5cf6);
-      border: none;
-      border-radius: 12px;
-      padding: 13px 26px;
-      font-size: 14px;
-      font-weight: 600;
-      font-family: 'Inter', sans-serif;
-      color: #fff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: opacity 0.2s, transform 0.15s;
-      white-space: nowrap;
-    }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .status-approved { background: #E4F5EA; color: #2C8A55; }
+  .status-pending { background: #F1EDE3; color: #8A7A55; }
+  .status-rejected { background: #FBE7E4; color: #C24A3C; }
 
-    #searchBtn:hover { opacity: 0.88; transform: translateY(-1px); }
-    #searchBtn:active { transform: scale(0.97); }
+  .congrat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .congrat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 700;
+    background: #E4F5EA;
+    color: #2C8A55;
+    border: 1px solid #BFE6CE;
+    animation: pillIn .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .congrat-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  @keyframes pillIn { from { opacity: 0; transform: translateY(6px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-    #searchBtn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .state-msg {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
 
-    /* ── STATES ── */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-    }
-
-    .empty-state .icon-wrap {
-      width: 64px; height: 64px;
-      border-radius: 18px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-
-    .empty-state svg { width: 28px; height: 28px; stroke: var(--muted); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-    .empty-state p { font-size: 14px; line-height: 1.6; max-width: 280px; margin: 0 auto; }
-    .empty-state .title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
-
-    .error-box {
-      background: rgba(248,113,113,0.08);
-      border: 1px solid rgba(248,113,113,0.25);
-      border-radius: 12px;
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 14px;
-      color: var(--danger);
-    }
-
-    .error-box svg { width: 18px; height: 18px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
-
-    .loading-box {
-      text-align: center;
-      padding: 48px 20px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinner { display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
-
-    /* ── RESULT CARD ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .result-wrap { animation: fadeUp 0.35s ease both; }
-
-    .profile-card {
-      background: var(--card);
-      border: 1px solid var(--border2);
-      border-radius: 20px;
-      padding: 28px;
-      margin-bottom: 16px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .profile-card::after {
-      content: '';
-      position: absolute;
-      top: -60px; right: -60px;
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(108,99,255,0.08), transparent 70%);
-      pointer-events: none;
-    }
-
-    .profile-top {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      margin-bottom: 20px;
-    }
-
-    .avatar {
-      width: 60px; height: 60px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #6c63ff, #a78bfa);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Syne', sans-serif;
-      font-size: 20px;
-      font-weight: 800;
-      color: #fff;
-      flex-shrink: 0;
-      letter-spacing: -0.02em;
-    }
-
-    .profile-info .name {
-      font-size: 20px;
-      font-weight: 600;
-      color: #fff;
-      line-height: 1.2;
-      margin-bottom: 6px;
-    }
-
-    .meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 10px;
-      border-radius: 999px;
-    }
-
-    .tag-id    { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); }
-    .tag-pkg   { background: rgba(108,99,255,0.12); color: var(--accent2); border: 1px solid rgba(108,99,255,0.25); }
-    .tag-sa    { background: rgba(34,211,164,0.08); color: var(--success); border: 1px solid rgba(34,211,164,0.2); }
-    .tag-hl    { background: rgba(251,191,36,0.1); color: var(--warn); border: 1px solid rgba(251,191,36,0.25); }
-
-    .tag svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-    /* ── STATS ROW ── */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .stat-card {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .stat-card .stat-num {
-      font-family: 'Syne', sans-serif;
-      font-size: 28px;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .stat-card .stat-lbl {
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .stat-green .stat-num { color: var(--success); }
-    .stat-red .stat-num   { color: var(--danger); }
-    .stat-gray .stat-num  { color: var(--skip); }
-
-    /* ── TASK LIST ── */
-    .section-heading {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 10px;
-    }
-
-    .task-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .task-row {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      transition: border-color 0.2s;
-    }
-
-    .task-row:hover { border-color: var(--border2); }
-
-    .task-left { flex: 1; min-width: 0; }
-
-    .task-eyebrow {
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-      margin-bottom: 3px;
-    }
-
-    .task-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .task-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 10px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .task-badge svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-
-    .badge-done   { background: rgba(34,211,164,0.1);  color: var(--success); border: 1px solid rgba(34,211,164,0.2); }
-    .badge-miss   { background: rgba(248,113,113,0.1); color: var(--danger);  border: 1px solid rgba(248,113,113,0.2); }
-    .badge-skip   { background: rgba(75,85,99,0.2);    color: #6b7280;        border: 1px solid rgba(75,85,99,0.3); }
-
-    /* ── PROGRESS BAR ── */
-    .progress-wrap {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-    }
-
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .progress-label { font-size: 12px; color: var(--muted); }
-    .progress-pct { font-size: 13px; font-weight: 600; color: var(--accent2); }
-
-    .progress-bar-bg {
-      height: 6px;
-      background: var(--border);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #6c63ff, #22d3a4);
-      border-radius: 999px;
-      transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
-    }
-
-    /* ── FOOTER ── */
-    footer {
-      margin-top: 60px;
-      text-align: center;
-      font-size: 12px;
-      color: var(--muted);
-      padding-bottom: 20px;
-    }
-
-    footer a { color: var(--accent2); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 500px) {
-      .search-row { flex-direction: column; }
-      #searchBtn { justify-content: center; }
-      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-      .stat-card { padding: 12px 8px; }
-      .stat-card .stat-num { font-size: 22px; }
-      .profile-top { gap: 12px; }
-      .profile-card { padding: 20px; }
-    }
-  </style>
+  @media (max-width: 780px) {
+    .shell { grid-template-columns: 1fr; padding: 26px; margin: 16px; }
+    .sidebar { flex-direction: row; flex-wrap: wrap; align-items: center; }
+    .avatar { width: 64px; height: 64px; font-size: 20px; }
+    nav { flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
+    .cards-row, .stats-grid { grid-template-columns: 1fr; }
+    .top-row { flex-direction: column; gap: 16px; }
+  }
+</style>
 </head>
 <body>
 
-<div class="glow glow-1"></div>
-<div class="glow glow-2"></div>
+<div class="blob blob-teal"></div>
+<div class="blob blob-orange"></div>
 
 <div class="shell">
-
-  <!-- HEADER -->
-  <header>
-    <a class="back-link" href="../dashboard/index.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      Kembali ke Dashboard
-    </a>
-    <div class="logo-pill">
-      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      SG Richard Student Tracker
+  <aside class="sidebar">
+    <div class="logo-mark"><img src="../images/logo-icon.png" alt="Richard J Winarta logo" /></div>
+    <div class="avatar" id="avatarInitials">
+      --
+      <span class="batch-badge" id="batchBadge">Batch —</span>
     </div>
-    <h1>Task <br><span>Tracker</span></h1>
-    <p class="subtitle">Pantau Task Mana Saja Yang Sudah/Belum <br> dan Berapa Scorenya.<br></p>
-  </header>
+    <div class="student-name" id="studentName">Memuat...</div>
+    <div class="student-id" id="studentIdLabel">—</div>
 
-  <!-- RESULT AREA -->
-  <div id="result">
-    <div class="loading-box"><div class="spinner"></div><br>Memuat data kamu...</div>
-  </div>
+    <nav>
+      <span class="nav-item active">
+        <span class="nav-icon nav-icon-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+        </span>
+        Dashboard
+      </span>
+      <a class="nav-item link" href="../directory/index.html">
+        <span class="nav-icon nav-icon-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        Directory
+      </a>
+      <a class="nav-item link" href="../task-tracker/index.html">
+        <span class="nav-icon nav-icon-orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="6" height="6" rx="1"/><path d="M3 17l2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>
+        </span>
+        Task Tracker
+      </a>
+      <span class="nav-item disabled">
+        <span class="nav-icon nav-icon-gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h2a2 2 0 0 1 2 2 4 4 0 0 1-4 4"/><path d="M7 5H5a2 2 0 0 0-2 2 4 4 0 0 0 4 4"/></svg>
+        </span>
+        Hall of Fame
+        <span class="soon-tag">Segera</span>
+      </span>
+    </nav>
 
-  <!-- FOOTER -->
-  <footer>
-    Made by <br><a href="https://www.instagram.com/assistby.rjw/" target="_blank">assistby.rjw</a>
-  </footer>
+    <button class="logout-mini" onclick="logout()">Logout</button>
+  </aside>
 
+  <main>
+    <div class="top-row">
+      <div class="greeting">
+        <h1 id="greetingName">Hello,</h1>
+        <div class="sub">Ini ringkasan progres belajar kamu sejauh ini.</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="dashboardBody">
+      <div class="state-msg">Memuat data kamu...</div>
+    </div>
+  </main>
 </div>
 
 <script src="../shared/auth.js"></script>
 <script>
-const _x = atob("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJyNi1YWnNHQ0lvS1ZfNDJ4aEJ6dDZsenlBOFRpb3RocUN2MUJYT3I4OVB0OGhKc1QxajVwQ1RvVFppY2Y1dXdMMTNJRWtNSDQ3Y09SWC9wdWI/b3V0cHV0PWNzdg==");
-const LEGACY_RLL = _x;
+  const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRr6-XZsGCIoKV_42xhBzt6lzyA8TiothqCv1BXOr89Pt8hJsT1j5pCToTZicf5uwL13IEkMH47cORX/pub?output=csv";
+  const PORTFOLIO_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRr6-XZsGCIoKV_42xhBzt6lzyA8TiothqCv1BXOr89Pt8hJsT1j5pCToTZicf5uwL13IEkMH47cORX/pub?gid=758194686&single=true&output=csv";
 
-// 
-const HIGHLIGHT_CANONICAL = {
-  "LEAD GENERATION":         "Lead Generation",
-  "EMAIL MARKETING":         "Email Marketing",
-  "SMM":                     "Social Media Management",
-  "SOCIAL MEDIA MANAGEMENT": "Social Media Management",
-  "Lead Generation":         "Lead Generation",
-  "Email Marketing":         "Email Marketing",
-  "Social Media Management": "Social Media Management",
-};
+  const MASTER_TASK_START_COL = 6;   // kolom index tempat data task dimulai
+  const MASTER_TASK_COUNT = 49;      // jumlah task (triplet Score/Status/Alasan)
+  const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di sheet Portfolio Status
+  const TOTAL_MAX_SCORE = 5400;      // skor maksimum untuk status "Full Score"
 
-// 
-const HIGHLIGHT_SKIP = {
-  "Lead Generation":         ["Email Marketing", "Social Media Management"],
-  "Email Marketing":         ["Lead Generation", "Social Media Management"],
-  "Social Media Management": ["Lead Generation", "Email Marketing"],
-};
+  // Sama persis dengan yang dipakai di Task Tracker — supaya kedua halaman
+  // menghitung completion rate dengan cara yang konsisten (skip task di luar track siswa)
+  const SERVICE_KEYWORDS = [
+    { keyword: /\bEM\b/i,           service: "Email Marketing" },
+    { keyword: /\bLG\b/i,           service: "Lead Generation" },
+    { keyword: /\bSMM\b/i,          service: "Social Media Management" },
+    { keyword: /Email.*Marketing/i, service: "Email Marketing" },
+    { keyword: /Lead.*Gen/i,        service: "Lead Generation" },
+    { keyword: /Social.*Media/i,    service: "Social Media Management" },
+  ];
 
-// 
-const SERVICE_KEYWORDS = [
-  { keyword: /\bEM\b/i,         service: "Email Marketing"         },
-  { keyword: /\bLG\b/i,         service: "Lead Generation"         },
-  { keyword: /\bSMM\b/i,        service: "Social Media Management" },
-  { keyword: /Email.*Marketing/i, service: "Email Marketing"        },
-  { keyword: /Lead.*Gen/i,       service: "Lead Generation"        },
-  { keyword: /Social.*Media/i,   service: "Social Media Management"},
-];
-
-// 
-const NON_TASK_COLS = [
-  "StudentID",
-  "Students Name",
-  "SA Name",
-  "Package",
-  "Chosen Highlight Service"
-];
-
-// 
-let cache    = null;
-let taskDefs = null;
-
-// ── .
-function buildTaskDefs(headers) {
-  const defs = [];
-  let n = 0;
-
-  headers.forEach((h, idx) => {
-    if (!h.toLowerCase().includes("score") || NON_TASK_COLS.includes(h)) return;
-
-    n++;
-    const lessonMatch = h.match(/lesson\s*(\d+)/i);
-    const taskMatch   = h.match(/task\s*(\d+)/i);
-    const labelMatch  = h.match(/:\s*(.+?)\s*Score\s*$/i);
-
-    const maxHeaderRaw = headers[idx + 2] || "";
-    const maxMatch      = maxHeaderRaw.match(/\d+(\.\d+)?/);
-    const maxScore      = maxMatch ? maxMatch[0] : null;
-
-    // 
-    let service = null;
-    for (const { keyword, service: svc } of SERVICE_KEYWORDS) {
-      if (keyword.test(h)) { service = svc; break; }
-    }
-
-    defs.push({
-      scoreKey: h,
-      maxScore: maxScore,
-      label:    labelMatch  ? labelMatch[1].trim()       : h.replace(/Score\s*$/i, "").replace(/^\d+\.\s*/, "").trim(),
-      lesson:   lessonMatch ? `Lesson ${lessonMatch[1]}` : `Task ${n}`,
-      num:      taskMatch   ? `Task ${taskMatch[1]}`     : `#${n}`,
-      service:  service,
-    });
-  });
-
-  return defs;
-}
-
-// ──  ──
-function parseCSV(txt) {
-  const allLines = txt.split("\n");
-  const lines    = allLines.filter(l => l.trim().replace(/,/g, "") !== "");
-
-  const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
-
-  const rows = lines.slice(1).map(line => {
-    const cols = []; let cur = "", inQ = false;
-    for (const ch of line) {
-      if (ch === '"') { inQ = !inQ; }
-      else if (ch === ',' && !inQ) { cols.push(cur); cur = ""; }
-      else cur += ch;
-    }
-    cols.push(cur);
-    const o = {};
-    headers.forEach((h, i) => o[h] = (cols[i] || "").replace(/^"|"$/g, "").trim());
-    return o;
-  }).filter(row => row["StudentID"] && row["StudentID"].trim() !== "");
-
-  return { rows, headers };
-}
-
-async function getData() {
-  if (cache) return cache;
-  const r = await fetch(LEGACY_RLL);
-  if (!r.ok) throw new Error("Gagal mengambil data dari Google Sheet.");
-  const { rows, headers } = parseCSV(await r.text());
-  taskDefs = buildTaskDefs(headers); // 
-  cache    = rows;
-  return cache;
-}
-
-function icon(type) {
-  const icons = {
-    check:  `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
-    clock:  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
-    minus:  `<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-    alert:  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-    user:   `<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
-    id:     `<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
-    star:   `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
-    person: `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-    pkg:    `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73L13 2.27a2 2 0 0 0-2 0L4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
+  const HIGHLIGHT_CANONICAL = {
+    "LEAD GENERATION":         "Lead Generation",
+    "EMAIL MARKETING":         "Email Marketing",
+    "SMM":                     "Social Media Management",
+    "SOCIAL MEDIA MANAGEMENT": "Social Media Management",
+    "Lead Generation":         "Lead Generation",
+    "Email Marketing":         "Email Marketing",
+    "Social Media Management": "Social Media Management",
   };
-  return icons[type] || "";
-}
 
-async function init() {
-  const el = document.getElementById("result");
-  el.innerHTML = `<div class="loading-box"><div class="spinner"></div><br>Memuat data kamu...</div>`;
+  const HIGHLIGHT_SKIP = {
+    "Lead Generation":         ["Email Marketing", "Social Media Management"],
+    "Email Marketing":         ["Lead Generation", "Social Media Management"],
+    "Social Media Management": ["Lead Generation", "Email Marketing"],
+  };
 
-  // checkLogin() (dari shared/auth.js) memverifikasi token & otomatis
-  // redirect ke halaman login kalau sesi tidak valid — sama seperti Dashboard & Directory
-  let session;
-  try {
-    session = await checkLogin();
-  } catch (e) {
-    showError(el, "Gagal verifikasi login (server mungkin lambat merespons). Coba refresh halaman ini.");
-    return;
+  const ICONS = {
+    check: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+    clock: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>`,
+    target: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="#fff"/></svg>`,
+  };
+
+  function fetchCsvRows(url) {
+    return new Promise((resolve, reject) => {
+      Papa.parse(url, {
+        download: true,
+        skipEmptyLines: false,
+        complete: (results) => resolve(results.data),
+        error: (err) => reject(err),
+      });
+    });
   }
-  if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
 
-  const sid = String(session.studentId).trim();
-
-  try {
-    const data = await getData();
-    const s = data.find(r => String(r["StudentID"]).trim() === sid);
-    if (!s) {
-      el.innerHTML = `<div class="empty-state">
-        <div class="icon-wrap">${icon("user")}</div>
-        <p class="title">Data tidak ditemukan</p>
-        <p>Student ID kamu <strong>${escHtml(sid)}</strong> tidak ditemukan di data Task Tracker.<br>Silahkan hubungi admin.</p>
-      </div>`;
-      return;
+  function findStudentRow(rows, studentId) {
+    // baris 0 = baris kosong, baris 1 = header, data mulai dari baris 2
+    for (let i = 2; i < rows.length; i++) {
+      const row = rows[i];
+      if (row[0] && row[0].toString().trim() === studentId.toString().trim()) {
+        return row;
+      }
     }
-    renderResult(s, el);
-  } catch(e) {
-    showError(el, e.message || "Terjadi kesalahan koneksi. Coba refresh halaman ini.");
+    return null;
   }
-}
 
-function showError(el, msg) {
-  el.innerHTML = `<div class="error-box">${icon("alert")}<span>${escHtml(msg)}</span></div>`;
-}
+  function computeTaskStats(row, headerRow, highlightService) {
+    let completed = 0;
+    let pending = 0;
+    let totalScore = 0;
+    const skipList = HIGHLIGHT_SKIP[highlightService] || [];
 
-function escHtml(str) {
-  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
+    for (let t = 0; t < MASTER_TASK_COUNT; t++) {
+      const idx = MASTER_TASK_START_COL + t * 3;
 
-function initials(name) {
-  return name.trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
-}
+      // Lewati task yang bukan milik track Highlight Service siswa ini —
+      // sama seperti yang dilakukan Task Tracker, supaya angkanya konsisten
+      const headerLabel = (headerRow && headerRow[idx]) || "";
+      let taskService = null;
+      for (const { keyword, service } of SERVICE_KEYWORDS) {
+        if (keyword.test(headerLabel)) { taskService = service; break; }
+      }
+      if (taskService && skipList.includes(taskService)) continue;
 
-function renderResult(s, el) {
-  const name      = s["Students Name"]           || "-";
-  const sa        = s["SA Name"]                 || "-";
-  const pkg       = s["Package"]                 || "-";
-  const highlightRaw = s["Chosen Highlight Service"] || "";
-  const highlight = HIGHLIGHT_CANONICAL[highlightRaw] || highlightRaw;
-  const skipList  = HIGHLIGHT_SKIP[highlight]    || [];
+      const scoreRaw = row[idx];
+      const flag = (row[idx + 1] || "").toString().trim().toUpperCase();
 
-  let done=0, miss=0, skip=0, total=0;
-
-  // 
-  const taskHTML = taskDefs.map(t => {
-    const isSkip = t.service && skipList.includes(t.service);
-    if (isSkip) { skip++; return null; } // 
-
-    const score  = s[t.scoreKey] || "";
-    let badge = "";
-
-    total++;
-    if (!score || score === "0") {
-      miss++;
-      badge = `<span class="task-badge badge-miss">${icon("clock")} Belum dikerjakan/Belum diberi Score</span>`;
-    } else {
-      done++;
-      const scoreLabel = t.maxScore ? `${escHtml(score)}/${escHtml(t.maxScore)}` : escHtml(score);
-      badge = `<span class="task-badge badge-done">${icon("check")} Skor: ${scoreLabel}</span>`;
+      if (flag === "TRUE") {
+        completed++;
+        const score = parseFloat(scoreRaw);
+        if (!isNaN(score)) totalScore += score;
+      } else if (flag === "FALSE") {
+        pending++;
+      }
     }
 
-    return `<div class="task-row">
-      <div class="task-left">
-        <div class="task-eyebrow">${escHtml(t.lesson)} &middot; ${escHtml(t.num)}</div>
-        <div class="task-name">${escHtml(t.label)}</div>
+    const applicable = completed + pending;
+    // dibulatkan ke 1 desimal dengan aman (hindari 27.799999999999997)
+    const completedPct = applicable > 0 ? Math.round((completed / applicable) * 1000) / 10 : 0;
+    const pendingPct = applicable > 0 ? Math.round((pending / applicable) * 1000) / 10 : 0;
+
+    return { completed, pending, completedPct, pendingPct, totalScore };
+  }
+
+  function titleCaseService(raw) {
+    if (!raw) return "—";
+    return raw
+      .toLowerCase()
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+  }
+
+  function initials(name) {
+    if (!name) return "??";
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
+  }
+
+  function renderPortfolioPill(statusRaw) {
+    const status = (statusRaw || "").toString().trim();
+    const lower = status.toLowerCase();
+
+    if (lower === "approved") {
+      return `<span class="status-pill status-approved">✓ Approved</span>`;
+    }
+    if (lower === "rejected") {
+      return `<span class="status-pill status-rejected">✕ Rejected</span>`;
+    }
+    if (lower === "pending") {
+      return `<span class="status-pill status-pending">● Pending</span>`;
+    }
+    return `<span class="status-pill status-pending">Belum Direview</span>`;
+  }
+
+  function renderCongratPills(completedPct, totalScore) {
+    const pills = [];
+    if (completedPct >= 100) {
+      pills.push(`<span class="congrat-pill"><span class="dot"></span>Congrat 100% Completion</span>`);
+    }
+    if (totalScore >= TOTAL_MAX_SCORE) {
+      pills.push(`<span class="congrat-pill"><span class="dot"></span>Congrat Full Score! 🎉</span>`);
+    }
+    if (pills.length === 0) return "";
+    return `<div class="congrat-row">${pills.join("")}</div>`;
+  }
+
+  // Ring lingkaran kecil pakai SVG, radius tetap, offset dihitung dari %
+  function ringSvg(pct, idSuffix) {
+    const r = 26;
+    const circumference = 2 * Math.PI * r;
+    const offset = circumference - (pct / 100) * circumference;
+    return `
+      <div class="ring-wrap">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="ring-track" cx="32" cy="32" r="${r}" />
+          <circle class="ring-fill" cx="32" cy="32" r="${r}"
+            stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" />
+        </svg>
+        <div class="ring-label">${pct}%</div>
       </div>
-      ${badge}
-    </div>`;
-  }).filter(Boolean).join("");
+    `;
+  }
 
-  const pct     = total > 0 ? Math.round((done / total) * 100) : 0;
-  const initStr = initials(name);
+  function renderDashboard({ nama, batch, hids, completed, pending, completedPct, pendingPct, totalScore, portfolioStatus }) {
+    document.getElementById("avatarInitials").innerHTML = `
+      ${initials(nama)}
+      <span class="batch-badge">Batch ${batch || "—"}</span>
+    `;
+    document.getElementById("studentName").textContent = nama;
+    document.getElementById("greetingName").textContent = `Hello, ${nama}`;
 
-  const hlBadge = highlight
-    ? `<span class="tag tag-hl">${icon("star")} ${escHtml(highlight)}</span>`
-    : `<span class="tag tag-id">HIDS belum dipilih</span>`;
-
-  el.innerHTML = `<div class="result-wrap">
-    <div class="profile-card">
-      <div class="profile-top">
-        <div class="avatar">${escHtml(initStr)}</div>
-        <div class="profile-info">
-          <div class="name">${escHtml(name)}</div>
-          <div class="meta-row">
-            <span class="tag tag-id">${icon("id")} ${escHtml(s["StudentID"])}</span>
-            <span class="tag tag-pkg">${icon("pkg")} ${escHtml(pkg)}</span>
-            <span class="tag tag-sa">${icon("person")} SA: ${escHtml(sa)}</span>
-            ${hlBadge}
+    document.getElementById("dashboardBody").innerHTML = `
+      <section class="cards-row">
+        <div class="card card-selesai">
+          <div class="card-head">
+            <h3>Task Selesai</h3>
+            <div class="card-icon">${ICONS.check}</div>
+          </div>
+          <div class="card-body">
+            ${ringSvg(completedPct, "done")}
+            <div class="card-stat-text">
+              <div class="count">${completed}</div>
+              <div class="label">dari ${completed + pending} task</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="stats-row">
-        <div class="stat-card stat-green">
-          <div class="stat-num">${done}</div>
-          <div class="stat-lbl">Selesai</div>
+        <div class="card card-belum">
+          <div class="card-head">
+            <h3>Task yg Belum</h3>
+            <div class="card-icon">${ICONS.clock}</div>
+          </div>
+          <div class="card-body">
+            ${ringSvg(pendingPct, "pending")}
+            <div class="card-stat-text">
+              <div class="count">${pending}</div>
+              <div class="label">masih tersisa</div>
+            </div>
+          </div>
         </div>
-        <div class="stat-card stat-red">
-          <div class="stat-num">${miss}</div>
-          <div class="stat-lbl">Belum</div>
+
+        <div class="card card-hids">
+          <div class="card-head">
+            <h3>HIDS</h3>
+            <div class="card-icon">${ICONS.target}</div>
+          </div>
+          <div class="card-body">
+            <span class="hids-tag">Highlight Service</span>
+            <div class="hids-value">${hids}</div>
+          </div>
         </div>
-        <!-- <div class="stat-card stat-gray">
-          <div class="stat-num">${skip}</div>
-          <div class="stat-lbl">N/A</div>
-        </div> -->
-      </div>
+      </section>
 
-      <p class="section-heading">Progress tugas</p>
-      <div class="task-list">${taskHTML}</div>
-
-      <div class="progress-wrap">
-        <div class="progress-header">
-          <span class="progress-label">Completion rate</span>
-          <span class="progress-pct">${pct}%</span>
+      <h2 class="section-title">Statistics</h2>
+      <section class="stats-grid">
+        <div class="stat-box">
+          <div class="big">${completedPct}%</div>
+          <div class="label">% Completion</div>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="pbar" style="width:0%"></div>
+        <div class="stat-box">
+          <div class="big">${totalScore.toLocaleString("id-ID")}</div>
+          <div class="label">Total Score</div>
         </div>
-      </div>
-    </div>
-  </div>`;
+        <div class="stat-box">
+          <div class="big">${renderPortfolioPill(portfolioStatus)}</div>
+          <div class="label">Portfolio</div>
+        </div>
+      </section>
 
-  setTimeout(() => {
-    const bar = document.getElementById("pbar");
-    if (bar) bar.style.width = pct + "%";
-  }, 80);
-}
+      ${renderCongratPills(completedPct, totalScore)}
+    `;
+  }
 
-init();
+  function renderError(message) {
+    document.getElementById("dashboardBody").innerHTML = `
+      <div class="state-msg">
+        ${message}
+        <div style="margin-top:14px">
+          <button class="logout-btn" style="background:var(--purple-deep)" onclick="init()">Coba Lagi</button>
+        </div>
+      </div>`;
+  }
+
+  function withTimeout(promise, ms, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`${label} timeout setelah ${ms / 1000}s`)), ms)
+      ),
+    ]);
+  }
+
+  async function init() {
+    document.getElementById("dashboardBody").innerHTML = `<div class="state-msg">Memuat data kamu...</div>`;
+
+    // Mulai checkLogin() DAN fetch CSV secara BERSAMAAN (bukan berurutan),
+    // supaya total waktu tunggu = proses paling lambat, bukan jumlah semuanya.
+    const sessionPromise = withTimeout(checkLogin(), 15000, "Verifikasi login");
+    const csvPromise = withTimeout(
+      Promise.all([fetchCsvRows(MASTER_CSV_URL), fetchCsvRows(PORTFOLIO_CSV_URL)]),
+      15000,
+      "Ambil data Sheet"
+    );
+
+    let session;
+    try {
+      session = await sessionPromise;
+    } catch (err) {
+      console.error(err);
+      renderError("Gagal verifikasi login (server mungkin lambat merespons). Coba lagi ya.");
+      return;
+    }
+    if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
+
+    document.getElementById("studentIdLabel").textContent = session.studentId;
+
+    try {
+      const [masterRows, portfolioRows] = await csvPromise;
+
+      const masterRow = findStudentRow(masterRows, session.studentId);
+      if (!masterRow) {
+        renderError("Data kamu tidak ditemukan di Master Students. Hubungi admin ya.");
+        return;
+      }
+
+      const hidsRaw = masterRow[4]; // kolom "Chosen Highlight Service"
+      const hidsTrim = (hidsRaw || "").toString().trim();
+      const highlightCanonical = HIGHLIGHT_CANONICAL[hidsTrim] || HIGHLIGHT_CANONICAL[hidsTrim.toUpperCase()] || hidsTrim;
+      const { completed, pending, completedPct, pendingPct, totalScore } = computeTaskStats(masterRow, masterRows[1], highlightCanonical);
+
+      const portfolioRow = findStudentRow(portfolioRows, session.studentId);
+      const portfolioStatus = portfolioRow ? portfolioRow[PORTFOLIO_STATUS_COL] : "";
+
+      renderDashboard({
+        nama: session.nama || masterRow[1],
+        batch: session.batch,
+        hids: titleCaseService(hidsRaw),
+        completed,
+        pending,
+        completedPct,
+        pendingPct,
+        totalScore,
+        portfolioStatus,
+      });
+    } catch (err) {
+      console.error(err);
+      renderError("Gagal memuat data Sheet (server mungkin lambat merespons). Coba lagi ya.");
+    }
+  }
+
+  init();
 </script>
+
 </body>
 </html>
