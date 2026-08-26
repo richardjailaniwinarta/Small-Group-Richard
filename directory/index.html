@@ -968,13 +968,13 @@ const BATCH_API_URLS_B64 = {
 };
 
 // Ditentukan saat runtime, sesuai Batch student yang login (lihat boot() di bawah)
-let API_URL = null;
+let DIRECTORY_API_URL = null;
 
 function resolveApiUrlForBatch(batch) {
   const key = String(batch || '').trim();
   const encoded = BATCH_API_URLS_B64[key];
   if (!encoded) {
-    console.warn('Tidak ada API_URL untuk Batch "' + key + '", pakai default Batch 34');
+    console.warn('Tidak ada DIRECTORY_API_URL untuk Batch "' + key + '", pakai default Batch 34');
     return atob(BATCH_API_URLS_B64['34']);
   }
   return atob(encoded);
@@ -1021,7 +1021,7 @@ async function loadData() {
     </div>`;
 
   try {
-    const res = await fetch(`${API_URL}?action=data`);
+    const res = await fetch(`${DIRECTORY_API_URL}?action=data`);
     const json = await res.json();
 
     if (json.error) {
@@ -1535,7 +1535,7 @@ document.getElementById('searchInput').addEventListener('input', applyFilters);
   document.getElementById('studentNameBadge').classList.add('visible');
   document.getElementById('batchLabelHeader').textContent = 'B' + session.batch;
 
-  API_URL = resolveApiUrlForBatch(session.batch); // pilih Sheet/Apps Script sesuai Batch student ini
+  DIRECTORY_API_URL = resolveApiUrlForBatch(session.batch); // pilih Sheet/Apps Script sesuai Batch student ini
   loadData();
 })();
 </script>
