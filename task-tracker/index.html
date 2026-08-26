@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Progress Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0e14;
+      --bg2:       #12161f;
+      --bg3:       #1a1f2e;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.13);
+      --text:      #e8eaf0;
+      --muted:     #6b7280;
+      --accent:    #6c63ff;
+      --accent2:   #a78bfa;
+      --success:   #22d3a4;
+      --danger:    #f87171;
+      --warn:      #fbbf24;
+      --skip:      #4b5563;
+      --card:      #141821;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(108,99,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(108,99,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── AMBIENT GLOW ── */
+    .glow {
+      position: fixed;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-1 { background: #6c63ff; top: -200px; left: -100px; }
+    .glow-2 { background: #22d3a4; bottom: -200px; right: -100px; }
+
+    /* ── LAYOUT ── */
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 56px 0 48px;
+      text-align: center;
+    }
+
+    .logo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(108,99,255,0.12);
+      border: 1px solid rgba(108,99,255,0.3);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent2);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .logo-pill svg { width: 14px; height: 14px; fill: currentColor; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 22px;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+    .back-link svg { width: 14px; height: 14px; }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, #6c63ff, #a78bfa, #22d3a4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      margin-top: 14px;
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ── SEARCH BOX ── */
+    .search-card {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 28px 28px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .search-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #6c63ff, #22d3a4, transparent);
+    }
+
+    .search-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    #sidInput {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    #sidInput::placeholder { color: var(--muted); }
+    #sidInput:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+
+    #searchBtn {
+      background: linear-gradient(135deg, #6c63ff, #8b5cf6);
+      border: none;
+      border-radius: 12px;
+      padding: 13px 26px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: opacity 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+
+    #searchBtn:hover { opacity: 0.88; transform: translateY(-1px); }
+    #searchBtn:active { transform: scale(0.97); }
+
+    #searchBtn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── STATES ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .icon-wrap {
+      width: 64px; height: 64px;
+      border-radius: 18px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .empty-state svg { width: 28px; height: 28px; stroke: var(--muted); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .empty-state p { font-size: 14px; line-height: 1.6; max-width: 280px; margin: 0 auto; }
+    .empty-state .title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+
+    .error-box {
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--danger);
+    }
+
+    .error-box svg { width: 18px; height: 18px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+    .loading-box {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+
+    /* ── RESULT CARD ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-wrap { animation: fadeUp 0.35s ease both; }
+
+    .profile-card {
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-card::after {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(108,99,255,0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .avatar {
+      width: 60px; height: 60px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #6c63ff, #a78bfa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .profile-info .name {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .tag-id    { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); }
+    .tag-pkg   { background: rgba(108,99,255,0.12); color: var(--accent2); border: 1px solid rgba(108,99,255,0.25); }
+    .tag-sa    { background: rgba(34,211,164,0.08); color: var(--success); border: 1px solid rgba(34,211,164,0.2); }
+    .tag-hl    { background: rgba(251,191,36,0.1); color: var(--warn); border: 1px solid rgba(251,191,36,0.25); }
+
+    .tag svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-card .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .stat-lbl {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .stat-green .stat-num { color: var(--success); }
+    .stat-red .stat-num   { color: var(--danger); }
+    .stat-gray .stat-num  { color: var(--skip); }
+
+    /* ── TASK LIST ── */
+    .section-heading {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .task-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .task-row {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .task-row:hover { border-color: var(--border2); }
+
+    .task-left { flex: 1; min-width: 0; }
+
+    .task-eyebrow {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 3px;
+    }
+
+    .task-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .task-badge svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .badge-done   { background: rgba(34,211,164,0.1);  color: var(--success); border: 1px solid rgba(34,211,164,0.2); }
+    .badge-miss   { background: rgba(248,113,113,0.1); color: var(--danger);  border: 1px solid rgba(248,113,113,0.2); }
+    .badge-skip   { background: rgba(75,85,99,0.2);    color: #6b7280;        border: 1px solid rgba(75,85,99,0.3); }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .progress-label { font-size: 12px; color: var(--muted); }
+    .progress-pct { font-size: 13px; font-weight: 600; color: var(--accent2); }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6c63ff, #22d3a4);
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding-bottom: 20px;
+    }
+
+    footer a { color: var(--accent2); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 500px) {
+      .search-row { flex-direction: column; }
+      #searchBtn { justify-content: center; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .stat-card { padding: 12px 8px; }
+      .stat-card .stat-num { font-size: 22px; }
+      .profile-top { gap: 12px; }
+      .profile-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <header>
+    <a class="back-link" href="../dashboard/index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Kembali ke Dashboard
+    </a>
+    <div class="logo-pill">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      SG Richard Student Tracker
+    </div>
+    <h1>Task <br><span>Tracker</span></h1>
+    <p class="subtitle">Pantau Task Mana Saja Yang Sudah/Belum <br> dan Berapa Scorenya.<br></p>
+  </header>
+
+  <!-- RESULT AREA -->
+  <div id="result">
+    <div class="loading-box"><div class="spinner"></div><br>Memuat data kamu...</div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    Made by <br><a href="https://www.instagram.com/assistby.rjw/" target="_blank">assistby.rjw</a>
+  </footer>
+
+</div>
+
+<script src="../shared/auth.js"></script>
+<script>
+const _x = atob("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJyNi1YWnNHQ0lvS1ZfNDJ4aEJ6dDZsenlBOFRpb3RocUN2MUJYT3I4OVB0OGhKc1QxajVwQ1RvVFppY2Y1dXdMMTNJRWtNSDQ3Y09SWC9wdWI/b3V0cHV0PWNzdg==");
+const LEGACY_RLL = _x;
+
+// 
+const HIGHLIGHT_CANONICAL = {
+  "LEAD GENERATION":         "Lead Generation",
+  "EMAIL MARKETING":         "Email Marketing",
+  "SMM":                     "Social Media Management",
+  "SOCIAL MEDIA MANAGEMENT": "Social Media Management",
+  "Lead Generation":         "Lead Generation",
+  "Email Marketing":         "Email Marketing",
+  "Social Media Management": "Social Media Management",
+};
+
+// 
+const HIGHLIGHT_SKIP = {
+  "Lead Generation":         ["Email Marketing", "Social Media Management"],
+  "Email Marketing":         ["Lead Generation", "Social Media Management"],
+  "Social Media Management": ["Lead Generation", "Email Marketing"],
+};
+
+// 
+const SERVICE_KEYWORDS = [
+  { keyword: /\bEM\b/i,         service: "Email Marketing"         },
+  { keyword: /\bLG\b/i,         service: "Lead Generation"         },
+  { keyword: /\bSMM\b/i,        service: "Social Media Management" },
+  { keyword: /Email.*Marketing/i, service: "Email Marketing"        },
+  { keyword: /Lead.*Gen/i,       service: "Lead Generation"        },
+  { keyword: /Social.*Media/i,   service: "Social Media Management"},
+];
+
+// 
+const NON_TASK_COLS = [
+  "StudentID",
+  "Students Name",
+  "SA Name",
+  "Package",
+  "Chosen Highlight Service"
+];
+
+// 
+let cache    = null;
+let taskDefs = null;
+
+// ── .
+function buildTaskDefs(headers) {
+  const defs = [];
+  let n = 0;
+
+  headers.forEach((h, idx) => {
+    if (!h.toLowerCase().includes("score") || NON_TASK_COLS.includes(h)) return;
+
+    n++;
+    const lessonMatch = h.match(/lesson\s*(\d+)/i);
+    const taskMatch   = h.match(/task\s*(\d+)/i);
+    const labelMatch  = h.match(/:\s*(.+?)\s*Score\s*$/i);
+
+    const maxHeaderRaw = headers[idx + 2] || "";
+    const maxMatch      = maxHeaderRaw.match(/\d+(\.\d+)?/);
+    const maxScore      = maxMatch ? maxMatch[0] : null;
+
+    // 
+    let service = null;
+    for (const { keyword, service: svc } of SERVICE_KEYWORDS) {
+      if (keyword.test(h)) { service = svc; break; }
+    }
+
+    defs.push({
+      scoreKey: h,
+      maxScore: maxScore,
+      label:    labelMatch  ? labelMatch[1].trim()       : h.replace(/Score\s*$/i, "").replace(/^\d+\.\s*/, "").trim(),
+      lesson:   lessonMatch ? `Lesson ${lessonMatch[1]}` : `Task ${n}`,
+      num:      taskMatch   ? `Task ${taskMatch[1]}`     : `#${n}`,
+      service:  service,
+    });
+  });
+
+  return defs;
+}
+
+// ──  ──
+function parseCSV(txt) {
+  const allLines = txt.split("\n");
+  const lines    = allLines.filter(l => l.trim().replace(/,/g, "") !== "");
+
+  const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+
+  const rows = lines.slice(1).map(line => {
+    const cols = []; let cur = "", inQ = false;
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cols.push(cur); cur = ""; }
+      else cur += ch;
+    }
+    cols.push(cur);
+    const o = {};
+    headers.forEach((h, i) => o[h] = (cols[i] || "").replace(/^"|"$/g, "").trim());
+    return o;
+  }).filter(row => row["StudentID"] && row["StudentID"].trim() !== "");
+
+  return { rows, headers };
+}
+
+async function getData() {
+  if (cache) return cache;
+  const r = await fetch(LEGACY_RLL);
+  if (!r.ok) throw new Error("Gagal mengambil data dari Google Sheet.");
+  const { rows, headers } = parseCSV(await r.text());
+  taskDefs = buildTaskDefs(headers); // 
+  cache    = rows;
+  return cache;
+}
+
+function icon(type) {
+  const icons = {
+    check:  `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
+    clock:  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+    minus:  `<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+    alert:  `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+    user:   `<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
+    id:     `<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
+    star:   `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+    person: `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+    pkg:    `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73L13 2.27a2 2 0 0 0-2 0L4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
+  };
+  return icons[type] || "";
+}
+
+async function init() {
+  const el = document.getElementById("result");
+  el.innerHTML = `<div class="loading-box"><div class="spinner"></div><br>Memuat data kamu...</div>`;
+
+  // checkLogin() (dari shared/auth.js) memverifikasi token & otomatis
+  // redirect ke halaman login kalau sesi tidak valid — sama seperti Dashboard & Directory
+  let session;
+  try {
+    session = await checkLogin();
+  } catch (e) {
+    showError(el, "Gagal verifikasi login (server mungkin lambat merespons). Coba refresh halaman ini.");
+    return;
+  }
+  if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
+
+  const sid = session.studentId;
+
+  try {
+    const data = await getData();
+    const s = data.find(r => r["StudentID"] === sid);
+    if (!s) {
+      el.innerHTML = `<div class="empty-state">
+        <div class="icon-wrap">${icon("user")}</div>
+        <p class="title">Data tidak ditemukan</p>
+        <p>Student ID kamu <strong>${escHtml(sid)}</strong> tidak ditemukan di data Task Tracker.<br>Silahkan hubungi admin.</p>
+      </div>`;
+      return;
+    }
+    renderResult(s, el);
+  } catch(e) {
+    showError(el, e.message || "Terjadi kesalahan koneksi. Coba refresh halaman ini.");
+  }
+}
+
+function showError(el, msg) {
+  el.innerHTML = `<div class="error-box">${icon("alert")}<span>${escHtml(msg)}</span></div>`;
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function initials(name) {
+  return name.trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
+}
+
+function renderResult(s, el) {
+  const name      = s["Students Name"]           || "-";
+  const sa        = s["SA Name"]                 || "-";
+  const pkg       = s["Package"]                 || "-";
+  const highlightRaw = s["Chosen Highlight Service"] || "";
+  const highlight = HIGHLIGHT_CANONICAL[highlightRaw] || highlightRaw;
+  const skipList  = HIGHLIGHT_SKIP[highlight]    || [];
+
+  let done=0, miss=0, skip=0, total=0;
+
+  // 
+  const taskHTML = taskDefs.map(t => {
+    const isSkip = t.service && skipList.includes(t.service);
+    if (isSkip) { skip++; return null; } // 
+
+    const score  = s[t.scoreKey] || "";
+    let badge = "";
+
+    total++;
+    if (!score || score === "0") {
+      miss++;
+      badge = `<span class="task-badge badge-miss">${icon("clock")} Belum dikerjakan/Belum diberi Score</span>`;
+    } else {
+      done++;
+      const scoreLabel = t.maxScore ? `${escHtml(score)}/${escHtml(t.maxScore)}` : escHtml(score);
+      badge = `<span class="task-badge badge-done">${icon("check")} Skor: ${scoreLabel}</span>`;
+    }
+
+    return `<div class="task-row">
+      <div class="task-left">
+        <div class="task-eyebrow">${escHtml(t.lesson)} &middot; ${escHtml(t.num)}</div>
+        <div class="task-name">${escHtml(t.label)}</div>
+      </div>
+      ${badge}
+    </div>`;
+  }).filter(Boolean).join("");
+
+  const pct     = total > 0 ? Math.round((done / total) * 100) : 0;
+  const initStr = initials(name);
+
+  const hlBadge = highlight
+    ? `<span class="tag tag-hl">${icon("star")} ${escHtml(highlight)}</span>`
+    : `<span class="tag tag-id">HIDS belum dipilih</span>`;
+
+  el.innerHTML = `<div class="result-wrap">
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="avatar">${escHtml(initStr)}</div>
+        <div class="profile-info">
+          <div class="name">${escHtml(name)}</div>
+          <div class="meta-row">
+            <span class="tag tag-id">${icon("id")} ${escHtml(s["StudentID"])}</span>
+            <span class="tag tag-pkg">${icon("pkg")} ${escHtml(pkg)}</span>
+            <span class="tag tag-sa">${icon("person")} SA: ${escHtml(sa)}</span>
+            ${hlBadge}
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card stat-green">
+          <div class="stat-num">${done}</div>
+          <div class="stat-lbl">Selesai</div>
+        </div>
+        <div class="stat-card stat-red">
+          <div class="stat-num">${miss}</div>
+          <div class="stat-lbl">Belum</div>
+        </div>
+        <!-- <div class="stat-card stat-gray">
+          <div class="stat-num">${skip}</div>
+          <div class="stat-lbl">N/A</div>
+        </div> -->
+      </div>
+
+      <p class="section-heading">Progress tugas</p>
+      <div class="task-list">${taskHTML}</div>
+
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span class="progress-label">Completion rate</span>
+          <span class="progress-pct">${pct}%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="pbar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  setTimeout(() => {
+    const bar = document.getElementById("pbar");
+    if (bar) bar.style.width = pct + "%";
+  }, 80);
+}
+
+init();
+</script>
+</body>
+</html>
