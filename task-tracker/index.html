@@ -524,8 +524,8 @@
 
 <script src="../shared/auth.js"></script>
 <script>
-const _x = atob("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJyNi1YWnNHQ0lvS1ZfNDJ4aEJ6dDZsenlBOFRpb3RocUN2MUJYT3I4OVB0OGhKc1QxajVwQ1RvVFppY2Y1dXdMMTNJRWtNSDQ3Y09SWC9wdWI/b3V0cHV0PWNzdg==");
-const LEGACY_RLL = _x;
+const _p1 = ["aHR0cHM6Ly9kb2NzLmdvb2ds","ZS5jb20vc3ByZWFkc2hlZXRz","L2QvZS8yUEFDWC0xdlJyNi1Y","WnNHQ0lvS1ZfNDJ4aEJ6dDZs","enlBOFRpb3RocUN2MUJYT3I4","OVB0OGhKc1QxajVwQ1RvVFpp","Y2Y1dXdMMTNJRWtNSDQ3Y09S","WC9wdWI/b3V0cHV0PWNzdg=="].join("");
+const _SRC_A = atob(_p1);
 
 // 
 const HIGHLIGHT_CANONICAL = {
@@ -607,7 +607,7 @@ function buildTaskDefs(headers) {
 }
 
 // ──  ──
-function parseCSV(txt) {
+function parseRows(txt) {
   const allLines = txt.split("\n");
   const lines    = allLines.filter(l => l.trim().replace(/,/g, "") !== "");
 
@@ -631,9 +631,9 @@ function parseCSV(txt) {
 
 async function getData() {
   if (cache) return cache;
-  const r = await fetch(LEGACY_RLL);
-  if (!r.ok) throw new Error("Gagal mengambil data dari Google Sheet.");
-  const { rows, headers } = parseCSV(await r.text());
+  const r = await fetch(_SRC_A);
+  if (!r.ok) throw new Error("Gagal mengambil data.");
+  const { rows, headers } = parseRows(await r.text());
   taskDefs = buildTaskDefs(headers); // 
   cache    = rows;
   return cache;
@@ -737,7 +737,7 @@ function renderResult(s, el) {
     </div>`;
   }).filter(Boolean).join("");
 
-  // Diambil langsung dari kolom "Completion Rate" & "Total Score" di Sheet — tidak dihitung ulang.
+  // Diambil langsung dari kolom "Completion Rate" & "Total Score" di sumber data — tidak dihitung ulang.
   const pctRaw   = (s["Completion Rate"] || "0").toString().trim();
   const pct      = Math.round((parseFloat(pctRaw.replace("%", "").trim()) || 0) * 10) / 10;
   const totalScoreRaw = (s["Total Score"] || "0").toString().trim();
