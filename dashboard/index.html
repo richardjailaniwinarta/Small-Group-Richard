@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — SG Richard Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --cream: #F4EEE3;
+    --panel: #FFFFFF;
+    --ink: #262129;
+    --ink-soft: #6E6875;
+    --purple: #5A3E85;
+    --purple-deep: #4A3170;
+    --teal: #8FD6CE;
+    --teal-deep: #3E9C92;
+    --orange: #E58A4F;
+    --orange-deep: #C96F36;
+    --line: #ECE5D8;
+    --radius-lg: 28px;
+    --radius-md: 18px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .display {
+    font-family: 'Fraunces', serif;
+  }
+
+  /* decorative background shapes */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .blob-teal { width: 260px; height: 260px; background: var(--teal); opacity: .55; left: -90px; bottom: -90px; }
+  .blob-orange { width: 190px; height: 190px; background: var(--orange); opacity: .5; left: 40px; bottom: -110px; }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin: 40px auto;
+    padding: 40px;
+    background: var(--panel);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 60px -30px rgba(70, 50, 30, 0.18);
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 44px;
+  }
+
+  /* Sidebar */
+  .sidebar { display: flex; flex-direction: column; align-items: flex-start; }
+  .logo-mark {
+    width: 46px; height: 46px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--orange), var(--purple));
+    margin-bottom: 34px;
+  }
+  .avatar {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: var(--purple);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 30px; font-weight: 600;
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .batch-badge {
+    position: absolute;
+    bottom: -10px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .student-name { font-size: 18px; font-weight: 600; margin: 18px 0 2px; }
+  .student-id { font-size: 13px; color: var(--ink-soft); margin-bottom: 32px; }
+
+  nav { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 15px; color: var(--ink-soft);
+    text-decoration: none;
+    cursor: default;
+  }
+  .nav-item .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    border: 1.5px solid #D8D2C8;
+  }
+  .nav-item.active { color: var(--ink); font-weight: 600; }
+  .nav-item.active .dot { background: var(--purple-deep); border-color: var(--purple-deep); }
+  .nav-item.link { cursor: pointer; }
+  .nav-item.link:hover { color: var(--ink); }
+
+  .logout-mini {
+    margin-top: auto;
+    padding-top: 30px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: inherit;
+  }
+
+  /* Main content */
+  main { min-width: 0; }
+  .top-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 30px;
+  }
+  .greeting h1 { font-size: 32px; margin: 0; font-weight: 600; }
+  .greeting .sub { color: var(--ink-soft); font-size: 14px; margin-top: 6px; }
+
+  .logout-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  .cards-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 34px;
+  }
+  .card {
+    border-radius: var(--radius-md);
+    padding: 24px;
+    color: #fff;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .card h3 { font-size: 22px; margin: 0; font-weight: 600; }
+  .card .meta { font-size: 12.5px; opacity: .9; margin-top: auto; }
+  .card .progress-track {
+    height: 6px; border-radius: 4px; background: rgba(255,255,255,.35);
+    margin-top: 10px; overflow: hidden;
+  }
+  .card .progress-fill { height: 100%; background: #fff; border-radius: 4px; }
+
+  .card-selesai { background: var(--purple); }
+  .card-belum { background: var(--teal-deep); }
+  .card-hids { background: var(--orange-deep); }
+  .card-hids .meta { font-size: 13px; text-transform: capitalize; }
+
+  .section-title { font-size: 20px; font-weight: 600; margin: 0 0 16px; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .stat-box {
+    background: #F7F3EB;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 20px;
+  }
+  .stat-box .big { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .stat-box .label { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .status-approved { background: #E4F5EA; color: #2C8A55; }
+  .status-pending { background: #F1EDE3; color: #8A7A55; }
+  .status-rejected { background: #FBE7E4; color: #C24A3C; }
+
+  .state-msg {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  @media (max-width: 780px) {
+    .shell { grid-template-columns: 1fr; padding: 26px; margin: 16px; }
+    .sidebar { flex-direction: row; flex-wrap: wrap; align-items: center; }
+    .avatar { width: 64px; height: 64px; font-size: 20px; }
+    nav { flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
+    .cards-row, .stats-grid { grid-template-columns: 1fr; }
+    .top-row { flex-direction: column; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="blob blob-teal"></div>
+<div class="blob blob-orange"></div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="logo-mark"></div>
+    <div class="avatar" id="avatarInitials">
+      --
+      <span class="batch-badge" id="batchBadge">Batch —</span>
+    </div>
+    <div class="student-name" id="studentName">Memuat...</div>
+    <div class="student-id" id="studentIdLabel">—</div>
+
+    <nav>
+      <span class="nav-item active"><span class="dot"></span>Dashboard</span>
+      <span class="nav-item"><span class="dot"></span>Directory</span>
+      <span class="nav-item"><span class="dot"></span>Task Tracker</span>
+      <span class="nav-item"><span class="dot"></span>Hall of Fame</span>
+    </nav>
+
+    <button class="logout-mini" onclick="logout()">Logout</button>
+  </aside>
+
+  <main>
+    <div class="top-row">
+      <div class="greeting">
+        <h1 id="greetingName">Hello,</h1>
+        <div class="sub">Ini ringkasan progres belajar kamu sejauh ini.</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="dashboardBody">
+      <div class="state-msg">Memuat data kamu...</div>
+    </div>
+  </main>
+</div>
+
+<script src="../shared/auth.js"></script>
+<script>
+  const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRr6-XZsGCIoKV_42xhBzt6lzyA8TiothqCv1BXOr89Pt8hJsT1j5pCToTZicf5uwL13IEkMH47cORX/pub?output=csv";
+  const PORTFOLIO_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRr6-XZsGCIoKV_42xhBzt6lzyA8TiothqCv1BXOr89Pt8hJsT1j5pCToTZicf5uwL13IEkMH47cORX/pub?gid=758194686&single=true&output=csv";
+
+  const MASTER_TASK_START_COL = 6;   // kolom index tempat data task dimulai
+  const MASTER_TASK_COUNT = 49;      // jumlah task (triplet Score/Status/Alasan)
+  const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di sheet Portfolio Status
+
+  function fetchCsvRows(url) {
+    return new Promise((resolve, reject) => {
+      Papa.parse(url, {
+        download: true,
+        skipEmptyLines: false,
+        complete: (results) => resolve(results.data),
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  function findStudentRow(rows, studentId) {
+    // baris 0 = baris kosong, baris 1 = header, data mulai dari baris 2
+    for (let i = 2; i < rows.length; i++) {
+      const row = rows[i];
+      if (row[0] && row[0].toString().trim() === studentId.toString().trim()) {
+        return row;
+      }
+    }
+    return null;
+  }
+
+  function computeTaskStats(row) {
+    let completed = 0;
+    let pending = 0;
+    let totalScore = 0;
+
+    for (let t = 0; t < MASTER_TASK_COUNT; t++) {
+      const idx = MASTER_TASK_START_COL + t * 3;
+      const scoreRaw = row[idx];
+      const flag = (row[idx + 1] || "").toString().trim().toUpperCase();
+
+      if (flag === "TRUE") {
+        completed++;
+        const score = parseFloat(scoreRaw);
+        if (!isNaN(score)) totalScore += score;
+      } else if (flag === "FALSE") {
+        pending++;
+      }
+    }
+
+    const applicable = completed + pending;
+    const pct = applicable > 0 ? Math.round((completed / applicable) * 1000) / 10 : 0;
+
+    return { completed, pending, pct, totalScore };
+  }
+
+  function titleCaseService(raw) {
+    if (!raw) return "—";
+    return raw
+      .toLowerCase()
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+  }
+
+  function initials(name) {
+    if (!name) return "??";
+    return name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
+  }
+
+  function renderPortfolioPill(statusRaw) {
+    const status = (statusRaw || "").toString().trim();
+    const lower = status.toLowerCase();
+
+    if (lower === "approved") {
+      return `<span class="status-pill status-approved">✓ Approved</span>`;
+    }
+    if (lower === "rejected") {
+      return `<span class="status-pill status-rejected">✕ Rejected</span>`;
+    }
+    if (lower === "pending") {
+      return `<span class="status-pill status-pending">● Pending</span>`;
+    }
+    return `<span class="status-pill status-pending">Belum Direview</span>`;
+  }
+
+  function renderDashboard({ nama, batch, hids, completed, pending, pct, totalScore, portfolioStatus }) {
+    document.getElementById("avatarInitials").innerHTML = `
+      ${initials(nama)}
+      <span class="batch-badge">Batch ${batch || "—"}</span>
+    `;
+    document.getElementById("studentName").textContent = nama;
+    document.getElementById("greetingName").textContent = `Hello, ${nama}`;
+
+    document.getElementById("dashboardBody").innerHTML = `
+      <section class="cards-row">
+        <div class="card card-selesai">
+          <h3>Task Selesai</h3>
+          <div class="meta">
+            ${completed} tasks &nbsp;|&nbsp; ${pct}% Completion Rate
+            <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+          </div>
+        </div>
+        <div class="card card-belum">
+          <h3>Task yg Belum</h3>
+          <div class="meta">
+            ${pending} tasks &nbsp;|&nbsp; ${100 - pct}%
+            <div class="progress-track"><div class="progress-fill" style="width:${100 - pct}%"></div></div>
+          </div>
+        </div>
+        <div class="card card-hids">
+          <h3>HIDS</h3>
+          <div class="meta">${hids}</div>
+        </div>
+      </section>
+
+      <h2 class="section-title">Statistics</h2>
+      <section class="stats-grid">
+        <div class="stat-box">
+          <div class="big">${pct}%</div>
+          <div class="label">% Completion</div>
+        </div>
+        <div class="stat-box">
+          <div class="big">${totalScore.toLocaleString("id-ID")}</div>
+          <div class="label">Total Score</div>
+        </div>
+        <div class="stat-box">
+          <div class="big">${renderPortfolioPill(portfolioStatus)}</div>
+          <div class="label">Portfolio</div>
+        </div>
+      </section>
+    `;
+  }
+
+  function renderError(message) {
+    document.getElementById("dashboardBody").innerHTML = `<div class="state-msg">${message}</div>`;
+  }
+
+  async function init() {
+    const session = await checkLogin();
+    if (!session) return; // checkLogin sudah handle redirect kalau gagal
+
+    document.getElementById("studentIdLabel").textContent = session.studentId;
+
+    try {
+      const [masterRows, portfolioRows] = await Promise.all([
+        fetchCsvRows(MASTER_CSV_URL),
+        fetchCsvRows(PORTFOLIO_CSV_URL),
+      ]);
+
+      const masterRow = findStudentRow(masterRows, session.studentId);
+      if (!masterRow) {
+        renderError("Data kamu tidak ditemukan di Master Students. Hubungi admin ya.");
+        return;
+      }
+
+      const hidsRaw = masterRow[4]; // kolom "Chosen Highlight Service"
+      const { completed, pending, pct, totalScore } = computeTaskStats(masterRow);
+
+      const portfolioRow = findStudentRow(portfolioRows, session.studentId);
+      const portfolioStatus = portfolioRow ? portfolioRow[PORTFOLIO_STATUS_COL] : "";
+
+      renderDashboard({
+        nama: session.nama || masterRow[1],
+        batch: session.batch,
+        hids: titleCaseService(hidsRaw),
+        completed,
+        pending,
+        pct,
+        totalScore,
+        portfolioStatus,
+      });
+    } catch (err) {
+      console.error(err);
+      renderError("Gagal memuat data. Coba refresh halaman ini.");
+    }
+  }
+
+  init();
+</script>
+
+</body>
+</html>
