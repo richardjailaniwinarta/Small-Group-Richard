@@ -15,10 +15,13 @@
     --ink-soft: #6E6875;
     --purple: #5A3E85;
     --purple-deep: #4A3170;
+    --purple-glow: #8A6FC2;
     --teal: #8FD6CE;
     --teal-deep: #3E9C92;
+    --teal-glow: #6FCFC3;
     --orange: #E58A4F;
     --orange-deep: #C96F36;
+    --orange-glow: #F0A465;
     --line: #ECE5D8;
     --radius-lg: 28px;
     --radius-md: 18px;
@@ -67,10 +70,15 @@
   /* Sidebar */
   .sidebar { display: flex; flex-direction: column; align-items: flex-start; }
   .logo-mark {
-    width: 46px; height: 46px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--orange), var(--purple));
-    margin-bottom: 34px;
+    width: 52px; height: 52px; border-radius: 14px;
+    background: #FBF8F1;
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 30px;
+    padding: 6px;
   }
+  .logo-mark img { width: 100%; height: 100%; object-fit: contain; }
+
   .avatar {
     width: 100px; height: 100px; border-radius: 50%;
     background: var(--purple);
@@ -153,26 +161,67 @@
     margin-bottom: 34px;
   }
   .card {
+    position: relative;
     border-radius: var(--radius-md);
-    padding: 24px;
+    padding: 22px;
     color: #fff;
-    min-height: 150px;
+    min-height: 176px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow: hidden;
+    isolation: isolate;
   }
-  .card h3 { font-size: 22px; margin: 0; font-weight: 600; }
-  .card .meta { font-size: 12.5px; opacity: .9; margin-top: auto; }
-  .card .progress-track {
-    height: 6px; border-radius: 4px; background: rgba(255,255,255,.35);
-    margin-top: 10px; overflow: hidden;
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: .5;
+    background-image: radial-gradient(circle, rgba(255,255,255,.16) 1.5px, transparent 1.5px);
+    background-size: 14px 14px;
   }
-  .card .progress-fill { height: 100%; background: #fff; border-radius: 4px; }
+  .card::after {
+    content: '';
+    position: absolute;
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    right: -50px; top: -60px;
+    background: rgba(255,255,255,.10);
+    z-index: -1;
+  }
+  .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .card h3 { font-size: 20px; margin: 0; font-weight: 600; }
+  .card-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: rgba(255,255,255,.18);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .card-icon svg { width: 18px; height: 18px; }
 
-  .card-selesai { background: var(--purple); }
-  .card-belum { background: var(--teal-deep); }
-  .card-hids { background: var(--orange-deep); }
-  .card-hids .meta { font-size: 13px; text-transform: capitalize; }
+  .card-body { display: flex; align-items: center; gap: 16px; margin-top: 10px; }
+  .ring-wrap { position: relative; width: 64px; height: 64px; flex-shrink: 0; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: rgba(255,255,255,.28); stroke-width: 6; }
+  .ring-fill { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+  .ring-label {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 14px;
+  }
+  .card-stat-text .count { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 600; line-height: 1; }
+  .card-stat-text .label { font-size: 12px; opacity: .88; margin-top: 4px; }
+
+  .card-selesai { background: linear-gradient(155deg, var(--purple), var(--purple-deep)); }
+  .card-belum { background: linear-gradient(155deg, var(--teal-glow), var(--teal-deep)); }
+  .card-hids { background: linear-gradient(155deg, var(--orange-glow), var(--orange-deep)); }
+  .card-hids .card-body { align-items: flex-start; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .card-hids .hids-value { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 600; }
+  .card-hids .hids-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px;
+  }
 
   .section-title { font-size: 20px; font-weight: 600; margin: 0 0 16px; }
 
@@ -225,7 +274,7 @@
 
 <div class="shell">
   <aside class="sidebar">
-    <div class="logo-mark"></div>
+    <div class="logo-mark"><img src="../images/logo-icon.png" alt="Richard J Winarta logo" /></div>
     <div class="avatar" id="avatarInitials">
       --
       <span class="batch-badge" id="batchBadge">Batch —</span>
@@ -266,6 +315,12 @@
   const MASTER_TASK_START_COL = 6;   // kolom index tempat data task dimulai
   const MASTER_TASK_COUNT = 49;      // jumlah task (triplet Score/Status/Alasan)
   const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di sheet Portfolio Status
+
+  const ICONS = {
+    check: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+    clock: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>`,
+    target: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="#fff"/></svg>`,
+  };
 
   function fetchCsvRows(url) {
     return new Promise((resolve, reject) => {
@@ -309,9 +364,11 @@
     }
 
     const applicable = completed + pending;
-    const pct = applicable > 0 ? Math.round((completed / applicable) * 1000) / 10 : 0;
+    // dibulatkan ke 1 desimal dengan aman (hindari 27.799999999999997)
+    const completedPct = applicable > 0 ? Math.round((completed / applicable) * 1000) / 10 : 0;
+    const pendingPct = applicable > 0 ? Math.round((pending / applicable) * 1000) / 10 : 0;
 
-    return { completed, pending, pct, totalScore };
+    return { completed, pending, completedPct, pendingPct, totalScore };
   }
 
   function titleCaseService(raw) {
@@ -350,7 +407,24 @@
     return `<span class="status-pill status-pending">Belum Direview</span>`;
   }
 
-  function renderDashboard({ nama, batch, hids, completed, pending, pct, totalScore, portfolioStatus }) {
+  // Ring lingkaran kecil pakai SVG, radius tetap, offset dihitung dari %
+  function ringSvg(pct, idSuffix) {
+    const r = 26;
+    const circumference = 2 * Math.PI * r;
+    const offset = circumference - (pct / 100) * circumference;
+    return `
+      <div class="ring-wrap">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="ring-track" cx="32" cy="32" r="${r}" />
+          <circle class="ring-fill" cx="32" cy="32" r="${r}"
+            stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" />
+        </svg>
+        <div class="ring-label">${pct}%</div>
+      </div>
+    `;
+  }
+
+  function renderDashboard({ nama, batch, hids, completed, pending, completedPct, pendingPct, totalScore, portfolioStatus }) {
     document.getElementById("avatarInitials").innerHTML = `
       ${initials(nama)}
       <span class="batch-badge">Batch ${batch || "—"}</span>
@@ -361,29 +435,49 @@
     document.getElementById("dashboardBody").innerHTML = `
       <section class="cards-row">
         <div class="card card-selesai">
-          <h3>Task Selesai</h3>
-          <div class="meta">
-            ${completed} tasks &nbsp;|&nbsp; ${pct}% Completion Rate
-            <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="card-head">
+            <h3>Task Selesai</h3>
+            <div class="card-icon">${ICONS.check}</div>
+          </div>
+          <div class="card-body">
+            ${ringSvg(completedPct, "done")}
+            <div class="card-stat-text">
+              <div class="count">${completed}</div>
+              <div class="label">dari ${completed + pending} task</div>
+            </div>
           </div>
         </div>
+
         <div class="card card-belum">
-          <h3>Task yg Belum</h3>
-          <div class="meta">
-            ${pending} tasks &nbsp;|&nbsp; ${100 - pct}%
-            <div class="progress-track"><div class="progress-fill" style="width:${100 - pct}%"></div></div>
+          <div class="card-head">
+            <h3>Task yg Belum</h3>
+            <div class="card-icon">${ICONS.clock}</div>
+          </div>
+          <div class="card-body">
+            ${ringSvg(pendingPct, "pending")}
+            <div class="card-stat-text">
+              <div class="count">${pending}</div>
+              <div class="label">masih tersisa</div>
+            </div>
           </div>
         </div>
+
         <div class="card card-hids">
-          <h3>HIDS</h3>
-          <div class="meta">${hids}</div>
+          <div class="card-head">
+            <h3>HIDS</h3>
+            <div class="card-icon">${ICONS.target}</div>
+          </div>
+          <div class="card-body">
+            <span class="hids-tag">Highlight Service</span>
+            <div class="hids-value">${hids}</div>
+          </div>
         </div>
       </section>
 
       <h2 class="section-title">Statistics</h2>
       <section class="stats-grid">
         <div class="stat-box">
-          <div class="big">${pct}%</div>
+          <div class="big">${completedPct}%</div>
           <div class="label">% Completion</div>
         </div>
         <div class="stat-box">
@@ -421,7 +515,7 @@
       }
 
       const hidsRaw = masterRow[4]; // kolom "Chosen Highlight Service"
-      const { completed, pending, pct, totalScore } = computeTaskStats(masterRow);
+      const { completed, pending, completedPct, pendingPct, totalScore } = computeTaskStats(masterRow);
 
       const portfolioRow = findStudentRow(portfolioRows, session.studentId);
       const portfolioStatus = portfolioRow ? portfolioRow[PORTFOLIO_STATUS_COL] : "";
@@ -432,7 +526,8 @@
         hids: titleCaseService(hidsRaw),
         completed,
         pending,
-        pct,
+        completedPct,
+        pendingPct,
         totalScore,
         portfolioStatus,
       });
