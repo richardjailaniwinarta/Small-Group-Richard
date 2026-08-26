@@ -666,11 +666,11 @@ async function init() {
   }
   if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
 
-  const sid = session.studentId;
+  const sid = String(session.studentId).trim();
 
   try {
     const data = await getData();
-    const s = data.find(r => r["StudentID"] === sid);
+    const s = data.find(r => String(r["StudentID"]).trim() === sid);
     if (!s) {
       el.innerHTML = `<div class="empty-state">
         <div class="icon-wrap">${icon("user")}</div>
