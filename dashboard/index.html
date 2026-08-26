@@ -280,6 +280,28 @@
   .status-pending { background: #F1EDE3; color: #8A7A55; }
   .status-rejected { background: #FBE7E4; color: #C24A3C; }
 
+  .congrat-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .congrat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    font-weight: 700;
+    background: #E4F5EA;
+    color: #2C8A55;
+    border: 1px solid #BFE6CE;
+    animation: pillIn .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .congrat-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  @keyframes pillIn { from { opacity: 0; transform: translateY(6px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
   .state-msg {
     text-align: center;
     padding: 60px 20px;
@@ -367,6 +389,7 @@
   const MASTER_TASK_START_COL = 6;   // kolom index tempat data task dimulai
   const MASTER_TASK_COUNT = 49;      // jumlah task (triplet Score/Status/Alasan)
   const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di sheet Portfolio Status
+  const TOTAL_MAX_SCORE = 5400;      // skor maksimum untuk status "Full Score"
 
   const ICONS = {
     check: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
@@ -459,6 +482,18 @@
     return `<span class="status-pill status-pending">Belum Direview</span>`;
   }
 
+  function renderCongratPills(completedPct, totalScore) {
+    const pills = [];
+    if (completedPct >= 100) {
+      pills.push(`<span class="congrat-pill"><span class="dot"></span>Congrat 100% Completion</span>`);
+    }
+    if (totalScore >= TOTAL_MAX_SCORE) {
+      pills.push(`<span class="congrat-pill"><span class="dot"></span>Congrat Full Score! 🎉</span>`);
+    }
+    if (pills.length === 0) return "";
+    return `<div class="congrat-row">${pills.join("")}</div>`;
+  }
+
   // Ring lingkaran kecil pakai SVG, radius tetap, offset dihitung dari %
   function ringSvg(pct, idSuffix) {
     const r = 26;
@@ -541,6 +576,8 @@
           <div class="label">Portfolio</div>
         </div>
       </section>
+
+      ${renderCongratPills(completedPct, totalScore)}
     `;
   }
 
