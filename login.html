@@ -224,8 +224,8 @@
     submitBtn.textContent = 'Memproses...';
 
     try {
-      const url = `${API_URL}?action=login&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`;
-      const res  = await fetch(url);
+      const url = `${API_URL}?action=login&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}&_=${Date.now()}`;
+      const res  = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
 
       if (data.error) {
