@@ -566,6 +566,33 @@ const NON_TASK_COLS = [
   "Completion Rate"
 ];
 
+// ===== Caching layer (sessionStorage, TTL 5 menit) — pola sama seperti Dashboard =====
+// in-memory `cache` di bawah cuma hidup selama tab ini belum di-reload/navigasi.
+// sessionStorage bikin cache-nya bertahan walau user pindah halaman lalu balik lagi,
+// atau nge-refresh, tanpa perlu tarik ulang CSV dari Google Sheets.
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — samakan dengan Dashboard, gampang diubah kalau perlu
+const CACHE_PREFIX = "sgr_cache_";
+
+function getCache(key) {
+  try {
+    const raw = sessionStorage.getItem(CACHE_PREFIX + key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.ts > CACHE_TTL_MS) return null; // sudah kadaluarsa
+    return parsed.data;
+  } catch (e) {
+    return null; // sessionStorage error/disabled -> anggap tidak ada cache
+  }
+}
+
+function setCache(key, data) {
+  try {
+    sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ ts: Date.now(), data }));
+  } catch (e) {
+    // storage penuh/diblok -> abaikan, tidak fatal
+  }
+}
+
 // 
 let cache    = null;
 let taskDefs = null;
@@ -630,12 +657,21 @@ function parseRows(txt) {
 }
 
 async function getData() {
-  if (cache) return cache;
+  if (cache) return cache; // sudah ada di memori untuk load halaman ini, langsung pakai
+
+  const cached = getCache("task_tracker_rows");
+  if (cached) {
+    cache    = cached.rows;
+    taskDefs = cached.taskDefs;
+    return cache;
+  }
+
   const r = await fetch(_SRC_A);
   if (!r.ok) throw new Error("Gagal mengambil data.");
   const { rows, headers } = parseRows(await r.text());
   taskDefs = buildTaskDefs(headers); // 
   cache    = rows;
+  setCache("task_tracker_rows", { rows, taskDefs });
   return cache;
 }
 
