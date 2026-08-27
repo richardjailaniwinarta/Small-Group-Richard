@@ -365,16 +365,13 @@
 (function(){
 
 
-  var REQUIRED_BATCH = "34";
+  var REQUIRED_BATCHES = ["34"];
 
-  // ========  ========
 
   var FULL_SCORE_THRESHOLD = 5400;
   // =====================================
 
-
   var TESTIMONIAL_FOLDER = 'testimonials';
-
 
   var _p1 = 'aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFT';
   var _p2 = 'dWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg==';
@@ -508,7 +505,7 @@
   function showAccessDenied(){
     document.querySelector('.wrap').innerHTML =
       '<div class="state-msg" style="padding:140px 20px;">' +
-        'Halaman ini khusus untuk Student Batch ' + REQUIRED_BATCH + '.' +
+        'Halaman ini khusus untuk Student Batch ' + REQUIRED_BATCHES.join(', ') + '.' +
         '<div style="margin-top:16px">' +
           '<a href="../dashboard/index.html" style="color:var(--teal); font-weight:700; text-decoration:none;">← Kembali ke Dashboard</a>' +
         '</div>' +
@@ -545,7 +542,7 @@
 
   checkLogin().then(function(session){
     if (!session) return; // sudah di-redirect oleh checkLogin()
-    if (String(session.batch).trim() !== REQUIRED_BATCH) {
+    if (!REQUIRED_BATCHES.includes(String(session.batch).trim())) {
       showAccessDenied();
       return;
     }
