@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Batch 33 — Hall of Fame</title>
+<title>Batch 34 — Hall of Fame</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -299,11 +299,35 @@
     white-space:nowrap;
   }
 
+  .back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-top:24px;
+    padding:9px 16px;
+    border-radius:999px;
+    border:1px solid var(--card-border);
+    background:var(--card-bg);
+    backdrop-filter:blur(6px);
+    color:var(--cream);
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  }
+  .back-btn:hover{background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.25); transform:translateY(-1px);}
+  .back-btn svg{width:14px; height:14px; flex-shrink:0;}
+
   .state-msg{
     text-align:center;
     padding:30px 20px;
     color:var(--cream-dim);
     font-size:14px;
+  }
+  .full-grid .state-msg{
+    grid-column:1 / -1;
   }
 
   footer{
@@ -331,10 +355,14 @@
 </svg>
 
 <div class="wrap">
+  <a class="back-btn" href="../dashboard/index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+    Kembali ke Dashboard
+  </a>
   <header>
-    <div class="brand"><span class="dot"></span> BATCH 33 &middot; PERFORMANCE RECAP</div>
+    <div class="brand"><span class="dot"></span> BATCH 34 &middot; PERFORMANCE RECAP</div>
     <h1>Hall of Fame</h1>
-    <p class="subtitle">Daftar student dengan pencapaian terbaik pada Batch 33</p>
+    <p class="subtitle">Daftar student dengan pencapaian terbaik pada Batch 34</p>
     <div class="stat-row">
       <div class="stat-pill gold"><span class="num" id="fullCount">–</span> Full Score</div>
       <div class="stat-pill teal"><span class="num" id="compCount">–</span> Completion 100%</div>
@@ -357,28 +385,23 @@
     <div class="comp-list" id="compList"></div>
   </section>
 
-  <footer>Made by Richard J Winarta &middot; Batch 33 &middot; Hall of Fame</footer>
+  <footer>Made by Richard J Winarta &middot; Batch 34 &middot; Hall of Fame</footer>
 </div>
 
 <script src="../shared/auth.js"></script>
 <script>
 (function(){
 
-  // Batch yang diizinkan mengakses Hall of Fame ini. Tambah/hapus di sini
-  // kalau file ini dipakai ulang untuk batch lain.
-  var REQUIRED_BATCHES = ["34"];
 
-  // ======== KONFIGURASI MANUAL ========
-  // Angka skor yang dianggap "Full Score". Ubah angka ini kalau nilai
-  // maksimum berubah di batch/course berikutnya.
+  var REQUIRED_BATCHES = ["33"];
+
+
   var FULL_SCORE_THRESHOLD = 5400;
   // =====================================
 
-  // Folder tempat file PNG testimonial disimpan, satu lokasi dengan file HTML ini
   var TESTIMONIAL_FOLDER = 'testimonials';
 
-  // Sumber data disimpan dalam bentuk terenkode & terpecah agar tidak muncul
-  // sebagai teks polos di source code halaman ini.
+
   var _p1 = 'aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFT';
   var _p2 = 'dWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg==';
   function _src(){ return atob(_p1 + _p2); }
@@ -398,7 +421,7 @@
 
   var downloadIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
 
-  // Parser CSV sederhana, mendukung field yang dibungkus tanda kutip
+
   function parseCSV(text){
     var rows = [];
     var row = [];
@@ -507,8 +530,7 @@
     document.getElementById('compList').innerHTML = '';
   }
 
-  // Ambil bagian angka saja dari nilai batch, supaya format "34", "B34",
-  // atau "Batch 34" semuanya dianggap sama.
+
   function normalizeBatch(batch) {
     return String(batch || "").replace(/[^0-9]/g, "");
   }
