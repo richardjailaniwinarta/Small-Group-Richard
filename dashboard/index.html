@@ -523,8 +523,6 @@
     applyTheme(saved === 'light' ? 'light' : 'dark');
   }
 
-  // Kalau tema diubah dari tab/halaman lain (misalnya directory atau task-tracker),
-  // halaman ini ikut update otomatis tanpa perlu reload.
   window.addEventListener('storage', (e) => {
     if (e.key === THEME_KEY) {
       applyTheme(e.newValue === 'light' ? 'light' : 'dark');
@@ -545,8 +543,6 @@
   const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di data Portfolio Status
   const TOTAL_MAX_SCORE = 5400;      // skor maksimum untuk status "Full Score"
 
-  // Sama persis dengan yang dipakai di Task Tracker — supaya kedua halaman
-  // menghitung completion rate dengan cara yang konsisten (skip task di luar track siswa)
   const SERVICE_KEYWORDS = [
     { keyword: /\bEM\b/i,           service: "Email Marketing" },
     { keyword: /\bLG\b/i,           service: "Lead Generation" },
