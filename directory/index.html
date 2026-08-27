@@ -48,43 +48,43 @@
   }
 
   [data-theme="dark"] {
-    --bg: #0a0d14;
-    --surface: #111520;
-    --surface2: #171d2e;
-    --border: #1f2942;
-    --accent: #4f7fff;
-    --accent-rgb: 79,127,255;
-    --accent2: #7c5cfc;
-    --accent2-rgb: 124,92,252;
-    --accent3: #00d4aa;
-    --accent3-rgb: 0,212,170;
-    --text: #e8edf8;
-    --text-muted: #6e7fa8;
-    --text-muted-rgb: 110,127,168;
-    --text-dim: #3d4d70;
-    --week0: #ff7c5c; --week0-rgb: 255,124,92;
-    --week1: #ffc85c; --week1-rgb: 255,200,92;
-    --week2: #5cffb8; --week2-rgb: 92,255,184;
-    --week3: #5cc8ff; --week3-rgb: 92,200,255;
-    --week4: #b85cff; --week4-rgb: 184,92,255;
-    --week5: #ff5cad; --week5-rgb: 255,92,173;
-    --week6: #5cffff; --week6-rgb: 92,255,255;
-    --week7: #ffff5c; --week7-rgb: 255,255,92;
-    --course: #4f7fff; --course-rgb: 79,127,255;
-    --product: #7c5cfc; --product-rgb: 124,92,252;
-    --community: #00d4aa; --community-rgb: 0,212,170;
-    --sa: #ff7c5c; --sa-rgb: 255,124,92;
+    --bg: #0b0e14;
+    --surface: #12161f;
+    --surface2: #171d2b;
+    --border: rgba(255,255,255,0.09);
+    --accent: #6c63ff;
+    --accent-rgb: 108,99,255;
+    --accent2: #2fd0a3;
+    --accent2-rgb: 47,208,163;
+    --accent3: #f7b733;
+    --accent3-rgb: 247,183,51;
+    --text: #e8eaf0;
+    --text-muted: #808a9e;
+    --text-muted-rgb: 128,138,158;
+    --text-dim: #4a5578;
+    --week0: #f7b733; --week0-rgb: 247,183,51;
+    --week1: #ffcf6e; --week1-rgb: 255,207,110;
+    --week2: #2fd0a3; --week2-rgb: 47,208,163;
+    --week3: #6c63ff; --week3-rgb: 108,99,255;
+    --week4: #4c46c9; --week4-rgb: 76,70,201;
+    --week5: #a78bfa; --week5-rgb: 167,139,250;
+    --week6: #6fe3c0; --week6-rgb: 111,227,192;
+    --week7: #d69a1f; --week7-rgb: 214,154,31;
+    --course: #6c63ff; --course-rgb: 108,99,255;
+    --product: #4c46c9; --product-rgb: 76,70,201;
+    --community: #2fd0a3; --community-rgb: 47,208,163;
+    --sa: #f7b733; --sa-rgb: 247,183,51;
     --shadow-rgb: 0,0,0;
-    --error-color: #ff7c5c;
-    --header-grad-1: #0a0d14;
-    --header-grad-2: #111828;
-    --recording-grad-1: #ff4d4d;
-    --recording-grad-2: #ff7c5c;
-    --all-week-dot: #4f7fff;
-    --link-canva: #ff6b6b; --link-canva-rgb: 255,107,107;
+    --error-color: #f87171;
+    --header-grad-1: #0b0e14;
+    --header-grad-2: #12161f;
+    --recording-grad-1: #f87171;
+    --recording-grad-2: #ffb4b4;
+    --all-week-dot: #6c63ff;
+    --link-canva: #f87171; --link-canva-rgb: 248,113,113;
     --link-google: #4285f4; --link-google-rgb: 66,133,244;
     --link-zoom: #2d8cff; --link-zoom-rgb: 45,140,255;
-    --link-default: #4f7fff; --link-default-rgb: 79,127,255;
+    --link-default: #6c63ff; --link-default-rgb: 108,99,255;
     --toggle-icon: "☀️";
   }
 
@@ -1576,8 +1576,8 @@ function toggleTheme() {
 
 function initTheme() {
   let saved = null;
-  try { saved = localStorage.getItem('b34-theme'); } catch (e) { /* storage unavailable, default to light */ }
-  applyTheme(saved === 'dark' ? 'dark' : 'light');
+  try { saved = localStorage.getItem('b34-theme'); } catch (e) { /* storage unavailable, default to dark */ }
+  applyTheme(saved === 'light' ? 'light' : 'dark');
 }
 
 // ============ INIT ============
