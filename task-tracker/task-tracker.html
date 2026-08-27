@@ -590,7 +590,7 @@
         </span>
         Task Tracker
       </span>
-      <span class="nav-item disabled">
+      <span class="nav-item disabled" id="hofNavItem">
         <span class="nav-icon nav-icon-gold">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h2a2 2 0 0 1 2 2 4 4 0 0 1-4 4"/><path d="M7 5H5a2 2 0 0 0-2 2 4 4 0 0 0 4 4"/></svg>
         </span>
@@ -713,6 +713,30 @@ const NON_TASK_COLS = [
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — samakan dengan Dashboard, gampang diubah kalau perlu
 const CACHE_PREFIX = "sgr_cache_";
+
+const HOF_AVAILABLE_BATCHES = ["34"];
+
+function normalizeBatch(batch) {
+  return String(batch || "").replace(/[^0-9]/g, "");
+}
+
+function updateHallOfFameNav(batch) {
+  const el = document.getElementById("hofNavItem");
+  if (!el) return;
+  const isAvailable = HOF_AVAILABLE_BATCHES.includes(normalizeBatch(batch));
+  if (!isAvailable) return; // biarkan tetap versi default (disabled, tulisan "Segera")
+
+  const link = document.createElement("a");
+  link.className = "nav-item link";
+  link.href = "../hall-of-fame/hall-of-fame.html";
+  link.innerHTML = `
+    <span class="nav-icon nav-icon-gold">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h2a2 2 0 0 1 2 2 4 4 0 0 1-4 4"/><path d="M7 5H5a2 2 0 0 0-2 2 4 4 0 0 0 4 4"/></svg>
+    </span>
+    Hall of Fame
+  `;
+  el.replaceWith(link);
+}
 
 function getCache(key) {
   try {
@@ -843,6 +867,8 @@ async function init() {
     return;
   }
   if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
+
+  updateHallOfFameNav(session.batch);
 
   document.getElementById("studentIdLabel").textContent = session.studentId;
   if (session.nama) {
