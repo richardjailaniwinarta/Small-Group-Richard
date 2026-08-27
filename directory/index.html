@@ -960,6 +960,7 @@
 <script src="../shared/auth.js"></script>
 <script>
 // ======================================================================
+
 const BATCH_URLS_B64 = {
   '34': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4T2ZOaTVtcG9vTzVBRVkwa0hid0ZGS180cVN2UDJkQnJyVkNlYjlraHd1eTdUbFRaRDYzUWd3ZHEwREp1VHZid1MvZXhlYw==',
   '35': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T0RySG54bXBkdm9qVi1sVnFMVlJCQ09VdHNxNUcwS0FoX2liamxIQ1RrdHdyRDB3MTBmUjJjTXdYUlZhY0oxaVVqZy9leGVj',
@@ -967,6 +968,7 @@ const BATCH_URLS_B64 = {
 };
 
 let DIRECTORY_API_URL = null;
+
 
 function resolveApiUrlForBatch(batch) {
   const key = String(batch || '').trim();
@@ -1586,6 +1588,7 @@ function initTheme() {
   applyTheme(saved === 'light' ? 'light' : 'dark');
 }
 
+
 window.addEventListener('storage', (e) => {
   if (e.key === THEME_KEY) {
     applyTheme(e.newValue === 'light' ? 'light' : 'dark');
@@ -1596,23 +1599,31 @@ window.addEventListener('storage', (e) => {
 initTheme();
 document.getElementById('searchInput').addEventListener('input', applyFilters);
 
+
+function normalizeBatch(batch) {
+  return String(batch || '').trim().replace(/^b/i, '');
+}
+
 (async function boot() {
   const session = await checkLogin(); // checkLogin() sudah handle redirect ke login.html kalau gagal
   if (!session) return;
 
+  const batchNum = normalizeBatch(session.batch);
+
   document.getElementById('studentNameText').textContent = session.nama;
   document.getElementById('studentNameBadge').classList.add('visible');
-  document.getElementById('batchLabelHeader').textContent = 'B' + session.batch;
+  document.getElementById('batchLabelHeader').textContent = 'B' + batchNum;
 
-  DIRECTORY_API_URL = resolveApiUrlForBatch(session.batch); // pilih Sheet/Apps Script sesuai Batch student ini
+  DIRECTORY_API_URL = resolveApiUrlForBatch(batchNum); // pilih Sheet/Apps Script sesuai Batch student ini
 
   if (!DIRECTORY_API_URL) {
+
     document.getElementById('scheduleContent').innerHTML = `
       <div class="empty-state">
         <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
-        <div style="font-weight:600;margin-top:8px">Directory Batch ${session.batch} belum tersedia</div>
+        <div style="font-weight:600;margin-top:8px">Directory Batch ${batchNum} belum tersedia</div>
         <div style="font-size:12px;margin-top:6px;max-width:400px">
           Hubungi admin/mentor untuk mendaftarkan Directory Batch kamu.
         </div>
