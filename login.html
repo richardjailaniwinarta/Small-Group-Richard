@@ -193,9 +193,9 @@
 </div>
 
 <script>
-  // ============ KONFIGURASI ============
-  // Sama dengan API_URL yang dipakai di register.html & forgot-password.html
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyOp0tEIYlUKxh8T9c8_-7zE4FFjR2RZO1ixfUBCRbKTfUgFyQBMvGcL007n_GTzWdcVA/exec';
+
+  const API_LEGEND = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T3AwdEVJWWxVS3hoOFQ5YzhfLTd6RTRGRmpSMlJaTzFpeGZVQkNSYktUZlVnRnlRQk12R2NMMDA3bl9HVHpXZGNWQS9leGVj';
+  const API_L = atob(API_LEGEND);
 
   // Halaman tujuan setelah login berhasil — GANTI sesuai struktur folder kamu
   const REDIRECT_AFTER_LOGIN = 'dashboard/index.html';
@@ -224,14 +224,14 @@
     submitBtn.textContent = 'Memproses...';
 
     try {
-      const url = `${API_URL}?action=login&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}&_=${Date.now()}`;
+      const url = `${API_L}?action=login&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}&_=${Date.now()}`;
       const res  = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
 
       if (data.error) {
         showMessage(data.error, 'error');
       } else {
-        // Simpan token & info student untuk dipakai di halaman lain (Directory, dst)
+        
         sessionStorage.setItem('token', data.token);
         sessionStorage.setItem('studentId', data.studentId);
         sessionStorage.setItem('nama', data.nama);

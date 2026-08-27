@@ -176,9 +176,8 @@
 </div>
 
 <script>
-  // ============ KONFIGURASI ============
-  // GANTI dengan Web App URL Apps Script kamu sendiri
-  const API_URL = 'https://script.google.com/macros/s/AKfycbyOp0tEIYlUKxh8T9c8_-7zE4FFjR2RZO1ixfUBCRbKTfUgFyQBMvGcL007n_GTzWdcVA/exec';
+  const API_LEGEND = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T3AwdEVJWWxVS3hoOFQ5YzhfLTd6RTRGRmpSMlJaTzFpeGZVQkNSYktUZlVnRnlRQk12R2NMMDA3bl9HVHpXZGNWQS9leGVj';
+  const API_L = atob(API_LEGEND);
 
   const form      = document.getElementById('registerForm');
   const submitBtn = document.getElementById('submitBtn');
@@ -205,8 +204,7 @@
     submitBtn.textContent = 'Memproses...';
 
     try {
-      // Kirim request ke Apps Script dengan action=register
-      const url = `${API_URL}?action=register&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`;
+      const url = `${API_L}?action=register&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`;
       const res  = await fetch(url);
       const data = await res.json();
 
