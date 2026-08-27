@@ -364,15 +364,21 @@
 <script>
 (function(){
 
-
+  // Batch yang diizinkan mengakses Hall of Fame ini. Tambah/hapus di sini
+  // kalau file ini dipakai ulang untuk batch lain.
   var REQUIRED_BATCHES = ["34"];
 
-
+  // ======== KONFIGURASI MANUAL ========
+  // Angka skor yang dianggap "Full Score". Ubah angka ini kalau nilai
+  // maksimum berubah di batch/course berikutnya.
   var FULL_SCORE_THRESHOLD = 5400;
   // =====================================
 
+  // Folder tempat file PNG testimonial disimpan, satu lokasi dengan file HTML ini
   var TESTIMONIAL_FOLDER = 'testimonials';
 
+  // Sumber data disimpan dalam bentuk terenkode & terpecah agar tidak muncul
+  // sebagai teks polos di source code halaman ini.
   var _p1 = 'aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFT';
   var _p2 = 'dWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg==';
   function _src(){ return atob(_p1 + _p2); }
@@ -501,6 +507,12 @@
     document.getElementById('compList').innerHTML = '';
   }
 
+  // Ambil bagian angka saja dari nilai batch, supaya format "34", "B34",
+  // atau "Batch 34" semuanya dianggap sama.
+  function normalizeBatch(batch) {
+    return String(batch || "").replace(/[^0-9]/g, "");
+  }
+
   // Tampil kalau login valid tapi batch-nya BUKAN batch yang diizinkan.
   function showAccessDenied(){
     document.querySelector('.wrap').innerHTML =
@@ -539,10 +551,11 @@
       });
   }
 
-
+  // checkLogin() dari ../shared/auth.js: kalau sesi tidak valid, dia sudah
+  // otomatis redirect ke halaman login dan resolve dengan null.
   checkLogin().then(function(session){
     if (!session) return; // sudah di-redirect oleh checkLogin()
-    if (!REQUIRED_BATCHES.includes(String(session.batch).trim())) {
+    if (!REQUIRED_BATCHES.includes(normalizeBatch(session.batch))) {
       showAccessDenied();
       return;
     }
