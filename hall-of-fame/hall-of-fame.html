@@ -393,8 +393,6 @@
 (function(){
 
 
-  var REQUIRED_BATCHES = Object.keys(BATCH_SOURCES);
-
   // ========  ========
 
   var FULL_SCORE_THRESHOLD = 5400;
@@ -403,11 +401,16 @@
 
   var TESTIMONIAL_FOLDER = 'testimonials';
 
+
   var BATCH_SOURCES = {
     "34": "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFTdWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg=="
     // "35": "TEMPEL_HASIL_BTOA_SHEET_BATCH_35_DI_SINI",
+    // "36": "TEMPEL_HASIL_BTOA_SHEET_BATCH_36_DI_SINI",
   };
   // =============================================================
+
+
+  var REQUIRED_BATCHES = Object.keys(BATCH_SOURCES);
 
   function sourceUrlForBatch(batchKey){
     var encoded = BATCH_SOURCES[batchKey];
