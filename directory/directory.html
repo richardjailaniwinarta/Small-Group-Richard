@@ -965,9 +965,9 @@
 <script>
 // ======================================================================
 
-const BATCH_URLS_B64 = {
-  '34': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3VnhEd1JIZTNQWVd2WDB6ei1rM0ViZ1A0OHJ0ZDkyS2NTRC1xcXBIay1iX0RMVV9ueld6UENnVmwxNzVuRVlrTlAvZXhlYw==',
-  '35': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T0RySG54bXBkdm9qVi1sVnFMVlJCQ09VdHNxNUcwS0FoX2liamxIQ1RrdHdyRDB3MTBmUjJjTXdYUlZhY0oxaVVqZy9leGVj',
+const LEGENDS = {
+  '34': 'aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlExa0Y1b3RJUUxueFQtNDAxbzl0bV90Y1huc0F5ajhraWJfMXFESHBqUk85Yjk1U25TOF9DSy1RVThpcDVkSlJ2WGlILUxvc0UyVFU0ei9wdWI/Z2lkPTY0ODE0MzMyNCZzaW5nbGU9dHJ1ZSZvdXRwdXQ9Y3N2',
+  // '35': '', 
   // '36': '',
 };
 
@@ -976,7 +976,7 @@ let DIRECTORY_API_URL = null;
 
 function resolveApiUrlForBatch(batch) {
   const key = String(batch || '').trim();
-  const encoded = BATCH_URLS_B64[key];
+  const encoded = LEGENDS[key];
   if (!encoded) {
     console.warn('Tidak ada Directory API URL terdaftar untuk Batch "' + key + '"');
     return null;
@@ -1049,14 +1049,18 @@ async function loadData() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-    const _token = sessionStorage.getItem("token") || "";
-    const res = await fetch(`${DIRECTORY_API_URL}?action=data&token=${encodeURIComponent(_token)}`, { signal: controller.signal });
+
+    const sep = DIRECTORY_API_URL.includes('?') ? '&' : '?';
+    const res = await fetch(`${DIRECTORY_API_URL}${sep}_=${Date.now()}`, {
+      signal: controller.signal,
+      cache: 'no-store'
+    });
     clearTimeout(timeoutId);
 
-    const json = await res.json();
-    if (json.error) throw new Error(json.error);
+    if (!res.ok) throw new Error('Gagal mengambil data (HTTP ' + res.status + ')');
+    const raw = await res.text();
 
-    tasks = json.rows || [];
+    tasks = parseRecords(raw);
 
     try {
       sessionStorage.setItem(cacheKey, JSON.stringify({ data: tasks, ts: Date.now() }));
@@ -1072,7 +1076,7 @@ async function loadData() {
         </svg>
         <div style="color:var(--error-color);font-weight:600;margin-top:8px">Gagal memuat data</div>
         <div style="font-size:12px;margin-top:6px;max-width:400px">
-          ${isTimeout ? 'Server terlalu lama merespons (timeout).' : (err.message || 'Silakan login ulang.')}<br>
+          ${isTimeout ? 'Server terlalu lama merespons (timeout).' : (err.message || 'Pastikan link "Publish to web" masih aktif.')}<br>
           <a href="#" onclick="location.reload()" style="color:var(--accent);text-decoration:none">🔄 Muat ulang halaman</a>
         </div>
       </div>`;
@@ -1582,7 +1586,7 @@ function setupAdminBatchPicker(defaultBatchKey) {
 
   row.style.display = 'flex';
   picker.innerHTML = '';
-  Object.keys(BATCH_URLS_B64).forEach(function (batchKey) {
+  Object.keys(LEGENDS).forEach(function (batchKey) {
     const opt = document.createElement('option');
     opt.value = batchKey;
     opt.textContent = 'Batch ' + batchKey;
@@ -1609,7 +1613,7 @@ function setupAdminBatchPicker(defaultBatchKey) {
 
 
   if (session.isAdmin) {
-    const availableBatches = Object.keys(BATCH_URLS_B64);
+    const availableBatches = Object.keys(LEGENDS);
     const defaultKey = resolveApiUrlForBatch(batchNum) ? batchNum : availableBatches[0];
     if (!defaultKey) {
       document.getElementById('scheduleContent').innerHTML = `
