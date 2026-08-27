@@ -832,10 +832,16 @@
     ]);
   }
 
+  // Ambil bagian angka saja dari nilai batch, supaya format "34", "B34",
+  // atau "Batch 34" semuanya dianggap sama.
+  function normalizeBatch(batch) {
+    return String(batch || "").replace(/[^0-9]/g, "");
+  }
+
   function updateHallOfFameNav(batch) {
     const el = document.getElementById("hofNavItem");
     if (!el) return;
-    const isAvailable = HOF_AVAILABLE_BATCHES.includes(String(batch || "").trim());
+    const isAvailable = HOF_AVAILABLE_BATCHES.includes(normalizeBatch(batch));
     if (!isAvailable) return; // biarkan tetap versi default (disabled, tulisan "Segera")
 
     const link = document.createElement("a");
