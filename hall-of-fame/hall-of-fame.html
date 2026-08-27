@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Batch 34 — Hall of Fame</title>
+<title>Hall of Fame</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -360,9 +360,9 @@
     Kembali ke Dashboard
   </a>
   <header>
-    <div class="brand"><span class="dot"></span> BATCH 34 &middot; PERFORMANCE RECAP</div>
+    <div class="brand" id="batchBrand"><span class="dot"></span> BATCH — · PERFORMANCE RECAP</div>
     <h1>Hall of Fame</h1>
-    <p class="subtitle">Daftar student dengan pencapaian terbaik pada Batch 34</p>
+    <p class="subtitle" id="batchSubtitle">Daftar student dengan pencapaian terbaik</p>
     <div class="stat-row">
       <div class="stat-pill gold"><span class="num" id="fullCount">–</span> Full Score</div>
       <div class="stat-pill teal"><span class="num" id="compCount">–</span> Completion 100%</div>
@@ -385,7 +385,7 @@
     <div class="comp-list" id="compList"></div>
   </section>
 
-  <footer>Made by Richard J Winarta &middot; Batch 34 &middot; Hall of Fame</footer>
+  <footer id="batchFooter">Made by Richard J Winarta &middot; Hall of Fame</footer>
 </div>
 
 <script src="../shared/auth.js"></script>
@@ -393,18 +393,28 @@
 (function(){
 
 
-  var REQUIRED_BATCHES = ["33"];
+  var REQUIRED_BATCHES = Object.keys(BATCH_SOURCES);
 
+  // ========  ========
 
   var FULL_SCORE_THRESHOLD = 5400;
   // =====================================
 
+
   var TESTIMONIAL_FOLDER = 'testimonials';
 
 
-  var _p1 = 'aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFT';
-  var _p2 = 'dWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg==';
-  function _src(){ return atob(_p1 + _p2); }
+
+  var BATCH_SOURCES = {
+    "34": "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFTdWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg=="
+    // "35": "TEMPEL_HASIL_BTOA_SHEET_BATCH_35_DI_SINI",
+  };
+  // =============================================================
+
+  function sourceUrlForBatch(batchKey){
+    var encoded = BATCH_SOURCES[batchKey];
+    return encoded ? atob(encoded) : null;
+  }
 
   function slugify(name){
     return String(name)
@@ -535,7 +545,7 @@
     return String(batch || "").replace(/[^0-9]/g, "");
   }
 
-  // Tampil kalau login valid tapi batch-nya BUKAN batch yang diizinkan.
+
   function showAccessDenied(){
     document.querySelector('.wrap').innerHTML =
       '<div class="state-msg" style="padding:140px 20px;">' +
@@ -546,8 +556,19 @@
       '</div>';
   }
 
-  function loadData(){
-    fetch(_src(), { cache: 'no-store' })
+
+  function updateBatchLabel(batchKey){
+    var brand = document.getElementById('batchBrand');
+    var subtitle = document.getElementById('batchSubtitle');
+    var footer = document.getElementById('batchFooter');
+    if (brand) brand.textContent = 'BATCH ' + batchKey + ' · PERFORMANCE RECAP';
+    if (subtitle) subtitle.textContent = 'Daftar student dengan pencapaian terbaik pada Batch ' + batchKey;
+    if (footer) footer.textContent = 'Made by Richard J Winarta · Batch ' + batchKey + ' · Hall of Fame';
+    document.title = 'Batch ' + batchKey + ' — Hall of Fame';
+  }
+
+  function loadData(sheetUrl){
+    fetch(sheetUrl, { cache: 'no-store' })
       .then(function(res){
         if (!res.ok) throw new Error('fetch failed');
         return res.text();
@@ -573,15 +594,17 @@
       });
   }
 
-  // checkLogin() dari ../shared/auth.js: kalau sesi tidak valid, dia sudah
-  // otomatis redirect ke halaman login dan resolve dengan null.
+
   checkLogin().then(function(session){
     if (!session) return; // sudah di-redirect oleh checkLogin()
-    if (!REQUIRED_BATCHES.includes(normalizeBatch(session.batch))) {
+    var batchKey = normalizeBatch(session.batch);
+    var sheetUrl = sourceUrlForBatch(batchKey);
+    if (!sheetUrl) {
       showAccessDenied();
       return;
     }
-    loadData();
+    updateBatchLabel(batchKey);
+    loadData(sheetUrl);
   }).catch(function(){
     showAccessDenied();
   });
