@@ -36,7 +36,6 @@
     --radius-md: 18px;
   }
 
-  /* Mode terang — warna disamakan dengan mode terang directory-index.html */
   [data-theme="light"] {
     --cream: #fdf8ea;
     --panel: #ffffff;
@@ -84,7 +83,6 @@
     font-weight: 700;
   }
 
-  /* decorative background shapes */
   .blob {
     position: fixed;
     border-radius: 50%;
@@ -117,7 +115,6 @@
     background: linear-gradient(90deg, transparent, var(--purple), var(--gold), transparent);
   }
 
-  /* Sidebar */
   .sidebar { display: flex; flex-direction: column; align-items: flex-start; }
   .logo-mark {
     width: 52px; height: 52px; border-radius: 14px;
@@ -206,7 +203,6 @@
     font-family: inherit;
   }
 
-  /* Main content */
   main { min-width: 0; }
   .top-row {
     display: flex; justify-content: space-between; align-items: flex-start;
@@ -388,7 +384,6 @@
   @media (max-width: 780px) {
     .shell { grid-template-columns: 1fr; padding: 24px 20px 28px; margin: 12px; gap: 26px; border-radius: 22px; }
 
-
     .sidebar { align-items: center; text-align: center; }
     .logo-mark { width: 44px; height: 44px; margin-bottom: 16px; }
     .avatar { width: 76px; height: 76px; font-size: 22px; margin-bottom: 18px; }
@@ -400,7 +395,6 @@
     .nav-item { padding: 12px; text-align: left; }
     .soon-tag { margin-left: 8px; }
 
-    /* Main content */
     .top-row { align-items: flex-start; gap: 12px; margin-bottom: 24px; }
     .greeting { flex: 1; min-width: 0; }
     .greeting h1 { font-size: 22px; line-height: 1.25; }
@@ -468,7 +462,6 @@
       </span>
     </nav>
 
-    <!-- <button class="logout-mini" onclick="logout()">Logout</button> -->
   </aside>
 
   <main>
@@ -494,7 +487,6 @@
 
 <script src="../shared/auth.js"></script>
 <script>
-  // ============ THEME TOGGLE (dark = default) ============
   function applyTheme(theme) {
     if (theme === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
@@ -507,18 +499,18 @@
     }
   }
 
-  const THEME_KEY = 'sgr-theme'; // key bersama, dipakai oleh semua halaman (dashboard/directory/tracker)
+  const THEME_KEY = 'sgr-theme';
 
   function toggleTheme() {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     const next = isLight ? 'dark' : 'light';
     applyTheme(next);
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage unavailable, theme still applies for this session */ }
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
   }
 
   function initTheme() {
     let saved = null;
-    try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* storage unavailable, default to dark */ }
+    try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
     applyTheme(saved === 'light' ? 'light' : 'dark');
   }
 
@@ -530,18 +522,24 @@
 
   initTheme();
 
-  const _p1 = ["aHR0cHM6Ly9kb2NzLmdvb2ds","ZS5jb20vc3ByZWFkc2hlZXRz","L2QvZS8yUEFDWC0xdlJyNi1Y","WnNHQ0lvS1ZfNDJ4aEJ6dDZs","enlBOFRpb3RocUN2MUJYT3I4","OVB0OGhKc1QxajVwQ1RvVFpp","Y2Y1dXdMMTNJRWtNSDQ3Y09S","WC9wdWI/b3V0cHV0PWNzdg=="].join("");
-  const _p2 = ["aHR0cHM6Ly9kb2NzLmdvb2ds","ZS5jb20vc3ByZWFkc2hlZXRz","L2QvZS8yUEFDWC0xdlJyNi1Y","WnNHQ0lvS1ZfNDJ4aEJ6dDZs","enlBOFRpb3RocUN2MUJYT3I4","OVB0OGhKc1QxajVwQ1RvVFpp","Y2Y1dXdMMTNJRWtNSDQ3Y09S","WC9wdWI/Z2lkPTc1ODE5NDY4","NiZzaW5nbGU9dHJ1ZSZvdXRw","dXQ9Y3N2"].join("");
-  const _SRC_A = atob(_p1);
-  const _SRC_B = atob(_p2);
+  const LEET_DI = atob("MU1HWURVUDB3cGVjSjVUNF80N210Rl9BRzFVdXhxYmwwd01iMGNYUFc4alk=");
+  const LEET_ABS_LLR = atob("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2Qv");
+  const LLETS_GGIZ_RALTH = atob("L2d2aXovdHE/Z2lkPQ==");
+  const GID_MASTER = 0;
+  const GID_PORTFOLIO = 758194686;
 
-  const MASTER_TOTAL_SCORE_COL = 6;      // kolom "Total Score" (sudah dihitung di sumber data)
-  const MASTER_COMPLETION_RATE_COL = 7;  // kolom "Completion Rate" (sudah dihitung di sumber data, format "66.67%")
-  const MASTER_TASK_START_COL = 8;   // kolom index tempat data task dimulai (geser +2 karena ada 2 kolom baru)
-  const MASTER_TASK_COUNT = 49;      // jumlah task (triplet Score/Status/Alasan)
-  const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di data Portfolio Status
-  const TOTAL_MAX_SCORE = 5400;      // skor maksimum untuk status "Full Score"
+  function buildFilteredUrl(gid, studentId) {
+    const safeId = studentId.toString().trim().replace(/[^0-9]/g, "");
+    const tq = `select * where A = ${safeId}`;
+    return `${LEET_ABS_LLR}${LEET_DI}${LLETS_GGIZ_RALTH}${gid}&headers=2&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
+  }
 
+  const MASTER_TOTAL_SCORE_COL = 6;
+  const MASTER_COMPLETION_RATE_COL = 7;
+  const MASTER_TASK_START_COL = 8;
+  const MASTER_TASK_COUNT = 49;
+  const PORTFOLIO_STATUS_COL = 7;
+  const TOTAL_MAX_SCORE = 5400;
 
   const HOF_AVAILABLE_BATCHES = ["34"];
 
@@ -576,8 +574,7 @@
     target: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="#fff"/></svg>`,
   };
 
-
-  const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — silakan ubah kalau mau lebih pendek/panjang
+  const CACHE_TTL_MS = 5 * 60 * 1000;
   const CACHE_PREFIX = "sgr_cache_";
 
   function getCache(key) {
@@ -585,33 +582,37 @@
       const raw = sessionStorage.getItem(CACHE_PREFIX + key);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      if (Date.now() - parsed.ts > CACHE_TTL_MS) return null; // sudah kadaluarsa
+      if (Date.now() - parsed.ts > CACHE_TTL_MS) return null;
       return parsed.data;
     } catch (e) {
-      return null; // sessionStorage error/disabled -> anggap saja tidak ada cache
+      return null;
     }
   }
 
   function setCache(key, data) {
     try {
       sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ ts: Date.now(), data }));
-    } catch (e) {
-      // Kalau storage penuh/diblok browser, abaikan saja — tidak fatal, cuma berarti tidak ke-cache.
-    }
+    } catch (e) {}
   }
 
-  function fetchRows(url, cacheKey) {
-    if (cacheKey) {
-      const cached = getCache(cacheKey);
-      if (cached) return Promise.resolve(cached); // langsung pakai cache, tidak fetch sama sekali
+  function fetchFilteredRow(gid, studentId, cacheKey) {
+    const ck = cacheKey ? `${cacheKey}_${studentId}` : null;
+    if (ck) {
+      const cached = getCache(ck);
+      if (cached) return Promise.resolve(cached);
     }
+    const url = buildFilteredUrl(gid, studentId);
     return new Promise((resolve, reject) => {
       Papa.parse(url, {
         download: true,
         skipEmptyLines: false,
         complete: (results) => {
-          if (cacheKey) setCache(cacheKey, results.data);
-          resolve(results.data);
+          const headerRow = results.data[0] || [];
+          const studentRow = results.data[1] || null;
+
+          const shaped = studentRow ? [[], headerRow, studentRow] : [[], headerRow];
+          if (ck) setCache(ck, shaped);
+          resolve(shaped);
         },
         error: (err) => reject(err),
       });
@@ -619,7 +620,6 @@
   }
 
   function findStudentRow(rows, studentId) {
-    // baris 0 = baris kosong, baris 1 = header, data mulai dari baris 2
     for (let i = 2; i < rows.length; i++) {
       const row = rows[i];
       if (row[0] && row[0].toString().trim() === studentId.toString().trim()) {
@@ -655,20 +655,17 @@
     return { completed, pending };
   }
 
-
   function readTotalScore(row) {
     const raw = (row[MASTER_TOTAL_SCORE_COL] || "0").toString().trim();
     const num = parseFloat(raw.replace(/[^0-9.\-]/g, ""));
     return isNaN(num) ? 0 : num;
   }
 
-
   function readCompletionRate(row) {
     const raw = (row[MASTER_COMPLETION_RATE_COL] || "0").toString().trim();
     const num = parseFloat(raw.replace("%", "").trim());
     return isNaN(num) ? 0 : Math.round(num * 10) / 10;
   }
-
 
   const ALL_CAPS_WORDS = ["SMM", "EM", "LG"];
 
@@ -723,7 +720,6 @@
     if (pills.length === 0) return "";
     return `<div class="congrat-row">${pills.join("")}</div>`;
   }
-
 
   function ringSvg(pct, idSuffix) {
     const r = 26;
@@ -830,7 +826,6 @@
     ]);
   }
 
-
   function normalizeBatch(batch) {
     return String(batch || "").replace(/[^0-9]/g, "");
   }
@@ -839,7 +834,7 @@
     const el = document.getElementById("hofNavItem");
     if (!el) return;
     const isAvailable = HOF_AVAILABLE_BATCHES.includes(normalizeBatch(batch));
-    if (!isAvailable) return; // biarkan tetap versi default (disabled, tulisan "Segera")
+    if (!isAvailable) return;
 
     const link = document.createElement("a");
     link.className = "nav-item link";
@@ -857,11 +852,6 @@
     document.getElementById("dashboardBody").innerHTML = `<div class="state-msg">Memuat data kamu...</div>`;
 
     const sessionPromise = withTimeout(checkLogin(), 15000, "Verifikasi login");
-    const dataPromise = withTimeout(
-      Promise.all([fetchRows(_SRC_A, "master_students"), fetchRows(_SRC_B, "portfolio_status")]),
-      15000,
-      "Ambil data"
-    );
 
     let session;
     try {
@@ -871,13 +861,22 @@
       renderError("Gagal verifikasi login (server mungkin lambat merespons). Coba lagi ya.");
       return;
     }
-    if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
+    if (!session) return;
 
     document.getElementById("studentIdLabel").textContent = session.studentId;
     if (session.isAdmin) {
       document.getElementById("adminTag").style.display = "inline-block";
     }
     updateHallOfFameNav(session.batch);
+
+    const dataPromise = withTimeout(
+      Promise.all([
+        fetchFilteredRow(GID_MASTER, session.studentId, "master_row"),
+        fetchFilteredRow(GID_PORTFOLIO, session.studentId, "portfolio_row"),
+      ]),
+      15000,
+      "Ambil data"
+    );
 
     try {
       const [masterRows, portfolioRows] = await dataPromise;
@@ -888,7 +887,7 @@
         return;
       }
 
-      const hidsRaw = masterRow[4]; // kolom "Chosen Highlight Service"
+      const hidsRaw = masterRow[4];
       const hidsTrim = (hidsRaw || "").toString().trim();
       const highlightCanonical = HIGHLIGHT_CANONICAL[hidsTrim] || HIGHLIGHT_CANONICAL[hidsTrim.toUpperCase()] || hidsTrim;
       const { completed, pending } = computeTaskStats(masterRow, masterRows[1], highlightCanonical);
