@@ -960,8 +960,6 @@
 <script src="../shared/auth.js"></script>
 <script>
 // ======================================================================
-// ======================================================================
-// 
 const BATCH_URLS_B64 = {
   '34': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4T2ZOaTVtcG9vTzVBRVkwa0hid0ZGS180cVN2UDJkQnJyVkNlYjlraHd1eTdUbFRaRDYzUWd3ZHEwREp1VHZid1MvZXhlYw==',
   '35': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T0RySG54bXBkdm9qVi1sVnFMVlJCQ09VdHNxNUcwS0FoX2liamxIQ1RrdHdyRDB3MTBmUjJjTXdYUlZhY0oxaVVqZy9leGVj',
@@ -970,7 +968,6 @@ const BATCH_URLS_B64 = {
 
 let DIRECTORY_API_URL = null;
 
-// 
 function resolveApiUrlForBatch(batch) {
   const key = String(batch || '').trim();
   const encoded = BATCH_URLS_B64[key];
@@ -1024,7 +1021,8 @@ async function loadData() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 detik timeout
 
-    const res = await fetch(`${DIRECTORY_API_URL}?action=data`, { signal: controller.signal });
+    const _token = sessionStorage.getItem("token") || "";
+    const res = await fetch(`${DIRECTORY_API_URL}?action=data&token=${encodeURIComponent(_token)}`, { signal: controller.signal });
     clearTimeout(timeoutId);
 
     const json = await res.json();
@@ -1079,7 +1077,8 @@ async function loadData() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-    const res = await fetch(`${DIRECTORY_API_URL}?action=data`, { signal: controller.signal });
+    const _token = sessionStorage.getItem("token") || "";
+    const res = await fetch(`${DIRECTORY_API_URL}?action=data&token=${encodeURIComponent(_token)}`, { signal: controller.signal });
     clearTimeout(timeoutId);
 
     const json = await res.json();
@@ -1572,7 +1571,7 @@ function applyTheme(theme) {
   }
 }
 
-const THEME_KEY = 'sgr-theme'; 
+const THEME_KEY = 'sgr-theme'; // key bersama, dipakai oleh semua halaman (dashboard/directory/tracker)
 
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
