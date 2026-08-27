@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batch 33 — Hall of Fame</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1: #3d0d29;
+    --bg-2: #6e1846;
+    --bg-3: #8a2159;
+    --gold: #f7b733;
+    --gold-deep: #d99110;
+    --teal: #2fd0a3;
+    --teal-deep: #16a17b;
+    --orange: #ff8a3d;
+    --cream: #fdf3ea;
+    --cream-dim: #e9c9d8;
+    --ink: #2a0d1c;
+    --card-bg: rgba(255,255,255,0.06);
+    --card-border: rgba(255,255,255,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter', sans-serif;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(255,138,61,0.25), transparent 60%),
+      radial-gradient(ellipse 900px 600px at 85% 10%, rgba(47,208,163,0.18), transparent 55%),
+      linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+    background-attachment:fixed;
+    color:var(--cream);
+    min-height:100vh;
+    padding:0 0 80px 0;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  .trails{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.5;}
+
+  .wrap{position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:0 28px;}
+
+  header{
+    text-align:center;
+    padding:56px 20px 34px;
+  }
+  .brand{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:15px;
+    letter-spacing:0.14em;
+    color:var(--cream-dim);
+    text-transform:uppercase;
+    opacity:0.75;
+    margin-bottom:6px;
+  }
+  .brand .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);}
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(32px, 5vw, 54px);
+    margin:6px 0 10px;
+    line-height:1.05;
+    background:linear-gradient(90deg, var(--gold) 0%, #ffd979 45%, var(--orange) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .subtitle{
+    font-size:16px;
+    color:var(--cream-dim);
+    max-width:520px;
+    margin:0 auto;
+    line-height:1.6;
+  }
+
+  .stat-row{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-top:28px;
+  }
+  .stat-pill{
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    backdrop-filter:blur(6px);
+    padding:10px 20px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:14px;
+    font-weight:600;
+  }
+  .stat-pill .num{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:18px;
+  }
+  .stat-pill.gold .num{color:var(--gold);}
+  .stat-pill.teal .num{color:var(--teal);}
+
+  section{margin-top:54px;}
+
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--card-border);
+    padding-bottom:16px;
+  }
+  .section-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:24px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section-title .badge{
+    font-size:12px;
+    font-weight:800;
+    padding:4px 10px;
+    border-radius:999px;
+    letter-spacing:0.04em;
+  }
+  .badge.gold{background:rgba(247,183,51,0.18); color:var(--gold); border:1px solid rgba(247,183,51,0.4);}
+  .badge.teal{background:rgba(47,208,163,0.16); color:var(--teal); border:1px solid rgba(47,208,163,0.4);}
+  .section-note{font-size:13px; color:var(--cream-dim); max-width:340px; text-align:right;}
+
+  .full-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+    gap:16px;
+  }
+  .full-card{
+    position:relative;
+    background:linear-gradient(160deg, rgba(247,183,51,0.14), rgba(255,255,255,0.04));
+    border:1px solid rgba(247,183,51,0.35);
+    border-radius:16px;
+    padding:20px 18px 18px;
+    overflow:hidden;
+    transition:transform 0.18s ease, border-color 0.18s ease;
+  }
+  .full-card:hover{transform:translateY(-3px); border-color:rgba(247,183,51,0.7);}
+  .full-card::before{
+    content:"";
+    position:absolute; top:-30px; right:-30px;
+    width:90px; height:90px;
+    background:radial-gradient(circle, rgba(247,183,51,0.35), transparent 70%);
+  }
+  .full-card .trophy{
+    font-size:22px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:38px; height:38px;
+    border-radius:10px;
+    background:rgba(247,183,51,0.2);
+    margin-bottom:14px;
+  }
+  .full-card .name{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:17px;
+    color:var(--cream);
+    margin-bottom:6px;
+    line-height:1.25;
+  }
+  .full-card .track{
+    font-size:12px;
+    color:var(--cream-dim);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-bottom:14px;
+  }
+  .full-card .score-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-top:1px dashed rgba(247,183,51,0.3);
+    padding-top:12px;
+  }
+  .full-card .score{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:22px;
+    color:var(--gold);
+  }
+  .full-card .score-label{font-size:10px; color:var(--cream-dim); text-transform:uppercase; letter-spacing:0.06em;}
+
+  .dl-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    margin-top:14px;
+    width:100%;
+    padding:9px 12px;
+    border-radius:10px;
+    border:1px solid rgba(247,183,51,0.45);
+    background:rgba(247,183,51,0.12);
+    color:var(--gold);
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background 0.15s ease, transform 0.15s ease;
+  }
+  .dl-btn:hover{background:rgba(247,183,51,0.24); transform:translateY(-1px);}
+  .dl-btn svg{width:13px; height:13px; flex-shrink:0;}
+
+  .dl-btn-sm{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(47,208,163,0.4);
+    background:rgba(47,208,163,0.12);
+    color:var(--teal);
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:11px;
+    text-decoration:none;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background 0.15s ease, transform 0.15s ease;
+  }
+  .dl-btn-sm:hover{background:rgba(47,208,163,0.24); transform:translateY(-1px);}
+  .dl-btn-sm svg{width:11px; height:11px; flex-shrink:0;}
+
+  .comp-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .comp-row{
+    display:grid;
+    grid-template-columns:36px 1fr auto auto;
+    align-items:center;
+    gap:16px;
+    background:var(--card-bg);
+    border:1px solid var(--card-border);
+    border-radius:12px;
+    padding:13px 18px;
+  }
+  .comp-rank{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--cream-dim);
+  }
+  .comp-name{
+    font-weight:600;
+    font-size:15px;
+    color:var(--cream);
+  }
+  .comp-track{
+    font-size:11px;
+    color:var(--cream-dim);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    background:rgba(255,255,255,0.06);
+    padding:4px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .comp-meta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-self:end;
+  }
+  .comp-score{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    color:var(--teal);
+  }
+  .comp-check{
+    font-size:11px;
+    font-weight:700;
+    color:var(--teal);
+    background:rgba(47,208,163,0.14);
+    border:1px solid rgba(47,208,163,0.35);
+    padding:4px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+
+  .state-msg{
+    text-align:center;
+    padding:30px 20px;
+    color:var(--cream-dim);
+    font-size:14px;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:60px;
+    font-size:12px;
+    color:var(--cream-dim);
+    opacity:0.6;
+  }
+
+  @media (max-width:640px){
+    .section-note{display:none;}
+    .comp-row{grid-template-columns:28px 1fr; row-gap:6px;}
+    .comp-track{grid-column:2/3;}
+    .comp-meta{grid-column:1/3; justify-self:start;}
+  }
+</style>
+</head>
+<body>
+
+<svg class="trails" viewBox="0 0 1200 900" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M -50 60 C 250 60, 300 260, 560 300" stroke="var(--orange)" stroke-width="4" fill="none" opacity="0.35"/>
+  <path d="M 520 -30 C 480 150, 560 220, 610 300" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.2"/>
+  <path d="M 760 -30 C 800 160, 760 260, 700 380" stroke="var(--teal)" stroke-width="4" fill="none" opacity="0.3"/>
+</svg>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="dot"></span> BATCH 33 &middot; PERFORMANCE RECAP</div>
+    <h1>Hall of Fame</h1>
+    <p class="subtitle">Daftar student dengan pencapaian terbaik pada Batch 33</p>
+    <div class="stat-row">
+      <div class="stat-pill gold"><span class="num" id="fullCount">–</span> Full Score</div>
+      <div class="stat-pill teal"><span class="num" id="compCount">–</span> Completion 100%</div>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <div class="section-title"><span class="badge gold">TOP</span> Full Score</div>
+      <div class="section-note">Student yang menyelesaikan seluruh Task dengan nilai Sempurna.</div>
+    </div>
+    <div class="full-grid" id="fullGrid"><div class="state-msg">Memuat data…</div></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="section-title"><span class="badge teal">100%</span> Completion Rate</div>
+      <div class="section-note">Menyelesaikan semua Task, namun Belum Berhasil Full Score.</div>
+    </div>
+    <div class="comp-list" id="compList"></div>
+  </section>
+
+  <footer>Made by Richard J Winarta &middot; Batch 33 &middot; Hall of Fame</footer>
+</div>
+
+<script src="../shared/auth.js"></script>
+<script>
+(function(){
+
+
+  var REQUIRED_BATCH = "34";
+
+  // ========  ========
+
+  var FULL_SCORE_THRESHOLD = 5400;
+  // =====================================
+
+
+  var TESTIMONIAL_FOLDER = 'testimonials';
+
+
+  var _p1 = 'aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFT';
+  var _p2 = 'dWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg==';
+  function _src(){ return atob(_p1 + _p2); }
+
+  function slugify(name){
+    return String(name)
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+  }
+
+  function testimonialPath(name){
+    return TESTIMONIAL_FOLDER + '/' + slugify(name) + '.png';
+  }
+
+  var downloadIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+
+  // Parser CSV sederhana, mendukung field yang dibungkus tanda kutip
+  function parseCSV(text){
+    var rows = [];
+    var row = [];
+    var field = '';
+    var inQuotes = false;
+    for (var i = 0; i < text.length; i++){
+      var c = text[i];
+      if (inQuotes){
+        if (c === '"'){
+          if (text[i+1] === '"'){ field += '"'; i++; }
+          else { inQuotes = false; }
+        } else {
+          field += c;
+        }
+      } else {
+        if (c === '"'){ inQuotes = true; }
+        else if (c === ','){ row.push(field); field = ''; }
+        else if (c === '\r'){ /* ignore */ }
+        else if (c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+        else { field += c; }
+      }
+    }
+    if (field.length > 0 || row.length > 0){ row.push(field); rows.push(row); }
+    return rows.filter(function(r){ return r.length > 1 || (r[0] && r[0].trim() !== ''); });
+  }
+
+  function parseScore(raw){
+    if (raw === undefined) return NaN;
+    var t = raw.trim();
+    if (!/^-?\d+(\.\d+)?$/.test(t)) return NaN;
+    return parseFloat(t);
+  }
+
+  function parsePercent(raw){
+    if (raw === undefined) return NaN;
+    var t = raw.trim().replace('%', '');
+    if (!/^-?\d+(\.\d+)?$/.test(t)) return NaN;
+    return parseFloat(t);
+  }
+
+  function render(records){
+    var fullScore = records
+      .filter(function(r){ return r.score === FULL_SCORE_THRESHOLD; })
+      .sort(function(a,b){ return a.name.localeCompare(b.name, 'id'); });
+
+    var fullNames = fullScore.map(function(r){ return r.name; });
+
+    var completedNotFull = records
+      .filter(function(r){ return r.completion === 100 && fullNames.indexOf(r.name) === -1; })
+      .sort(function(a,b){ return (b.score||0) - (a.score||0); });
+
+    document.getElementById('fullCount').textContent = fullScore.length;
+    document.getElementById('compCount').textContent = completedNotFull.length;
+
+    var fullGrid = document.getElementById('fullGrid');
+    fullGrid.innerHTML = '';
+    if (fullScore.length === 0){
+      fullGrid.innerHTML = '<div class="state-msg">Belum ada student dengan Full Score.</div>';
+    }
+    fullScore.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'full-card';
+      var file = testimonialPath(r.name);
+      card.innerHTML =
+        '<div class="trophy">🏆</div>' +
+        '<div class="name">' + r.name + '</div>' +
+        '<div class="track">' + r.track + '</div>' +
+        '<div class="score-row">' +
+          '<div>' +
+            '<div class="score">' + r.score.toLocaleString('id-ID') + '</div>' +
+            '<div class="score-label">Total Score</div>' +
+          '</div>' +
+        '</div>' +
+        '<a class="dl-btn" href="' + file + '" download="' + slugify(r.name) + '-testimonial.png">' +
+          downloadIcon + ' Download Testimonial' +
+        '</a>';
+      fullGrid.appendChild(card);
+    });
+
+    var compList = document.getElementById('compList');
+    compList.innerHTML = '';
+    if (completedNotFull.length === 0){
+      compList.innerHTML = '<div class="state-msg">Belum ada student pada kategori ini.</div>';
+    }
+    completedNotFull.forEach(function(r, i){
+      var row = document.createElement('div');
+      row.className = 'comp-row';
+      var file = testimonialPath(r.name);
+      row.innerHTML =
+        '<div class="comp-rank">' + (i + 1) + '</div>' +
+        '<div class="comp-name">' + r.name + '</div>' +
+        '<div class="comp-track">' + r.track + '</div>' +
+        '<div class="comp-meta">' +
+          '<span class="comp-score">' + (isNaN(r.score) ? '-' : r.score.toLocaleString('id-ID')) + '</span>' +
+          '<span class="comp-check">✓ 100%</span>' +
+          '<a class="dl-btn-sm" href="' + file + '" download="' + slugify(r.name) + '-testimonial.png">' +
+            downloadIcon + ' Testimonial' +
+          '</a>' +
+        '</div>';
+      compList.appendChild(row);
+    });
+  }
+
+  function showError(){
+    document.getElementById('fullGrid').innerHTML = '<div class="state-msg">Gagal memuat data. Silakan coba lagi nanti.</div>';
+    document.getElementById('compList').innerHTML = '';
+  }
+
+  // Tampil kalau login valid tapi batch-nya BUKAN batch yang diizinkan.
+  function showAccessDenied(){
+    document.querySelector('.wrap').innerHTML =
+      '<div class="state-msg" style="padding:140px 20px;">' +
+        'Halaman ini khusus untuk Student Batch ' + REQUIRED_BATCH + '.' +
+        '<div style="margin-top:16px">' +
+          '<a href="../dashboard/index.html" style="color:var(--teal); font-weight:700; text-decoration:none;">← Kembali ke Dashboard</a>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function loadData(){
+    fetch(_src(), { cache: 'no-store' })
+      .then(function(res){
+        if (!res.ok) throw new Error('fetch failed');
+        return res.text();
+      })
+      .then(function(text){
+        var rows = parseCSV(text);
+        if (!rows.length) throw new Error('empty');
+        rows.shift(); // buang baris header
+        var records = rows
+          .filter(function(r){ return r[1] && r[1].trim() !== ''; })
+          .map(function(r){
+            return {
+              name: (r[1] || '').trim(),
+              track: (r[2] || '').trim().toUpperCase(),
+              score: parseScore(r[3]),
+              completion: parsePercent(r[4])
+            };
+          });
+        render(records);
+      })
+      .catch(function(){
+        showError();
+      });
+  }
+
+
+  checkLogin().then(function(session){
+    if (!session) return; // sudah di-redirect oleh checkLogin()
+    if (String(session.batch).trim() !== REQUIRED_BATCH) {
+      showAccessDenied();
+      return;
+    }
+    loadData();
+  }).catch(function(){
+    showAccessDenied();
+  });
+
+})();
+</script>
+
+</body>
+</html>
