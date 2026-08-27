@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head><link rel="icon" type="image/x-icon" href="logo-richard-icon.png">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Task Tracker — SG Richard Portal</title>
@@ -257,6 +257,48 @@
       z-index: 1;
       max-width: 640px;
       padding-bottom: 20px;
+    }
+
+    .admin-search-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(247, 183, 51, 0.1);
+      border: 1px solid rgba(247, 183, 51, 0.35);
+    }
+    .admin-search-icon { flex-shrink: 0; }
+    .admin-search-row input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: 1px solid rgba(247, 183, 51, 0.4);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: inherit;
+      outline: none;
+    }
+    .admin-search-row button {
+      flex-shrink: 0;
+      border: 1px solid rgba(247, 183, 51, 0.45);
+      background: rgba(247, 183, 51, 0.15);
+      color: inherit;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .admin-search-row button:hover { background: rgba(247, 183, 51, 0.28); }
+    .admin-search-hint {
+      font-size: 12px;
+      margin: -8px 0 16px 2px;
+      opacity: 0.75;
     }
 
     /* ── STATES ── */
@@ -617,6 +659,15 @@
 
     <div class="content-wrap">
 
+  <!-- ADMIN: cari & lihat Task Tracker student manapun -->
+  <div class="admin-search-row" id="adminSearchRow" style="display:none;">
+    <span class="admin-search-icon">🛡️</span>
+    <input type="text" id="adminStudentSearch" placeholder="Cari Student ID / nama untuk lihat Task Tracker-nya...">
+    <button type="button" id="adminSearchBtn">Lihat</button>
+    <button type="button" id="adminResetBtn" title="Kembali ke data saya sendiri">Reset</button>
+  </div>
+  <div class="admin-search-hint" id="adminSearchHint" style="display:none;"></div>
+
   <!-- RESULT AREA -->
   <div id="result">
     <div class="loading-box"><div class="spinner"></div><br>Memuat data kamu...</div>
@@ -714,7 +765,9 @@ const NON_TASK_COLS = [
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — samakan dengan Dashboard, gampang diubah kalau perlu
 const CACHE_PREFIX = "sgr_cache_";
 
+
 const HOF_AVAILABLE_BATCHES = ["34"];
+
 
 function normalizeBatch(batch) {
   return String(batch || "").replace(/[^0-9]/g, "");
@@ -855,6 +908,81 @@ function icon(type) {
   return icons[type] || "";
 }
 
+let currentSession = null; // dipakai admin search buat balik ke data sendiri
+
+async function showStudentTracker(studentIdOrName, opts) {
+  opts = opts || {};
+  const el = document.getElementById("result");
+  el.innerHTML = `<div class="loading-box"><div class="spinner"></div><br>Memuat data...</div>`;
+
+  try {
+    const data = await getData();
+    const needle = String(studentIdOrName).trim();
+    const needleLower = needle.toLowerCase();
+
+
+    let matches = data.filter(r => String(r["StudentID"]).trim() === needle);
+
+    if (matches.length === 0 && opts.allowNameSearch) {
+      matches = data.filter(r => (r["Students Name"] || "").toLowerCase().includes(needleLower));
+    }
+
+    if (matches.length === 0) {
+      el.innerHTML = `<div class="empty-state">
+        <div class="icon-wrap">${icon("user")}</div>
+        <p class="title">Data tidak ditemukan</p>
+        <p>"<strong>${escHtml(needle)}</strong>" tidak ditemukan di data Task Tracker.${opts.allowNameSearch ? " Coba Student ID atau nama lain." : "<br>Silahkan hubungi admin."}</p>
+      </div>`;
+      return;
+    }
+
+    if (matches.length > 1) {
+      const hint = document.getElementById("adminSearchHint");
+      if (hint) {
+        hint.style.display = "block";
+        hint.textContent = `Ditemukan ${matches.length} hasil untuk "${needle}", menampilkan yang pertama: ${matches[0]["Students Name"] || matches[0]["StudentID"]}.`;
+      }
+    } else {
+      const hint = document.getElementById("adminSearchHint");
+      if (hint) hint.style.display = "none";
+    }
+
+    const label = document.getElementById("studentIdLabel");
+    if (label && matches[0]["StudentID"]) label.textContent = matches[0]["StudentID"];
+
+    renderResult(matches[0], el);
+  } catch (e) {
+    showError(el, e.message || "Terjadi kesalahan koneksi. Coba refresh halaman ini.");
+  }
+}
+
+
+function setupAdminSearch(session) {
+  const row = document.getElementById("adminSearchRow");
+  const input = document.getElementById("adminStudentSearch");
+  const searchBtn = document.getElementById("adminSearchBtn");
+  const resetBtn = document.getElementById("adminResetBtn");
+  if (!row || !input || !searchBtn || !resetBtn) return;
+
+  row.style.display = "flex";
+
+  function runSearch() {
+    const q = input.value.trim();
+    if (!q) return;
+    showStudentTracker(q, { allowNameSearch: true });
+  }
+
+  searchBtn.addEventListener("click", runSearch);
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") runSearch();
+  });
+  resetBtn.addEventListener("click", function () {
+    input.value = "";
+    document.getElementById("adminSearchHint").style.display = "none";
+    showStudentTracker(String(session.studentId).trim());
+  });
+}
+
 async function init() {
   const el = document.getElementById("result");
   el.innerHTML = `<div class="loading-box"><div class="spinner"></div><br>Memuat data kamu...</div>`;
@@ -867,6 +995,7 @@ async function init() {
     return;
   }
   if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
+  currentSession = session;
 
   updateHallOfFameNav(session.batch);
 
@@ -879,23 +1008,12 @@ async function init() {
     document.getElementById("studentName").textContent = session.nama;
   }
 
-  const sid = String(session.studentId).trim();
-
-  try {
-    const data = await getData();
-    const s = data.find(r => String(r["StudentID"]).trim() === sid);
-    if (!s) {
-      el.innerHTML = `<div class="empty-state">
-        <div class="icon-wrap">${icon("user")}</div>
-        <p class="title">Data tidak ditemukan</p>
-        <p>Student ID kamu <strong>${escHtml(sid)}</strong> tidak ditemukan di data Task Tracker.<br>Silahkan hubungi admin.</p>
-      </div>`;
-      return;
-    }
-    renderResult(s, el);
-  } catch(e) {
-    showError(el, e.message || "Terjadi kesalahan koneksi. Coba refresh halaman ini.");
+  if (session.isAdmin) {
+    setupAdminSearch(session);
   }
+
+  const sid = String(session.studentId).trim();
+  showStudentTracker(sid);
 }
 
 function showError(el, msg) {
@@ -918,7 +1036,7 @@ function renderResult(s, el) {
   const highlight = HIGHLIGHT_CANONICAL[highlightRaw] || highlightRaw;
   const skipList  = HIGHLIGHT_SKIP[highlight]    || [];
 
-  // Sinkronkan nama di sidebar dengan nama dari sumber data (lebih akurat dari session)
+
   if (name && name !== "-") {
     document.getElementById("studentName").textContent = name;
     const badge = document.getElementById("avatarInitials").querySelector(".batch-badge");
@@ -955,7 +1073,7 @@ function renderResult(s, el) {
     </div>`;
   }).filter(Boolean).join("");
 
-  // Diambil langsung dari kolom "Completion Rate" & "Total Score" di sumber data — tidak dihitung ulang.
+
   const pctRaw   = (s["Completion Rate"] || "0").toString().trim();
   const pct      = Math.round((parseFloat(pctRaw.replace("%", "").trim()) || 0) * 10) / 10;
   const totalScoreRaw = (s["Total Score"] || "0").toString().trim();

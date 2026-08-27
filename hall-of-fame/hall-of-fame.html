@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head><link rel="icon" type="image/x-icon" href="logo-richard-icon.png">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hall of Fame</title>
@@ -103,6 +103,38 @@
   }
   .stat-pill.gold .num{color:var(--gold);}
   .stat-pill.teal .num{color:var(--teal);}
+
+  .admin-picker-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:18px;
+    padding:10px 16px;
+    background:rgba(247,183,51,0.1);
+    border:1px solid rgba(247,183,51,0.35);
+    border-radius:12px;
+    max-width:340px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .admin-picker-row label{
+    font-size:13px;
+    font-weight:700;
+    color:var(--gold);
+    white-space:nowrap;
+  }
+  .admin-picker-row select{
+    background:var(--ink);
+    color:var(--cream);
+    border:1px solid rgba(247,183,51,0.4);
+    border-radius:8px;
+    padding:6px 10px;
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
 
   section{margin-top:54px;}
 
@@ -367,6 +399,12 @@
       <div class="stat-pill gold"><span class="num" id="fullCount">–</span> Full Score</div>
       <div class="stat-pill teal"><span class="num" id="compCount">–</span> Completion 100%</div>
     </div>
+
+  
+    <div class="admin-picker-row" id="adminPickerRow" style="display:none;">
+      <label for="adminBatchPicker">🛡️ Admin — Lihat Batch:</label>
+      <select id="adminBatchPicker"></select>
+    </div>
   </header>
 
   <section>
@@ -404,8 +442,8 @@
 
   var BATCH_SOURCES = {
     "34": "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFTdWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg=="
-    // "35": "TEMPEL_HASIL_BTOA_SHEET_BATCH_35_DI_SINI",
-    // "36": "TEMPEL_HASIL_BTOA_SHEET_BATCH_36_DI_SINI",
+    // "35": "",
+    // "36": "",
   };
   // =============================================================
 
@@ -648,9 +686,45 @@
   }
 
 
+
+  function setupAdminPicker(defaultBatchKey){
+    var row = document.getElementById('adminPickerRow');
+    var picker = document.getElementById('adminBatchPicker');
+    if (!row || !picker) return;
+
+    row.style.display = 'flex';
+    picker.innerHTML = '';
+    REQUIRED_BATCHES.forEach(function(batchKey){
+      var opt = document.createElement('option');
+      opt.value = batchKey;
+      opt.textContent = 'Batch ' + batchKey;
+      picker.appendChild(opt);
+    });
+    picker.value = defaultBatchKey;
+
+    picker.addEventListener('change', function(){
+      var selected = picker.value;
+      updateBatchLabel(selected);
+      document.getElementById('fullGrid').innerHTML = '<div class="state-msg">Memuat data…</div>';
+      document.getElementById('compList').innerHTML = '';
+      loadData(sourceUrlForBatch(selected), selected);
+    });
+  }
+
   withTimeout(checkLogin(), 20000, 'Verifikasi login').then(function(session){
     if (!session) return; // sudah di-redirect oleh checkLogin()
     var batchKey = normalizeBatch(session.batch);
+
+
+    if (session.isAdmin) {
+      var defaultKey = sourceUrlForBatch(batchKey) ? batchKey : REQUIRED_BATCHES[0];
+      if (!defaultKey) { showAccessDenied(); return; }
+      setupAdminPicker(defaultKey);
+      updateBatchLabel(defaultKey);
+      loadData(sourceUrlForBatch(defaultKey), defaultKey);
+      return;
+    }
+
     var sheetUrl = sourceUrlForBatch(batchKey);
     if (!sheetUrl) {
       showAccessDenied();

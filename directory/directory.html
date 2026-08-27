@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><link rel="icon" type="image/x-icon" href="logo-richard-icon.png">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>B34 SG Richard — Directory</title>
@@ -850,6 +850,10 @@
       <span class="badge-welcome">Halo,</span>
       <span id="studentNameText">...</span>
     </div>
+    <div class="theme-toggle" id="adminPickerRow" style="display:none; gap:8px; align-items:center;">
+      <span class="theme-toggle-icon">🛡️</span>
+      <select id="adminBatchPicker" style="background:transparent; color:inherit; border:1px solid currentColor; border-radius:8px; padding:4px 8px; font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer;"></select>
+    </div>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
       <span class="theme-toggle-icon" id="themeToggleIcon">🌙</span>
       <span class="theme-toggle-label" id="themeToggleLabel">Mode Gelap</span>
@@ -964,7 +968,7 @@
 const BATCH_URLS_B64 = {
   '34': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J3VnhEd1JIZTNQWVd2WDB6ei1rM0ViZ1A0OHJ0ZDkyS2NTRC1xcXBIay1iX0RMVV9ueld6UENnVmwxNzVuRVlrTlAvZXhlYw==',
   '35': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T0RySG54bXBkdm9qVi1sVnFMVlJCQ09VdHNxNUcwS0FoX2liamxIQ1RrdHdyRDB3MTBmUjJjTXdYUlZhY0oxaVVqZy9leGVj',
-  // '36': 'BASE64_HASIL_ENCODE_DISINI',
+  // '36': '',
 };
 
 let DIRECTORY_API_URL = null;
@@ -1012,53 +1016,19 @@ function parseCSVRaw(raw) {
 let tasks = [];
 
 // ============ FETCH DATA ============
-async function loadData() {
-  document.getElementById('scheduleContent').innerHTML = `
-    <div class="empty-state">
-      <div class="loading-spinner"></div>
-      <div style="margin-top:12px">Memuat data...</div>
-    </div>`;
-
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 detik timeout
-
-    const _token = sessionStorage.getItem("token") || "";
-    const res = await fetch(`${DIRECTORY_API_URL}?action=data&token=${encodeURIComponent(_token)}`, { signal: controller.signal });
-    clearTimeout(timeoutId);
-
-    const json = await res.json();
-
-    if (json.error) {
-      throw new Error(json.error);
-    }
-
-    tasks = json.rows || [];
-    renderAll();
-  } catch (err) {
-    const isTimeout = err.name === 'AbortError';
-    document.getElementById('scheduleContent').innerHTML = `
-      <div class="empty-state">
-        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <div style="color:var(--error-color);font-weight:600;margin-top:8px">Gagal memuat data</div>
-        <div style="font-size:12px;margin-top:6px;max-width:400px">
-          ${isTimeout ? 'Server terlalu lama merespons (timeout).' : (err.message || 'Silakan login ulang.')}<br>
-          <a href="#" onclick="location.reload()" style="color:var(--accent);text-decoration:none">🔄 Muat ulang halaman</a>
-        </div>
-      </div>`;
-    console.error('Error loading data:', err);
-  }
-}
-
-const CLIENT_CACHE_KEY = 'directory_cache_' + (DIRECTORY_API_URL || '');
 const CLIENT_CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit, samakan dengan TTL CacheService di Apps Script
 
+
+function getClientCacheKey() {
+  return 'directory_cache_' + (DIRECTORY_API_URL || '');
+}
+
 async function loadData() {
+  const cacheKey = getClientCacheKey();
+
   // Coba pakai cache browser dulu
   try {
-    const cached = sessionStorage.getItem(CLIENT_CACHE_KEY);
+    const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       const { data, ts } = JSON.parse(cached);
       if (Date.now() - ts < CLIENT_CACHE_TTL_MS) {
@@ -1089,7 +1059,7 @@ async function loadData() {
     tasks = json.rows || [];
 
     try {
-      sessionStorage.setItem(CLIENT_CACHE_KEY, JSON.stringify({ data: tasks, ts: Date.now() }));
+      sessionStorage.setItem(cacheKey, JSON.stringify({ data: tasks, ts: Date.now() }));
     } catch (e) { /* storage penuh/tidak tersedia, abaikan saja */ }
 
     renderAll();
@@ -1604,6 +1574,30 @@ function normalizeBatch(batch) {
   return String(batch || '').trim().replace(/^b/i, '');
 }
 
+
+function setupAdminBatchPicker(defaultBatchKey) {
+  const row = document.getElementById('adminPickerRow');
+  const picker = document.getElementById('adminBatchPicker');
+  if (!row || !picker) return;
+
+  row.style.display = 'flex';
+  picker.innerHTML = '';
+  Object.keys(BATCH_URLS_B64).forEach(function (batchKey) {
+    const opt = document.createElement('option');
+    opt.value = batchKey;
+    opt.textContent = 'Batch ' + batchKey;
+    picker.appendChild(opt);
+  });
+  picker.value = defaultBatchKey;
+
+  picker.addEventListener('change', function () {
+    const selected = picker.value;
+    document.getElementById('batchLabelHeader').textContent = 'B' + selected;
+    DIRECTORY_API_URL = resolveApiUrlForBatch(selected);
+    loadData();
+  });
+}
+
 (async function boot() {
   const session = await checkLogin(); // checkLogin() sudah handle redirect ke login.html kalau gagal
   if (!session) return;
@@ -1612,8 +1606,24 @@ function normalizeBatch(batch) {
 
   document.getElementById('studentNameText').textContent = session.nama;
   document.getElementById('studentNameBadge').classList.add('visible');
-  document.getElementById('batchLabelHeader').textContent = 'B' + batchNum;
 
+
+  if (session.isAdmin) {
+    const availableBatches = Object.keys(BATCH_URLS_B64);
+    const defaultKey = resolveApiUrlForBatch(batchNum) ? batchNum : availableBatches[0];
+    if (!defaultKey) {
+      document.getElementById('scheduleContent').innerHTML = `
+        <div class="empty-state">Belum ada Directory batch manapun yang terdaftar.</div>`;
+      return;
+    }
+    document.getElementById('batchLabelHeader').textContent = 'B' + defaultKey;
+    setupAdminBatchPicker(defaultKey);
+    DIRECTORY_API_URL = resolveApiUrlForBatch(defaultKey);
+    loadData();
+    return;
+  }
+
+  document.getElementById('batchLabelHeader').textContent = 'B' + batchNum;
   DIRECTORY_API_URL = resolveApiUrlForBatch(batchNum); // pilih Sheet/Apps Script sesuai Batch student ini
 
   if (!DIRECTORY_API_URL) {

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head><link rel="icon" type="image/x-icon" href="logo-richard-icon.png">
+<head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dashboard — SG Richard Portal</title>
@@ -388,9 +388,7 @@
   @media (max-width: 780px) {
     .shell { grid-template-columns: 1fr; padding: 24px 20px 28px; margin: 12px; gap: 26px; border-radius: 22px; }
 
-    /* Profile header: keep it a clean vertical block, just centered & scaled down
-       instead of forcing it into a row (that's what caused the badge to overlap
-       the name text before). */
+
     .sidebar { align-items: center; text-align: center; }
     .logo-mark { width: 44px; height: 44px; margin-bottom: 16px; }
     .avatar { width: 76px; height: 76px; font-size: 22px; margin-bottom: 18px; }
@@ -440,6 +438,7 @@
     </div>
     <div class="student-name" id="studentName">Memuat...</div>
     <div class="student-id" id="studentIdLabel">—</div>
+    <div id="adminTag" style="display:none; margin:6px 0 2px; font-size:11px; font-weight:800; letter-spacing:0.04em; color:#f7b733; background:rgba(247,183,51,0.14); border:1px solid rgba(247,183,51,0.4); border-radius:999px; padding:3px 10px;">🛡️ ADMIN</div>
 
     <nav>
       <span class="nav-item active">
@@ -543,8 +542,7 @@
   const PORTFOLIO_STATUS_COL = 7;    // kolom "Portfolio" di data Portfolio Status
   const TOTAL_MAX_SCORE = 5400;      // skor maksimum untuk status "Full Score"
 
-  // Batch-batch yang Hall of Fame-nya sudah tersedia (menu jadi link aktif).
-  // Batch di luar daftar ini tetap tampil "Segera". Tinggal tambah/hapus di sini.
+
   const HOF_AVAILABLE_BATCHES = ["34"];
 
   const SERVICE_KEYWORDS = [
@@ -657,21 +655,21 @@
     return { completed, pending };
   }
 
-  // Ambil langsung dari kolom "Total Score" di sumber data — tidak dihitung ulang.
+
   function readTotalScore(row) {
     const raw = (row[MASTER_TOTAL_SCORE_COL] || "0").toString().trim();
     const num = parseFloat(raw.replace(/[^0-9.\-]/g, ""));
     return isNaN(num) ? 0 : num;
   }
 
-  // Ambil langsung dari kolom "Completion Rate" di sumber data (format "66.67%") — tidak dihitung ulang.
+
   function readCompletionRate(row) {
     const raw = (row[MASTER_COMPLETION_RATE_COL] || "0").toString().trim();
     const num = parseFloat(raw.replace("%", "").trim());
     return isNaN(num) ? 0 : Math.round(num * 10) / 10;
   }
 
-  // Kata-kata yang HARUS tampil sebagai singkatan penuh huruf besar (bukan Title Case biasa)
+
   const ALL_CAPS_WORDS = ["SMM", "EM", "LG"];
 
   function titleCaseService(raw) {
@@ -726,7 +724,7 @@
     return `<div class="congrat-row">${pills.join("")}</div>`;
   }
 
-  // Ring lingkaran kecil pakai SVG, radius tetap, offset dihitung dari %
+
   function ringSvg(pct, idSuffix) {
     const r = 26;
     const circumference = 2 * Math.PI * r;
@@ -832,8 +830,7 @@
     ]);
   }
 
-  // Ambil bagian angka saja dari nilai batch, supaya format "34", "B34",
-  // atau "Batch 34" semuanya dianggap sama.
+
   function normalizeBatch(batch) {
     return String(batch || "").replace(/[^0-9]/g, "");
   }
@@ -877,6 +874,9 @@
     if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
 
     document.getElementById("studentIdLabel").textContent = session.studentId;
+    if (session.isAdmin) {
+      document.getElementById("adminTag").style.display = "inline-block";
+    }
     updateHallOfFameNav(session.batch);
 
     try {

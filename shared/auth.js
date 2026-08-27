@@ -9,6 +9,16 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyOp0tEIYlUKxh8T9c8_-7z
 const SESSION_CACHE_KEY = "sgr_session_cache";
 const SESSION_CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — boleh diubah sesuai kebutuhan
 
+// Student ID yang dianggap Admin. Tambahkan ID lain ke array ini kalau
+// ada admin/mentor baru. Dipakai bareng di semua halaman (Dashboard,
+// Directory, Task Tracker, Hall of Fame) untuk menampilkan kontrol
+// tambahan khusus admin (pilih batch/student bebas).
+const ADMIN_STUDENT_IDS = ["10000001000"];
+
+function isAdminSession(session) {
+  return !!session && ADMIN_STUDENT_IDS.includes(String(session.studentId).trim());
+}
+
 function getCachedSession(token) {
   try {
     const raw = sessionStorage.getItem(SESSION_CACHE_KEY);
@@ -45,7 +55,12 @@ async function checkLogin() {
 
   // Pakai cache dulu kalau masih segar -> lompati panggilan ke Apps Script sama sekali
   const cached = getCachedSession(token);
-  if (cached) return cached;
+  if (cached) {
+    // Jaga-jaga kalau ada cache lama (sebelum fitur admin ditambahkan) yang
+    // belum punya field isAdmin.
+    if (cached.isAdmin === undefined) cached.isAdmin = isAdminSession(cached);
+    return cached;
+  }
 
   try {
     const res = await fetch(`${API_URL}?action=verify&token=${encodeURIComponent(token)}`);
@@ -62,6 +77,7 @@ async function checkLogin() {
       nama: data.nama,
       batch: data.batch,
     };
+    session.isAdmin = isAdminSession(session);
     setCachedSession(token, session);
     return session;
   } catch (err) {
