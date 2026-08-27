@@ -403,8 +403,6 @@
 
   var TESTIMONIAL_FOLDER = 'testimonials';
 
-
-
   var BATCH_SOURCES = {
     "34": "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFTdWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg=="
     // "35": "TEMPEL_HASIL_BTOA_SHEET_BATCH_35_DI_SINI",
@@ -414,6 +412,26 @@
   function sourceUrlForBatch(batchKey){
     var encoded = BATCH_SOURCES[batchKey];
     return encoded ? atob(encoded) : null;
+  }
+
+
+  var SHEET_CACHE_PREFIX = 'sgr_hof_cache_';
+  var SHEET_CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — boleh diubah
+
+  function getSheetCache(batchKey){
+    try {
+      var raw = sessionStorage.getItem(SHEET_CACHE_PREFIX + batchKey);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (Date.now() - parsed.ts > SHEET_CACHE_TTL_MS) return null;
+      return parsed.text;
+    } catch (e) { return null; }
+  }
+
+  function setSheetCache(batchKey, text){
+    try {
+      sessionStorage.setItem(SHEET_CACHE_PREFIX + batchKey, JSON.stringify({ ts: Date.now(), text: text }));
+    } catch (e) { /* storage penuh/diblok, abaikan */ }
   }
 
   function slugify(name){
@@ -546,6 +564,27 @@
   }
 
 
+  function withTimeout(promise, ms, label){
+    return Promise.race([
+      promise,
+      new Promise(function(_, reject){
+        setTimeout(function(){ reject(new Error(label + ' timeout setelah ' + (ms/1000) + 's')); }, ms);
+      })
+    ]);
+  }
+
+  function showLoginTimeout(){
+    document.querySelector('.wrap').innerHTML =
+      '<div class="state-msg" style="padding:140px 20px;">' +
+        'Server login sedang lambat merespons. Coba lagi ya.' +
+        '<div style="margin-top:16px; display:flex; gap:10px; justify-content:center;">' +
+          '<button onclick="location.reload()" style="cursor:pointer; padding:9px 18px; border-radius:999px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--cream); font-family:inherit; font-weight:600; font-size:13px;">Coba Lagi</button>' +
+          '<a href="../dashboard/index.html" style="color:var(--teal); font-weight:700; text-decoration:none; align-self:center;">Kembali ke Dashboard</a>' +
+        '</div>' +
+      '</div>';
+  }
+
+
   function showAccessDenied(){
     document.querySelector('.wrap').innerHTML =
       '<div class="state-msg" style="padding:140px 20px;">' +
@@ -567,35 +606,46 @@
     document.title = 'Batch ' + batchKey + ' — Hall of Fame';
   }
 
-  function loadData(sheetUrl){
-    fetch(sheetUrl, { cache: 'no-store' })
+  function loadData(sheetUrl, batchKey){
+    var cachedText = getSheetCache(batchKey);
+    if (cachedText) {
+      renderFromCsvText(cachedText);
+      return;
+    }
+    withTimeout(fetch(sheetUrl, { cache: 'no-store' }), 15000, 'Ambil data sheet')
       .then(function(res){
         if (!res.ok) throw new Error('fetch failed');
         return res.text();
       })
       .then(function(text){
-        var rows = parseCSV(text);
-        if (!rows.length) throw new Error('empty');
-        rows.shift(); // buang baris header
-        var records = rows
-          .filter(function(r){ return r[1] && r[1].trim() !== ''; })
-          .map(function(r){
-            return {
-              name: (r[1] || '').trim(),
-              track: (r[2] || '').trim().toUpperCase(),
-              score: parseScore(r[3]),
-              completion: parsePercent(r[4])
-            };
-          });
-        render(records);
+        setSheetCache(batchKey, text);
+        renderFromCsvText(text);
       })
-      .catch(function(){
+      .catch(function(err){
+        console.error(err);
         showError();
       });
   }
 
+  function renderFromCsvText(text){
+    var rows = parseCSV(text);
+    if (!rows.length) { showError(); return; }
+    rows.shift(); // buang baris header
+    var records = rows
+      .filter(function(r){ return r[1] && r[1].trim() !== ''; })
+      .map(function(r){
+        return {
+          name: (r[1] || '').trim(),
+          track: (r[2] || '').trim().toUpperCase(),
+          score: parseScore(r[3]),
+          completion: parsePercent(r[4])
+        };
+      });
+    render(records);
+  }
 
-  checkLogin().then(function(session){
+
+  withTimeout(checkLogin(), 20000, 'Verifikasi login').then(function(session){
     if (!session) return; // sudah di-redirect oleh checkLogin()
     var batchKey = normalizeBatch(session.batch);
     var sheetUrl = sourceUrlForBatch(batchKey);
@@ -604,9 +654,10 @@
       return;
     }
     updateBatchLabel(batchKey);
-    loadData(sheetUrl);
-  }).catch(function(){
-    showAccessDenied();
+    loadData(sheetUrl, batchKey);
+  }).catch(function(err){
+    console.error(err);
+    showLoginTimeout();
   });
 
 })();
