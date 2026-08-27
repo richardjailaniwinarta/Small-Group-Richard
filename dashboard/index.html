@@ -578,10 +578,7 @@
     target: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="#fff"/></svg>`,
   };
 
-  // ===== Caching layer (point #1: sessionStorage cache, TTL 5 menit) =====
-  // Tujuannya: kalau user pindah halaman lalu balik lagi ke Dashboard,
-  // atau refresh berkali-kali dalam waktu singkat, data TIDAK ditarik ulang
-  // dari Google Sheets — cukup dibaca dari cache browser (instan).
+
   const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — silakan ubah kalau mau lebih pendek/panjang
   const CACHE_PREFIX = "sgr_cache_";
 
@@ -634,9 +631,6 @@
     return null;
   }
 
-  // Hanya menghitung JUMLAH task selesai/belum (untuk teks "X dari Y task") —
-  // Total Score dan % Completion TIDAK dihitung ulang di sini lagi, tapi diambil
-  // langsung dari kolom "Total Score" & "Completion Rate" di sumber data (lihat readTotalScore/readCompletionRate).
   function computeTaskStats(row, headerRow, highlightService) {
     let completed = 0;
     let pending = 0;
@@ -645,8 +639,6 @@
     for (let t = 0; t < MASTER_TASK_COUNT; t++) {
       const idx = MASTER_TASK_START_COL + t * 3;
 
-      // Lewati task yang bukan milik track Highlight Service siswa ini —
-      // sama seperti yang dilakukan Task Tracker, supaya angkanya konsisten
       const headerLabel = (headerRow && headerRow[idx]) || "";
       let taskService = null;
       for (const { keyword, service } of SERVICE_KEYWORDS) {
@@ -843,8 +835,6 @@
   async function init() {
     document.getElementById("dashboardBody").innerHTML = `<div class="state-msg">Memuat data kamu...</div>`;
 
-    // Mulai checkLogin() DAN fetch data secara BERSAMAAN (bukan berurutan),
-    // supaya total waktu tunggu = proses paling lambat, bukan jumlah semuanya.
     const sessionPromise = withTimeout(checkLogin(), 15000, "Verifikasi login");
     const dataPromise = withTimeout(
       Promise.all([fetchRows(_SRC_A, "master_students"), fetchRows(_SRC_B, "portfolio_status")]),

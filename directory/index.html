@@ -960,24 +960,8 @@
 <script src="../shared/auth.js"></script>
 <script>
 // ======================================================================
-// PENGATURAN DATA PER BATCH — INI BAGIAN YANG BOLEH DIUBAH MANUAL
 // ======================================================================
-// Setiap Batch punya Apps Script Web App URL sendiri (bukan link CSV biasa),
-// karena kode di bawah manggil "?action=data" dan berharap balasannya JSON,
-// bukan teks CSV mentah. Jadi link yang ditaruh di sini HARUS link Apps Script
-// (yang berakhiran ".../exec"), yang kamu deploy dari Google Sheet Batch itu
-// (Extensions > Apps Script > Deploy > New deployment > Web app).
-//
-// CARA TAMBAH BATCH BARU (misal Batch 36):
-// 1. Siapkan Google Sheet Batch 36 + Apps Script Web App-nya (deploy, copy URL "/exec").
-// 2. Buka https://www.base64encode.org (atau jalankan btoa("URL_KAMU") di console browser),
-//    lalu encode URL tersebut jadi base64. (Ini cuma supaya URL-nya tidak keliatan
-//    telanjang di kode — BUKAN proteksi keamanan sungguhan.)
-// 3. Tambahkan baris baru di object BATCH_URLS_B64 di bawah, contoh:
-//    '36': 'BASE64_HASIL_ENCODE_DISINI',
-//
-// Kalau batch seorang student TIDAK ada di daftar ini, dia akan otomatis dapat
-// pesan "Directory belum tersedia" — dia TIDAK akan bisa numpang lihat data batch lain.
+// 
 const BATCH_URLS_B64 = {
   '34': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4T2ZOaTVtcG9vTzVBRVkwa0hid0ZGS180cVN2UDJkQnJyVkNlYjlraHd1eTdUbFRaRDYzUWd3ZHEwREp1VHZid1MvZXhlYw==',
   '35': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T0RySG54bXBkdm9qVi1sVnFMVlJCQ09VdHNxNUcwS0FoX2liamxIQ1RrdHdyRDB3MTBmUjJjTXdYUlZhY0oxaVVqZy9leGVj',
@@ -986,8 +970,7 @@ const BATCH_URLS_B64 = {
 
 let DIRECTORY_API_URL = null;
 
-// Mengembalikan URL Apps Script untuk batch tertentu, atau null kalau batch
-// itu belum didaftarkan — TIDAK PERNAH fallback diam-diam ke batch lain.
+// 
 function resolveApiUrlForBatch(batch) {
   const key = String(batch || '').trim();
   const encoded = BATCH_URLS_B64[key];
@@ -1589,7 +1572,7 @@ function applyTheme(theme) {
   }
 }
 
-const THEME_KEY = 'sgr-theme'; // key bersama, dipakai oleh semua halaman (dashboard/directory/tracker)
+const THEME_KEY = 'sgr-theme'; 
 
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -1604,8 +1587,6 @@ function initTheme() {
   applyTheme(saved === 'light' ? 'light' : 'dark');
 }
 
-// Kalau tema diubah dari tab/halaman lain (misalnya dashboard atau task-tracker),
-// halaman ini ikut update otomatis tanpa perlu reload.
 window.addEventListener('storage', (e) => {
   if (e.key === THEME_KEY) {
     applyTheme(e.newValue === 'light' ? 'light' : 'dark');
@@ -1627,8 +1608,6 @@ document.getElementById('searchInput').addEventListener('input', applyFilters);
   DIRECTORY_API_URL = resolveApiUrlForBatch(session.batch); // pilih Sheet/Apps Script sesuai Batch student ini
 
   if (!DIRECTORY_API_URL) {
-    // Batch student ini belum didaftarkan di BATCH_URLS_B64 — jangan tampilkan
-    // data batch manapun, cukup kasih tau bahwa directory-nya belum tersedia.
     document.getElementById('scheduleContent').innerHTML = `
       <div class="empty-state">
         <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">

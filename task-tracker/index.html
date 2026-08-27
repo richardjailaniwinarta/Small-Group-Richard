@@ -661,8 +661,6 @@ function initTheme() {
   applyTheme(saved === 'light' ? 'light' : 'dark');
 }
 
-// Kalau tema diubah dari tab/halaman lain (misalnya dashboard atau directory),
-// halaman ini ikut update otomatis tanpa perlu reload.
 window.addEventListener('storage', (e) => {
   if (e.key === THEME_KEY) {
     applyTheme(e.newValue === 'light' ? 'light' : 'dark');
@@ -713,10 +711,6 @@ const NON_TASK_COLS = [
   "Completion Rate"
 ];
 
-// ===== Caching layer (sessionStorage, TTL 5 menit) — pola sama seperti Dashboard =====
-// in-memory `cache` di bawah cuma hidup selama tab ini belum di-reload/navigasi.
-// sessionStorage bikin cache-nya bertahan walau user pindah halaman lalu balik lagi,
-// atau nge-refresh, tanpa perlu tarik ulang CSV dari Google Sheets.
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — samakan dengan Dashboard, gampang diubah kalau perlu
 const CACHE_PREFIX = "sgr_cache_";
 
@@ -841,8 +835,6 @@ async function init() {
   const el = document.getElementById("result");
   el.innerHTML = `<div class="loading-box"><div class="spinner"></div><br>Memuat data kamu...</div>`;
 
-  // checkLogin() (dari shared/auth.js) memverifikasi token & otomatis
-  // redirect ke halaman login kalau sesi tidak valid — sama seperti Dashboard & Directory
   let session;
   try {
     session = await checkLogin();
