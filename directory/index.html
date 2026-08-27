@@ -959,19 +959,41 @@
 
 <script src="../shared/auth.js"></script>
 <script>
-const BATCH_API_URLS_B64 = {
+// ======================================================================
+// PENGATURAN DATA PER BATCH — INI BAGIAN YANG BOLEH DIUBAH MANUAL
+// ======================================================================
+// Setiap Batch punya Apps Script Web App URL sendiri (bukan link CSV biasa),
+// karena kode di bawah manggil "?action=data" dan berharap balasannya JSON,
+// bukan teks CSV mentah. Jadi link yang ditaruh di sini HARUS link Apps Script
+// (yang berakhiran ".../exec"), yang kamu deploy dari Google Sheet Batch itu
+// (Extensions > Apps Script > Deploy > New deployment > Web app).
+//
+// CARA TAMBAH BATCH BARU (misal Batch 36):
+// 1. Siapkan Google Sheet Batch 36 + Apps Script Web App-nya (deploy, copy URL "/exec").
+// 2. Buka https://www.base64encode.org (atau jalankan btoa("URL_KAMU") di console browser),
+//    lalu encode URL tersebut jadi base64. (Ini cuma supaya URL-nya tidak keliatan
+//    telanjang di kode — BUKAN proteksi keamanan sungguhan.)
+// 3. Tambahkan baris baru di object BATCH_URLS_B64 di bawah, contoh:
+//    '36': 'BASE64_HASIL_ENCODE_DISINI',
+//
+// Kalau batch seorang student TIDAK ada di daftar ini, dia akan otomatis dapat
+// pesan "Directory belum tersedia" — dia TIDAK akan bisa numpang lihat data batch lain.
+const BATCH_URLS_B64 = {
   '34': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4T2ZOaTVtcG9vTzVBRVkwa0hid0ZGS180cVN2UDJkQnJyVkNlYjlraHd1eTdUbFRaRDYzUWd3ZHEwREp1VHZid1MvZXhlYw==',
   '35': 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T0RySG54bXBkdm9qVi1sVnFMVlJCQ09VdHNxNUcwS0FoX2liamxIQ1RrdHdyRDB3MTBmUjJjTXdYUlZhY0oxaVVqZy9leGVj',
+  // '36': 'BASE64_HASIL_ENCODE_DISINI',
 };
 
 let DIRECTORY_API_URL = null;
 
+// Mengembalikan URL Apps Script untuk batch tertentu, atau null kalau batch
+// itu belum didaftarkan — TIDAK PERNAH fallback diam-diam ke batch lain.
 function resolveApiUrlForBatch(batch) {
   const key = String(batch || '').trim();
-  const encoded = BATCH_API_URLS_B64[key];
+  const encoded = BATCH_URLS_B64[key];
   if (!encoded) {
-    console.warn('Tidak ada DIRECTORY_API_URL untuk Batch "' + key + '", pakai default Batch 34');
-    return atob(BATCH_API_URLS_B64['34']);
+    console.warn('Tidak ada Directory API URL terdaftar untuk Batch "' + key + '"');
+    return null;
   }
   return atob(encoded);
 }
@@ -1603,6 +1625,23 @@ document.getElementById('searchInput').addEventListener('input', applyFilters);
   document.getElementById('batchLabelHeader').textContent = 'B' + session.batch;
 
   DIRECTORY_API_URL = resolveApiUrlForBatch(session.batch); // pilih Sheet/Apps Script sesuai Batch student ini
+
+  if (!DIRECTORY_API_URL) {
+    // Batch student ini belum didaftarkan di BATCH_URLS_B64 — jangan tampilkan
+    // data batch manapun, cukup kasih tau bahwa directory-nya belum tersedia.
+    document.getElementById('scheduleContent').innerHTML = `
+      <div class="empty-state">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div style="font-weight:600;margin-top:8px">Directory Batch ${session.batch} belum tersedia</div>
+        <div style="font-size:12px;margin-top:6px;max-width:400px">
+          Hubungi admin/mentor untuk mendaftarkan Directory Batch kamu.
+        </div>
+      </div>`;
+    return;
+  }
+
   loadData();
 })();
 </script>
