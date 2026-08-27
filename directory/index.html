@@ -1567,18 +1567,28 @@ function applyTheme(theme) {
   }
 }
 
+const THEME_KEY = 'sgr-theme'; // key bersama, dipakai oleh semua halaman (dashboard/directory/tracker)
+
 function toggleTheme() {
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
   const next = isDark ? 'light' : 'dark';
   applyTheme(next);
-  try { localStorage.setItem('b34-theme', next); } catch (e) { /* storage unavailable, theme still applies for this session */ }
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage unavailable, theme still applies for this session */ }
 }
 
 function initTheme() {
   let saved = null;
-  try { saved = localStorage.getItem('b34-theme'); } catch (e) { /* storage unavailable, default to dark */ }
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* storage unavailable, default to dark */ }
   applyTheme(saved === 'light' ? 'light' : 'dark');
 }
+
+// Kalau tema diubah dari tab/halaman lain (misalnya dashboard atau task-tracker),
+// halaman ini ikut update otomatis tanpa perlu reload.
+window.addEventListener('storage', (e) => {
+  if (e.key === THEME_KEY) {
+    applyTheme(e.newValue === 'light' ? 'light' : 'dark');
+  }
+});
 
 // ============ INIT ============
 initTheme();
