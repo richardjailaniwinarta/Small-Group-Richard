@@ -440,38 +440,34 @@
   var TESTIMONIAL_FOLDER = 'testimonials';
 
 
-  var BATCH_SOURCES = {
-    "34": "aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJkYmhqVXFlbjRwbGhaYlc0M2xZSlFTdWZRRnRpaUF4MjByelc0VkQ3ek1lc0dEbV9mZllleTJDNVY4THp0a1plb3V6bGN3cmhoYWpWVS9wdWI/b3V0cHV0PWNzdg=="
-    // "35": "",
-    // "36": "",
-  };
-  // =============================================================
+  var _e1 = ["aHR0cHM6Ly9zZy1yaWNoYXJkLWhvZi1wcm94eS5yaW", "NoYXJkamFpbGFuaXdpbmFydGEud29ya2Vycy5kZXYv"].join("");
+  var _ep  = atob(_e1);
 
+  var REQUIRED_BATCHES = ["34"];
+  // REQUIRED_BATCHES = ["34", "35"]; // contoh kalau nanti nambah Batch 35
 
-  var REQUIRED_BATCHES = Object.keys(BATCH_SOURCES);
-
-  function sourceUrlForBatch(batchKey){
-    var encoded = BATCH_SOURCES[batchKey];
-    return encoded ? atob(encoded) : null;
+  function resolveEndpoint(batchKey){
+    if (REQUIRED_BATCHES.indexOf(batchKey) === -1) return null;
+    return _ep + "?batch=" + encodeURIComponent(batchKey);
   }
 
 
-  var SHEET_CACHE_PREFIX = 'sgr_hof_cache_';
-  var SHEET_CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — boleh diubah
+  var DATA_CACHE_PREFIX = 'sgr_hof_cache_';
+  var DATA_CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — boleh diubah
 
-  function getSheetCache(batchKey){
+  function getDataCache(batchKey){
     try {
-      var raw = sessionStorage.getItem(SHEET_CACHE_PREFIX + batchKey);
+      var raw = sessionStorage.getItem(DATA_CACHE_PREFIX + batchKey);
       if (!raw) return null;
       var parsed = JSON.parse(raw);
-      if (Date.now() - parsed.ts > SHEET_CACHE_TTL_MS) return null;
+      if (Date.now() - parsed.ts > DATA_CACHE_TTL_MS) return null;
       return parsed.text;
     } catch (e) { return null; }
   }
 
-  function setSheetCache(batchKey, text){
+  function setDataCache(batchKey, text){
     try {
-      sessionStorage.setItem(SHEET_CACHE_PREFIX + batchKey, JSON.stringify({ ts: Date.now(), text: text }));
+      sessionStorage.setItem(DATA_CACHE_PREFIX + batchKey, JSON.stringify({ ts: Date.now(), text: text }));
     } catch (e) { /* storage penuh/diblok, abaikan */ }
   }
 
@@ -491,7 +487,7 @@
   var downloadIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
 
 
-  function parseCSV(text){
+  function parseRows(text){
     var rows = [];
     var row = [];
     var field = '';
@@ -647,20 +643,20 @@
     document.title = 'Batch ' + batchKey + ' — Hall of Fame';
   }
 
-  function loadData(sheetUrl, batchKey){
-    var cachedText = getSheetCache(batchKey);
+  function loadData(epRef, batchKey){
+    var cachedText = getDataCache(batchKey);
     if (cachedText) {
-      renderFromCsvText(cachedText);
+      renderFromText(cachedText);
       return;
     }
-    withTimeout(fetch(sheetUrl, { cache: 'no-store' }), 15000, 'Ambil data sheet')
+    withTimeout(fetch(epRef), 15000, 'Ambil data')
       .then(function(res){
         if (!res.ok) throw new Error('fetch failed');
         return res.text();
       })
       .then(function(text){
-        setSheetCache(batchKey, text);
-        renderFromCsvText(text);
+        setDataCache(batchKey, text);
+        renderFromText(text);
       })
       .catch(function(err){
         console.error(err);
@@ -668,8 +664,8 @@
       });
   }
 
-  function renderFromCsvText(text){
-    var rows = parseCSV(text);
+  function renderFromText(text){
+    var rows = parseRows(text);
     if (!rows.length) { showError(); return; }
     rows.shift(); // buang baris header
     var records = rows
@@ -707,7 +703,7 @@
       updateBatchLabel(selected);
       document.getElementById('fullGrid').innerHTML = '<div class="state-msg">Memuat data…</div>';
       document.getElementById('compList').innerHTML = '';
-      loadData(sourceUrlForBatch(selected), selected);
+      loadData(resolveEndpoint(selected), selected);
     });
   }
 
@@ -717,21 +713,21 @@
 
 
     if (session.isAdmin) {
-      var defaultKey = sourceUrlForBatch(batchKey) ? batchKey : REQUIRED_BATCHES[0];
+      var defaultKey = resolveEndpoint(batchKey) ? batchKey : REQUIRED_BATCHES[0];
       if (!defaultKey) { showAccessDenied(); return; }
       setupAdminPicker(defaultKey);
       updateBatchLabel(defaultKey);
-      loadData(sourceUrlForBatch(defaultKey), defaultKey);
+      loadData(resolveEndpoint(defaultKey), defaultKey);
       return;
     }
 
-    var sheetUrl = sourceUrlForBatch(batchKey);
-    if (!sheetUrl) {
+    var epRef = resolveEndpoint(batchKey);
+    if (!epRef) {
       showAccessDenied();
       return;
     }
     updateBatchLabel(batchKey);
-    loadData(sheetUrl, batchKey);
+    loadData(epRef, batchKey);
   }).catch(function(err){
     console.error(err);
     showLoginTimeout();
