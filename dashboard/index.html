@@ -841,10 +841,8 @@
 
     document.getElementById("dashboardBody").innerHTML = `
       <div class="state-msg">
-        Akun ini terdaftar sebagai <strong>Admin</strong> dan tidak terikat ke Batch manapun,
-        jadi tidak ada data progres pribadi untuk ditampilkan di halaman ini.
+        WELCOME <strong>Admin</strong>.
         <br><br>
-        Gunakan menu <strong>Directory</strong> atau <strong>Task Tracker</strong> di samping untuk melihat data student dari Batch mana pun.
       </div>`;
   }
 
@@ -871,10 +869,10 @@
     return String(batch || "").replace(/[^0-9]/g, "");
   }
 
-  function updateHallOfFameNav(batch) {
+  function updateHallOfFameNav(batch, isAdmin) {
     const el = document.getElementById("hofNavItem");
     if (!el) return;
-    const isAvailable = HOF_AVAILABLE_BATCHES.includes(normalizeBatch(batch));
+    const isAvailable = isAdmin || HOF_AVAILABLE_BATCHES.includes(normalizeBatch(batch));
     if (!isAvailable) return;
 
     const link = document.createElement("a");
@@ -908,7 +906,7 @@
     if (session.isAdmin) {
       document.getElementById("adminTag").style.display = "inline-block";
     }
-    updateHallOfFameNav(session.batch);
+    updateHallOfFameNav(session.batch, session.isAdmin);
 
     const batchSheet = resolveBatchSheet(session.batch);
     if (!batchSheet) {
