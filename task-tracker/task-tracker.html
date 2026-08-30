@@ -720,8 +720,21 @@ window.addEventListener('storage', (e) => {
 
 initTheme();
 
-const _p1 = 'aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJyNi1YWnNHQ0lvS1ZfNDJ4aEJ6dDZsenlBOFRpb3RocUN2MUJYT3I4OVB0OGhKc1QxajVwQ1RvVFppY2Y1dXdMMTNJRWtNSDQ3Y09SWC9wdWI/b3V0cHV0PWNzdg==';
-const _SRC_A = atob(_p1);
+function decodeSource(value) {
+  if (typeof value === "string" && value.indexOf("b64:") === 0) return atob(value.slice(4));
+  return value;
+}
+
+const OOG_DEJSI = {
+  "34": "b64:aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2QvZS8yUEFDWC0xdlJyNi1YWnNHQ0lvS1ZfNDJ4aEJ6dDZsenlBOFRpb3RocUN2MUJYT3I4OVB0OGhKc1QxajVwQ1RvVFppY2Y1dXdMMTNJRWtNSDQ3Y09SWC9wdWI/b3V0cHV0PWNzdg==",
+  "35": "2d9vhvdjsjbvkjburh",
+  "36": "fuhdjbvisudbviuvh9u4",
+};
+
+function resolveBatchSource(batch) {
+  const raw = OOG_DEJSI[normalizeBatch(batch)];
+  return raw ? decodeSource(raw) : null;
+}
 
 // 
 const HIGHLIGHT_CANONICAL = {
@@ -813,6 +826,7 @@ function setCache(key, data) {
 
 // 
 let cache    = null;
+let cacheBatch = null;
 let taskDefs = null;
 
 // ── .
@@ -875,21 +889,30 @@ function parseRows(txt) {
 }
 
 async function getData() {
-  if (cache) return cache; // sudah ada di memori untuk load halaman ini, langsung pakai
+  const batchKey = normalizeBatch(currentSession && currentSession.batch);
 
-  const cached = getCache("task_tracker_rows");
+  if (cache && cacheBatch === batchKey) return cache; // 
+
+  const cached = getCache("task_tracker_rows_" + batchKey);
   if (cached) {
-    cache    = cached.rows;
-    taskDefs = cached.taskDefs;
+    cache      = cached.rows;
+    cacheBatch = batchKey;
+    taskDefs   = cached.taskDefs;
     return cache;
   }
 
-  const r = await fetch(_SRC_A);
+  const sourceUrl = resolveBatchSource(batchKey);
+  if (!sourceUrl) {
+    throw new Error(`Sheet untuk Batch ${batchKey || "-"} belum terdaftar. Hubungi admin untuk menambahkan.`);
+  }
+
+  const r = await fetch(sourceUrl);
   if (!r.ok) throw new Error("Gagal mengambil data.");
   const { rows, headers } = parseRows(await r.text());
-  taskDefs = buildTaskDefs(headers); // 
-  cache    = rows;
-  setCache("task_tracker_rows", { rows, taskDefs });
+  taskDefs   = buildTaskDefs(headers); //
+  cache      = rows;
+  cacheBatch = batchKey;
+  setCache("task_tracker_rows_" + batchKey, { rows, taskDefs });
   return cache;
 }
 
@@ -994,7 +1017,7 @@ async function init() {
     showError(el, "Gagal verifikasi login (server mungkin lambat merespons). Coba refresh halaman ini.");
     return;
   }
-  if (!session) return; // checkLogin sudah handle redirect kalau memang tidak valid
+  if (!session) return; // 
   currentSession = session;
 
   updateHallOfFameNav(session.batch);

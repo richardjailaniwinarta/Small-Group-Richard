@@ -522,16 +522,40 @@
 
   initTheme();
 
-  const LEET_DI = atob("MU1HWURVUDB3cGVjSjVUNF80N210Rl9BRzFVdXhxYmwwd01iMGNYUFc4alk=");
   const LEET_ABS_LLR = atob("aHR0cHM6Ly9kb2NzLmdvb2dsZS5jb20vc3ByZWFkc2hlZXRzL2Qv");
   const LLETS_GGIZ_RALTH = atob("L2d2aXovdHE/Z2lkPQ==");
-  const GID_MASTER = 0;
-  const GID_PORTFOLIO = 758194686;
 
-  function buildFilteredUrl(gid, studentId) {
+  function decodeSheetId(value) {
+    if (typeof value === "string" && value.indexOf("b64:") === 0) return atob(value.slice(4));
+    return value;
+  }
+
+  const IP_LEATH = {
+    "34": {
+      id: decodeSheetId("b64:MU1HWURVUDB3cGVjSjVUNF80N210Rl9BRzFVdXhxYmwwd01iMGNYUFc4alk="),
+      gidMaster: 0,
+      gidPortfolio: 758194686,
+    },
+    "35": {
+      id: "batch_id",
+      gidMaster: 0,
+      gidPortfolio: 0,
+    },
+    "36": {
+      id: "batch_id",
+      gidMaster: 0,
+      gidPortfolio: 0,
+    },
+  };
+
+  function resolveBatchSheet(batch) {
+    return IP_LEATH[normalizeBatch(batch)] || null;
+  }
+
+  function buildFilteredUrl(sheetId, gid, studentId) {
     const safeId = studentId.toString().trim().replace(/[^0-9]/g, "");
     const tq = `select * where A = ${safeId}`;
-    return `${LEET_ABS_LLR}${LEET_DI}${LLETS_GGIZ_RALTH}${gid}&headers=2&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
+    return `${LEET_ABS_LLR}${sheetId}${LLETS_GGIZ_RALTH}${gid}&headers=2&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
   }
 
   const MASTER_TOTAL_SCORE_COL = 6;
@@ -595,13 +619,13 @@
     } catch (e) {}
   }
 
-  function fetchFilteredRow(gid, studentId, cacheKey) {
-    const ck = cacheKey ? `${cacheKey}_${studentId}` : null;
+  function fetchFilteredRow(sheetId, gid, studentId, cacheKey) {
+    const ck = cacheKey ? `${cacheKey}_${sheetId}_${studentId}` : null;
     if (ck) {
       const cached = getCache(ck);
       if (cached) return Promise.resolve(cached);
     }
-    const url = buildFilteredUrl(gid, studentId);
+    const url = buildFilteredUrl(sheetId, gid, studentId);
     return new Promise((resolve, reject) => {
       Papa.parse(url, {
         download: true,
@@ -869,10 +893,16 @@
     }
     updateHallOfFameNav(session.batch);
 
+    const batchSheet = resolveBatchSheet(session.batch);
+    if (!batchSheet) {
+      renderError(`Sheet untuk Batch ${session.batch || "-"} belum terdaftar. Hubungi admin untuk menambahkan konfigurasinya.`);
+      return;
+    }
+
     const dataPromise = withTimeout(
       Promise.all([
-        fetchFilteredRow(GID_MASTER, session.studentId, "master_row"),
-        fetchFilteredRow(GID_PORTFOLIO, session.studentId, "portfolio_row"),
+        fetchFilteredRow(batchSheet.id, batchSheet.gidMaster, session.studentId, "master_row"),
+        fetchFilteredRow(batchSheet.id, batchSheet.gidPortfolio, session.studentId, "portfolio_row"),
       ]),
       15000,
       "Ambil data"
