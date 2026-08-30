@@ -831,6 +831,23 @@
     `;
   }
 
+  function renderAdminHome(session) {
+    document.getElementById("avatarInitials").innerHTML = `
+      ${initials(session.nama || "Admin")}
+      <span class="batch-badge">Admin</span>
+    `;
+    document.getElementById("studentName").textContent = session.nama || "Admin";
+    document.getElementById("greetingName").textContent = `Hello, ${session.nama || "Admin"}`;
+
+    document.getElementById("dashboardBody").innerHTML = `
+      <div class="state-msg">
+        Akun ini terdaftar sebagai <strong>Admin</strong> dan tidak terikat ke Batch manapun,
+        jadi tidak ada data progres pribadi untuk ditampilkan di halaman ini.
+        <br><br>
+        Gunakan menu <strong>Directory</strong> atau <strong>Task Tracker</strong> di samping untuk melihat data student dari Batch mana pun.
+      </div>`;
+  }
+
   function renderError(message) {
     document.getElementById("dashboardBody").innerHTML = `
       <div class="state-msg">
@@ -895,7 +912,11 @@
 
     const batchSheet = resolveBatchSheet(session.batch);
     if (!batchSheet) {
-      renderError(`Sheet untuk Batch ${session.batch || "-"} belum terdaftar. Hubungi admin untuk menambahkan konfigurasinya.`);
+      if (session.isAdmin) {
+        renderAdminHome(session);
+      } else {
+        renderError(`Sheet untuk Batch ${session.batch || "-"} belum terdaftar. Hubungi admin untuk menambahkan konfigurasinya.`);
+      }
       return;
     }
 

@@ -825,8 +825,7 @@ function setCache(key, data) {
 }
 
 // 
-let cache    = null;
-let cacheBatch = null;
+let cacheStore = {};
 let taskDefs = null;
 
 // ── .
@@ -888,32 +887,75 @@ function parseRows(txt) {
   return { rows, headers };
 }
 
-async function getData() {
-  const batchKey = normalizeBatch(currentSession && currentSession.batch);
-
-  if (cache && cacheBatch === batchKey) return cache; // 
+async function getDataForBatch(batchKey) {
+  if (cacheStore[batchKey]) return cacheStore[batchKey];
 
   const cached = getCache("task_tracker_rows_" + batchKey);
   if (cached) {
-    cache      = cached.rows;
-    cacheBatch = batchKey;
-    taskDefs   = cached.taskDefs;
-    return cache;
+    cacheStore[batchKey] = { rows: cached.rows, taskDefs: cached.taskDefs };
+    return cacheStore[batchKey];
   }
 
   const sourceUrl = resolveBatchSource(batchKey);
-  if (!sourceUrl) {
-    throw new Error(`Sheet untuk Batch ${batchKey || "-"} belum terdaftar. Hubungi admin untuk menambahkan.`);
-  }
+  if (!sourceUrl) return null;
 
   const r = await fetch(sourceUrl);
-  if (!r.ok) throw new Error("Gagal mengambil data.");
+  if (!r.ok) throw new Error("Gagal mengambil data Batch " + batchKey + ".");
   const { rows, headers } = parseRows(await r.text());
-  taskDefs   = buildTaskDefs(headers); //
-  cache      = rows;
-  cacheBatch = batchKey;
-  setCache("task_tracker_rows_" + batchKey, { rows, taskDefs });
-  return cache;
+  const defs = buildTaskDefs(headers);
+
+  cacheStore[batchKey] = { rows, taskDefs: defs };
+  setCache("task_tracker_rows_" + batchKey, { rows, taskDefs: defs });
+  return cacheStore[batchKey];
+}
+
+function configuredBatchKeys() {
+  return Object.keys(OOG_DEJSI).filter(function (k) {
+    const decoded = resolveBatchSource(k);
+    return typeof decoded === "string" && decoded.indexOf("http") === 0;
+  });
+}
+
+async function getData() {
+  const batchKey = normalizeBatch(currentSession && currentSession.batch);
+  const result = await getDataForBatch(batchKey);
+  if (!result) {
+    throw new Error(`Sheet untuk Batch ${batchKey || "-"} belum terdaftar. Hubungi admin untuk menambahkan.`);
+  }
+  taskDefs = result.taskDefs;
+  return result.rows;
+}
+
+async function searchAcrossBatches(needle, opts) {
+  opts = opts || {};
+  const needleLower = needle.toLowerCase();
+  const ownBatch = normalizeBatch(currentSession && currentSession.batch);
+
+  const batches = configuredBatchKeys().sort(function (a, b) {
+    if (a === ownBatch) return -1;
+    if (b === ownBatch) return 1;
+    return 0;
+  });
+
+  for (const batchKey of batches) {
+    let result;
+    try {
+      result = await getDataForBatch(batchKey);
+    } catch (e) {
+      continue;
+    }
+    if (!result) continue;
+
+    let matches = result.rows.filter(r => String(r["StudentID"]).trim() === needle);
+    if (matches.length === 0 && opts.allowNameSearch) {
+      matches = result.rows.filter(r => (r["Students Name"] || "").toLowerCase().includes(needleLower));
+    }
+    if (matches.length > 0) {
+      taskDefs = result.taskDefs;
+      return { matches, batchKey };
+    }
+  }
+  return { matches: [], batchKey: null };
 }
 
 function icon(type) {
@@ -939,22 +981,28 @@ async function showStudentTracker(studentIdOrName, opts) {
   el.innerHTML = `<div class="loading-box"><div class="spinner"></div><br>Memuat data...</div>`;
 
   try {
-    const data = await getData();
     const needle = String(studentIdOrName).trim();
-    const needleLower = needle.toLowerCase();
+    let matches, matchedBatch;
 
-
-    let matches = data.filter(r => String(r["StudentID"]).trim() === needle);
-
-    if (matches.length === 0 && opts.allowNameSearch) {
-      matches = data.filter(r => (r["Students Name"] || "").toLowerCase().includes(needleLower));
+    if (opts.crossBatch) {
+      const result = await searchAcrossBatches(needle, opts);
+      matches = result.matches;
+      matchedBatch = result.batchKey;
+    } else {
+      const data = await getData();
+      const needleLower = needle.toLowerCase();
+      matches = data.filter(r => String(r["StudentID"]).trim() === needle);
+      if (matches.length === 0 && opts.allowNameSearch) {
+        matches = data.filter(r => (r["Students Name"] || "").toLowerCase().includes(needleLower));
+      }
+      matchedBatch = normalizeBatch(currentSession && currentSession.batch);
     }
 
     if (matches.length === 0) {
       el.innerHTML = `<div class="empty-state">
         <div class="icon-wrap">${icon("user")}</div>
         <p class="title">Data tidak ditemukan</p>
-        <p>"<strong>${escHtml(needle)}</strong>" tidak ditemukan di data Task Tracker.${opts.allowNameSearch ? " Coba Student ID atau nama lain." : "<br>Silahkan hubungi admin."}</p>
+        <p>"<strong>${escHtml(needle)}</strong>" tidak ditemukan${opts.crossBatch ? " di semua Batch yang terdaftar" : " di data Task Tracker"}.${opts.allowNameSearch ? " Coba Student ID atau nama lain." : "<br>Silahkan hubungi admin."}</p>
       </div>`;
       return;
     }
@@ -963,7 +1011,7 @@ async function showStudentTracker(studentIdOrName, opts) {
       const hint = document.getElementById("adminSearchHint");
       if (hint) {
         hint.style.display = "block";
-        hint.textContent = `Ditemukan ${matches.length} hasil untuk "${needle}", menampilkan yang pertama: ${matches[0]["Students Name"] || matches[0]["StudentID"]}.`;
+        hint.textContent = `Ditemukan ${matches.length} hasil${opts.crossBatch ? " di Batch " + matchedBatch : ""} untuk "${needle}", menampilkan yang pertama: ${matches[0]["Students Name"] || matches[0]["StudentID"]}.`;
       }
     } else {
       const hint = document.getElementById("adminSearchHint");
@@ -972,6 +1020,9 @@ async function showStudentTracker(studentIdOrName, opts) {
 
     const label = document.getElementById("studentIdLabel");
     if (label && matches[0]["StudentID"]) label.textContent = matches[0]["StudentID"];
+
+    const badge = document.getElementById("batchBadge");
+    if (badge && matchedBatch) badge.textContent = "Batch " + matchedBatch;
 
     renderResult(matches[0], el);
   } catch (e) {
@@ -992,7 +1043,7 @@ function setupAdminSearch(session) {
   function runSearch() {
     const q = input.value.trim();
     if (!q) return;
-    showStudentTracker(q, { allowNameSearch: true });
+    showStudentTracker(q, { allowNameSearch: true, crossBatch: true });
   }
 
   searchBtn.addEventListener("click", runSearch);
@@ -1023,16 +1074,29 @@ async function init() {
   updateHallOfFameNav(session.batch);
 
   document.getElementById("studentIdLabel").textContent = session.studentId;
+
+  const ownBatchKey = normalizeBatch(session.batch);
+  const hasOwnBatchData = configuredBatchKeys().indexOf(ownBatchKey) !== -1;
+
   if (session.nama) {
     document.getElementById("avatarInitials").innerHTML = `
       ${initials(session.nama)}
-      <span class="batch-badge" id="batchBadge">Batch ${session.batch || "—"}</span>
+      <span class="batch-badge" id="batchBadge">${session.isAdmin && !hasOwnBatchData ? "Admin" : "Batch " + (session.batch || "—")}</span>
     `;
     document.getElementById("studentName").textContent = session.nama;
   }
 
   if (session.isAdmin) {
     setupAdminSearch(session);
+  }
+
+  if (session.isAdmin && !hasOwnBatchData) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="icon-wrap">${icon("user")}</div>
+      <p class="title">Mode Admin</p>
+      <p>Akun ini tidak terikat ke Batch manapun, jadi tidak ada Task Tracker pribadi untuk ditampilkan.<br>Gunakan kolom pencarian di atas untuk melihat Task Tracker student dari Batch mana pun.</p>
+    </div>`;
+    return;
   }
 
   const sid = String(session.studentId).trim();
