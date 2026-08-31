@@ -659,7 +659,7 @@
 
     <div class="content-wrap">
 
-  <!-- ADMIN: cari & lihat Task Tracker student manapun -->
+  <!-- Taks Tracker for Admin -->
   <div class="admin-search-row" id="adminSearchRow" style="display:none;">
     <span class="admin-search-icon">🛡️</span>
     <input type="text" id="adminStudentSearch" placeholder="Cari Student ID / nama untuk lihat Task Tracker-nya...">
@@ -786,11 +786,11 @@ function normalizeBatch(batch) {
   return String(batch || "").replace(/[^0-9]/g, "");
 }
 
-function updateHallOfFameNav(batch) {
+function updateHallOfFameNav(batch, isAdmin) {
   const el = document.getElementById("hofNavItem");
   if (!el) return;
-  const isAvailable = HOF_AVAILABLE_BATCHES.includes(normalizeBatch(batch));
-  if (!isAvailable) return; // biarkan tetap versi default (disabled, tulisan "Segera")
+  const isAvailable = isAdmin || HOF_AVAILABLE_BATCHES.includes(normalizeBatch(batch));
+  if (!isAvailable) return;
 
   const link = document.createElement("a");
   link.className = "nav-item link";
@@ -1071,7 +1071,7 @@ async function init() {
   if (!session) return; // 
   currentSession = session;
 
-  updateHallOfFameNav(session.batch);
+  updateHallOfFameNav(session.batch, session.isAdmin);
 
   document.getElementById("studentIdLabel").textContent = session.studentId;
 
