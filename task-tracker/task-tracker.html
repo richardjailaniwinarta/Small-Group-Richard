@@ -866,12 +866,17 @@ function buildTaskDefs(headers) {
 
 // ──  ──
 function parseRows(txt) {
-  const allLines = txt.split("\n");
-  const lines    = allLines.filter(l => l.trim().replace(/,/g, "") !== "");
+  const allLines = txt.split("\n").filter(l => l.trim() !== "");
 
-  const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+  const headerIndex = allLines.findIndex(l =>
+    l.split(",").some(c => c.trim().replace(/^"|"$/g, "") === "StudentID")
+  );
 
-  const rows = lines.slice(1).map(line => {
+  if (headerIndex === -1) return { rows: [], headers: [] };
+
+  const headers = allLines[headerIndex].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
+
+  const rows = allLines.slice(headerIndex + 1).map(line => {
     const cols = []; let cur = "", inQ = false;
     for (const ch of line) {
       if (ch === '"') { inQ = !inQ; }
