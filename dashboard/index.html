@@ -615,8 +615,6 @@
 
   const MASTER_TOTAL_SCORE_COL = 6;
   const MASTER_COMPLETION_RATE_COL = 7;
-  const MASTER_TASK_START_COL = 8;
-  const MASTER_TASK_COUNT = 49;
   const PORTFOLIO_STATUS_COL = 7;
   const TOTAL_MAX_SCORE = 5400;
 
@@ -712,11 +710,14 @@
     let completed = 0;
     let pending = 0;
     const skipList = HIGHLIGHT_SKIP[highlightService] || [];
+    const headers = headerRow || [];
 
-    for (let t = 0; t < MASTER_TASK_COUNT; t++) {
-      const idx = MASTER_TASK_START_COL + t * 3;
+    for (let idx = 0; idx < headers.length; idx++) {
+      const headerLabel = (headers[idx] || "").toString();
 
-      const headerLabel = (headerRow && headerRow[idx]) || "";
+      if (!headerLabel.toLowerCase().includes("score")) continue;
+      if (headerLabel.trim() === "Total Score") continue;
+
       let taskService = null;
       for (const { keyword, service } of SERVICE_KEYWORDS) {
         if (keyword.test(headerLabel)) { taskService = service; break; }
