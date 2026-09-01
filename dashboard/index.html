@@ -95,7 +95,8 @@
   .shell {
     position: relative;
     z-index: 1;
-    max-width: 1180px;
+    max-width: 1440px;
+    width: 92%;
     margin: 40px auto;
     padding: 40px;
     background: var(--panel);
@@ -103,8 +104,8 @@
     border-radius: var(--radius-lg);
     box-shadow: 0 30px 60px -30px var(--shadow);
     display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 44px;
+    grid-template-columns: 220px minmax(0, 1fr) 320px;
+    gap: 36px;
     overflow: hidden;
   }
   .shell::before {
@@ -407,8 +408,109 @@
     font-size: 14px;
   }
 
+  .calendar-panel {
+    background: var(--surface-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    min-width: 0;
+    align-self: start;
+    max-height: calc(250vh - 120px);
+    display: flex;
+    flex-direction: column;
+  }
+  #calendarBody {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  #calendarBody::-webkit-scrollbar { width: 6px; }
+  #calendarBody::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
+  .calendar-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .calendar-head h3 { margin: 0; font-size: 18px; font-weight: 700; }
+
+  .calendar-day-group { margin-bottom: 16px; }
+  .calendar-day-group:last-child { margin-bottom: 0; }
+  .calendar-day-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .calendar-day-label {
+    font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+  }
+  .calendar-day-group.is-today {
+    background: var(--panel);
+    border: 1px solid var(--purple);
+    border-radius: 16px;
+    padding: 12px 12px 4px;
+    box-shadow: 0 8px 20px -14px var(--shadow);
+  }
+  .calendar-day-group.is-today .calendar-day-label {
+    color: var(--purple-deep);
+    font-weight: 700;
+  }
+  .calendar-today-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    background: var(--purple); color: #fff;
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .calendar-empty-today {
+    font-size: 12.5px; color: var(--ink-soft);
+    padding: 4px 0 10px;
+  }
+
+  .calendar-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-bottom: 12px;
+  }
+  .calendar-item:last-child { margin-bottom: 0; }
+  .calendar-item-time {
+    font-size: 12.5px; font-weight: 700; color: var(--ink);
+    width: 44px; flex-shrink: 0; padding-top: 1px;
+  }
+  .calendar-item-content {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    padding-left: 13px;
+  }
+  .calendar-item-bar {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px; border-radius: 3px;
+  }
+  .calendar-item-bar.cat-live { background: var(--purple); }
+  .calendar-item-bar.cat-recording { background: var(--teal); }
+  .calendar-item-bar.cat-task { background: var(--orange); }
+
+  .calendar-item-body { min-width: 0; }
+  .calendar-item-cat {
+    font-size: 11px; color: var(--ink-soft); margin-bottom: 1px;
+  }
+  .calendar-item-title {
+    font-size: 13px; font-weight: 700; color: var(--ink);
+    line-height: 1.35;
+    white-space: pre-line;
+  }
+  .calendar-item-optional {
+    font-size: 10px; font-weight: 700; color: var(--orange-deep);
+    background: var(--orange-tint);
+    border-radius: 6px; padding: 1px 6px; margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 1100px) {
+    .shell { grid-template-columns: 220px 1fr; }
+    .calendar-panel { grid-column: 1 / -1; order: 3; }
+  }
+
   @media (max-width: 780px) {
     .shell { grid-template-columns: 1fr; padding: 24px 20px 28px; margin: 12px; gap: 26px; border-radius: 22px; }
+    .calendar-panel { order: 3; }
 
     .sidebar { align-items: center; text-align: center; }
     .logo-mark { width: 44px; height: 44px; margin-bottom: 16px; }
@@ -509,6 +611,13 @@
       <div class="state-msg">Memuat data kamu...</div>
     </div>
   </main>
+
+  <aside class="calendar-panel" id="calendarPanel" style="display:none;">
+    <div class="calendar-head">
+      <h3>Calendar</h3>
+    </div>
+    <div id="calendarBody"></div>
+  </aside>
 </div>
 
 <script src="../shared/auth.js"></script>
@@ -561,11 +670,13 @@
       id: jisencord("c69:MU1HWURVUDB3cGVjSjVUNF80N210Rl9BRzFVdXhxYmwwd01iMGNYUFc4alk="),
       gidMaster: 0,
       gidPortfolio: 758194686,
+      gidJadwal: 1737722533,
     },
     "35": {
       id: jisencord("c69:MWhQVjhJci11RTBDeGNTOWFLXzd2NExQWllXWTA5andjSXJFQ2VXUjV5dXc="),
       gidMaster: 0,
       gidPortfolio: 758194686,
+      gidJadwal: 1039108537,
     },
     "36": {
       id: "batch_id",
@@ -586,6 +697,13 @@
 
   function buildCellUrl(sheetId, gid, cell) {
     return `${LEET_ABS_LLR}${sheetId}${LLETS_GGIZ_RALTH}${gid}&range=${cell}&tqx=out:csv`;
+  }
+
+  function buildAllRowsUrl(sheetId, gid) {
+    const tq = `select *`;
+    // Jadwal tab's real header row is row 2 (row 1 is left blank), same as
+    // Master Students / Portfolio Status — hence headers=2, not headers=1.
+    return `${LEET_ABS_LLR}${sheetId}${LLETS_GGIZ_RALTH}${gid}&headers=2&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
   }
 
   function isValidDiscordLink(url) {
@@ -690,6 +808,28 @@
           const shaped = studentRow ? [[], headerRow, studentRow] : [[], headerRow];
           if (ck) setCache(ck, shaped);
           resolve(shaped);
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  function fetchAllRows(sheetId, gid, cacheKey) {
+    const ck = cacheKey ? `${cacheKey}_${sheetId}_${gid}` : null;
+    if (ck) {
+      const cached = getCache(ck);
+      if (cached) return Promise.resolve(cached);
+    }
+    const url = buildAllRowsUrl(sheetId, gid);
+    return new Promise((resolve, reject) => {
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          const rows = results.data || [];
+          if (ck) setCache(ck, rows);
+          resolve(rows);
         },
         error: (err) => reject(err),
       });
@@ -817,6 +957,145 @@
       <div class="congrat-pills-wrap">${pillsHtml}</div>
       ${discordHtml}
     </div>`;
+  }
+
+  const CATEGORY_META = {
+    "Live Lesson":   { cls: "cat-live",      label: "Live Lesson" },
+    "Recording":     { cls: "cat-recording", label: "Recording" },
+    "Task Deadline": { cls: "cat-task",      label: "Task Deadline" },
+  };
+
+  const DAY_LABEL_ID = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const MONTH_LABEL_ID = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+  function getJktNow() {
+    const utcNow = new Date(Date.now());
+    const jktMs = utcNow.getTime() + utcNow.getTimezoneOffset() * 60000 + 7 * 3600000;
+    return new Date(jktMs);
+  }
+
+  function toDateKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function getWeekRange(todayJkt) {
+    const dow = todayJkt.getDay();
+    const diffToMonday = dow === 0 ? -6 : 1 - dow;
+    const monday = new Date(todayJkt);
+    monday.setDate(todayJkt.getDate() + diffToMonday);
+    monday.setHours(0, 0, 0, 0);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }
+
+  function parseSheetDateToKey(raw) {
+    const str = (raw || "").toString().trim();
+    if (!str) return "";
+
+    // Already YYYY-MM-DD (optionally with a time suffix like "2026-08-31 0:00:00")
+    let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) {
+      return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+    }
+
+    // Google's gviz CSV export commonly formats Date-type cells as M/D/YYYY
+    // (or M/D/YYYY H:MM:SS) regardless of the sheet's display format
+    m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) {
+      return `${m[3]}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}`;
+    }
+
+    // Fallback: let the JS Date parser take a shot at it
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) return toDateKey(d);
+
+    return str;
+  }
+
+  function groupJadwalByDate(jadwalRows) {
+    const map = {};
+    for (const row of jadwalRows) {
+      const dateKey = parseSheetDateToKey(row["Date"]);
+      if (!dateKey) continue;
+      if (!map[dateKey]) map[dateKey] = [];
+      map[dateKey].push(row);
+    }
+    for (const key in map) {
+      map[key].sort((a, b) => (a["Time"] || "").localeCompare(b["Time"] || ""));
+    }
+    return map;
+  }
+
+  function renderCalendarItem(row) {
+    const category = (row["Category"] || "").toString().trim();
+    const meta = CATEGORY_META[category] || { cls: "cat-task", label: category || "Event" };
+    const time = (row["Time"] || "").toString().trim().replace(/\s*JKT\s*/i, "");
+    const title = (row["Title"] || "").toString().trim().replace(/\r\n?/g, "\n");
+    const isOptional = (row["Optional"] || "").toString().trim().toUpperCase() === "TRUE";
+
+    return `
+      <div class="calendar-item">
+        <div class="calendar-item-time">${time}</div>
+        <div class="calendar-item-content">
+          <div class="calendar-item-bar ${meta.cls}"></div>
+          <div class="calendar-item-body">
+            <div class="calendar-item-cat">${meta.label}</div>
+            <div class="calendar-item-title">${title}${isOptional ? '<span class="calendar-item-optional">Optional</span>' : ""}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCalendarPanel(jadwalRows) {
+    const panel = document.getElementById("calendarPanel");
+    const body = document.getElementById("calendarBody");
+    if (!panel || !body) return;
+
+    if (!jadwalRows || jadwalRows.length === 0) {
+      panel.style.display = "none";
+      return;
+    }
+
+    const todayJkt = getJktNow();
+    const todayKey = toDateKey(todayJkt);
+    const weekDays = getWeekRange(todayJkt);
+    const grouped = groupJadwalByDate(jadwalRows);
+
+    const html = weekDays.map((d) => {
+      const key = toDateKey(d);
+      const isToday = key === todayKey;
+      const dayLabel = `${DAY_LABEL_ID[d.getDay()]}, ${d.getDate()} ${MONTH_LABEL_ID[d.getMonth()]}`;
+      const items = grouped[key] || [];
+
+      let itemsHtml;
+      if (items.length === 0) {
+        itemsHtml = `<div class="calendar-empty-today">${isToday ? "Tidak ada jadwal hari ini 🎉" : "Tidak ada jadwal"}</div>`;
+      } else {
+        itemsHtml = items.map(renderCalendarItem).join("");
+      }
+
+      return `
+        <div class="calendar-day-group${isToday ? " is-today" : ""}">
+          <div class="calendar-day-head">
+            <span class="calendar-day-label">${dayLabel}</span>
+            ${isToday ? '<span class="calendar-today-tag">Hari ini</span>' : ""}
+          </div>
+          ${itemsHtml}
+        </div>
+      `;
+    }).join("");
+
+    body.innerHTML = html || `<div class="calendar-empty-today">Belum ada jadwal minggu ini.</div>`;
+    panel.style.display = "block";
   }
 
   function ringSvg(pct, idSuffix) {
@@ -992,18 +1271,26 @@
       return;
     }
 
+    const jadwalPromise = (batchSheet.gidJadwal !== undefined && batchSheet.gidJadwal !== null)
+      ? fetchAllRows(batchSheet.id, batchSheet.gidJadwal, "jadwal_rows").catch((err) => {
+          console.error("Gagal memuat jadwal:", err);
+          return [];
+        })
+      : Promise.resolve([]);
+
     const dataPromise = withTimeout(
       Promise.all([
         fetchFilteredRow(batchSheet.id, batchSheet.gidMaster, session.studentId, "master_row"),
         fetchFilteredRow(batchSheet.id, batchSheet.gidPortfolio, session.studentId, "portfolio_row"),
         fetchCellValue(batchSheet.id, batchSheet.gidMaster, "A1", "discord_cell"),
+        jadwalPromise,
       ]),
       15000,
       "Ambil data"
     );
 
     try {
-      const [masterRows, portfolioRows, discordCell] = await dataPromise;
+      const [masterRows, portfolioRows, discordCell, jadwalRows] = await dataPromise;
 
       const masterRow = findStudentRow(masterRows, session.studentId);
       if (!masterRow) {
@@ -1036,6 +1323,8 @@
         portfolioStatus,
         discordLink,
       });
+
+      renderCalendarPanel(jadwalRows);
     } catch (err) {
       console.error(err);
       renderError("Gagal memuat data (server mungkin lambat merespons). Coba lagi ya.");
