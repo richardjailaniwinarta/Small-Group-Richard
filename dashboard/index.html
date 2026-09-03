@@ -408,6 +408,69 @@
     font-size: 14px;
   }
 
+  .admin-search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .admin-search-box input {
+    flex: 1;
+    background: var(--surface-alt);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .admin-search-box input:focus { border-color: var(--purple); }
+  .admin-search-box button {
+    background: linear-gradient(135deg, var(--purple), var(--purple-glow));
+    color: #fff;
+    border: none;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .admin-search-box button:hover { opacity: 0.9; }
+  .admin-search-hint { font-size: 12px; color: var(--ink-soft); margin: 0 0 22px; }
+
+  .admin-search-list { display: flex; flex-direction: column; gap: 10px; }
+  .admin-search-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    background: var(--surface-alt);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .admin-search-item:hover { border-color: var(--purple); }
+  .admin-search-name { font-weight: 600; font-size: 14.5px; color: var(--ink); }
+  .admin-search-meta { font-size: 12.5px; color: var(--ink-soft); }
+
+  .admin-detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .admin-detail-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 19px; }
+  .admin-detail-meta { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+
   .calendar-panel {
     background: var(--surface-alt);
     border: 1px solid var(--line);
@@ -1193,10 +1256,210 @@
     document.getElementById("greetingName").textContent = `Hello, ${session.nama || "Admin"}`;
 
     document.getElementById("dashboardBody").innerHTML = `
-      <div class="state-msg">
-        WELCOME <strong>Admin</strong>.
-        <br><br>
+      <div class="admin-search-box">
+        <input type="text" id="adminSearchInput" placeholder="Cari Student ID atau Nama..." />
+        <button onclick="adminSearchStudent()">Cari</button>
+      </div>
+      <div class="admin-search-hint">Cari lintas semua batch (${Object.keys(IP_LEATH).join(", ")}) berdasarkan Student ID atau nama.</div>
+      <div id="adminSearchResults"></div>
+    `;
+
+    const input = document.getElementById("adminSearchInput");
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") adminSearchStudent();
+    });
+    input.focus();
+  }
+
+  function buildAdminSearchUrl(sheetId, gid, query, isNumeric) {
+    let tq;
+    if (isNumeric) {
+      const safeId = query.toString().trim().replace(/[^0-9]/g, "");
+      tq = `select * where A = ${safeId}`;
+    } else {
+      const escaped = query.toString().trim().replace(/'/g, "\\'");
+      tq = `select * where upper(B) contains upper('${escaped}')`;
+    }
+    return `${LEET_ABS_LLR}${sheetId}${LLETS_GGIZ_RALTH}${gid}&headers=2&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
+  }
+
+  function fetchAdminSearchRows(sheetId, gid, query, isNumeric) {
+    const url = buildAdminSearchUrl(sheetId, gid, query, isNumeric);
+    return new Promise((resolve) => {
+      Papa.parse(url, {
+        download: true,
+        skipEmptyLines: false,
+        complete: (results) => {
+          const headerRow = results.data[0] || [];
+          const rows = (results.data.slice(1) || []).filter((r) => r && r[0]);
+          resolve({ headerRow, rows });
+        },
+        error: () => resolve({ headerRow: [], rows: [] }),
+      });
+    });
+  }
+
+  async function adminSearchStudent() {
+    const input = document.getElementById("adminSearchInput");
+    const query = (input.value || "").trim();
+    const resultsBox = document.getElementById("adminSearchResults");
+    if (!query) return;
+
+    resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Mencari di semua batch...</div>`;
+
+    const isNumeric = /^[0-9]+$/.test(query);
+    const batchKeys = Object.keys(IP_LEATH);
+    const allMatches = [];
+
+    await Promise.all(batchKeys.map(async (batchKey) => {
+      const sheet = IP_LEATH[batchKey];
+      if (!sheet || !sheet.id || sheet.id === "batch_id") return; // batch belum dikonfigurasi
+      try {
+        const { headerRow, rows } = await fetchAdminSearchRows(sheet.id, sheet.gidMaster, query, isNumeric);
+        rows.forEach((row) => allMatches.push({ batchKey, headerRow, row }));
+      } catch (e) {
+        console.error(`Gagal mencari di batch ${batchKey}:`, e);
+      }
+    }));
+
+    if (allMatches.length === 0) {
+      resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Siswa tidak ditemukan di batch manapun.</div>`;
+      return;
+    }
+
+    if (allMatches.length === 1) {
+      renderAdminStudentDetail(allMatches[0]);
+      return;
+    }
+
+    window.__adminSearchMatches = allMatches;
+    resultsBox.innerHTML = `
+      <div class="admin-search-list">
+        ${allMatches.map((m, i) => `
+          <button class="admin-search-item" onclick="renderAdminStudentDetailByIndex(${i})">
+            <span class="admin-search-name">${m.row[1] || "—"}</span>
+            <span class="admin-search-meta">ID ${m.row[0] || "—"} · Batch ${m.batchKey}</span>
+          </button>
+        `).join("")}
       </div>`;
+  }
+
+  function renderAdminStudentDetailByIndex(i) {
+    const match = (window.__adminSearchMatches || [])[i];
+    if (match) renderAdminStudentDetail(match);
+  }
+
+  async function renderAdminStudentDetail(match) {
+    const { batchKey, headerRow, row } = match;
+    const resultsBox = document.getElementById("adminSearchResults");
+    resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Memuat detail siswa...</div>`;
+
+    const sheet = IP_LEATH[batchKey];
+    const studentId = row[0];
+
+    try {
+      const [portfolioRows, discordCell] = await Promise.all([
+        fetchFilteredRow(sheet.id, sheet.gidPortfolio, studentId, "admin_portfolio_row"),
+        fetchCellValue(sheet.id, sheet.gidMaster, "A1", "discord_cell"),
+      ]);
+
+      const portfolioRow = findStudentRow(portfolioRows, studentId);
+      const portfolioStatus = portfolioRow ? portfolioRow[PORTFOLIO_STATUS_COL] : "";
+
+      const hidsRaw = row[4];
+      const hidsTrim = (hidsRaw || "").toString().trim();
+      const highlightCanonical = HIGHLIGHT_CANONICAL[hidsTrim] || HIGHLIGHT_CANONICAL[hidsTrim.toUpperCase()] || hidsTrim;
+      const { completed, pending } = computeTaskStats(row, headerRow, highlightCanonical);
+      const totalScore = readTotalScore(row);
+      const completedPct = readCompletionRate(row);
+      const pendingPct = Math.round((100 - completedPct) * 10) / 10;
+      const discordLink = isValidDiscordLink(discordCell) ? discordCell.trim() : "";
+
+      resultsBox.innerHTML = `
+        <div class="admin-detail-head">
+          <div>
+            <div class="admin-detail-name">${row[1] || "—"}</div>
+            <div class="admin-detail-meta">ID ${studentId} · Batch ${batchKey}</div>
+          </div>
+          <button class="logout-btn" style="background:var(--purple-deep)" onclick="backToAdminSearch()">← Cari Lagi</button>
+        </div>
+
+        <section class="cards-row">
+          <div class="card card-selesai">
+            <div class="card-head">
+              <h3>Task Selesai</h3>
+              <div class="card-icon">${ICONS.check}</div>
+            </div>
+            <div class="card-body">
+              ${ringSvg(completedPct, "done")}
+              <div class="card-stat-text">
+                <div class="count">${completed}</div>
+                <div class="label">dari ${completed + pending} task</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-belum">
+            <div class="card-head">
+              <h3>Task yg Belum</h3>
+              <div class="card-icon">${ICONS.clock}</div>
+            </div>
+            <div class="card-body">
+              ${ringSvg(pendingPct, "pending")}
+              <div class="card-stat-text">
+                <div class="count">${pending}</div>
+                <div class="label">masih tersisa</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-hids">
+            <div class="card-head">
+              <h3>HIDS</h3>
+              <div class="card-icon">${ICONS.target}</div>
+            </div>
+            <div class="card-body">
+              <span class="hids-tag">Highlight Service</span>
+              <div class="hids-value">${titleCaseService(hidsRaw)}</div>
+            </div>
+          </div>
+        </section>
+
+        <h2 class="section-title">Statistics</h2>
+        <section class="stats-grid">
+          <div class="stat-box">
+            <div class="big">${completedPct}%</div>
+            <div class="label">% Completion</div>
+          </div>
+          <div class="stat-box">
+            <div class="big">${totalScore.toLocaleString("id-ID")}</div>
+            <div class="label">Total Score</div>
+          </div>
+          <div class="stat-box">
+            <div class="big">${renderPortfolioPill(portfolioStatus)}</div>
+            <div class="label">Portfolio</div>
+          </div>
+        </section>
+
+        ${renderBottomRow(completedPct, totalScore, discordLink)}
+      `;
+    } catch (e) {
+      console.error(e);
+      resultsBox.innerHTML = `
+        <div class="state-msg" style="padding:30px 0;">
+          Gagal memuat detail siswa.
+          <div style="margin-top:14px">
+            <button class="logout-btn" style="background:var(--purple-deep)" onclick="backToAdminSearch()">Kembali</button>
+          </div>
+        </div>`;
+    }
+  }
+
+  function backToAdminSearch() {
+    const resultsBox = document.getElementById("adminSearchResults");
+    if (resultsBox) resultsBox.innerHTML = "";
+    const input = document.getElementById("adminSearchInput");
+    if (input) { input.value = ""; input.focus(); }
   }
 
   function renderError(message) {
