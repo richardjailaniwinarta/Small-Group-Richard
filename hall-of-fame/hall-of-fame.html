@@ -250,6 +250,31 @@
   .dl-btn:hover{background:rgba(247,183,51,0.24); transform:translateY(-1px);}
   .dl-btn svg{width:13px; height:13px; flex-shrink:0;}
 
+  .my-download-wrap{
+    display:flex;
+    justify-content:center;
+    margin-top:20px;
+  }
+  .my-dl-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:12px 26px;
+    border-radius:999px;
+    border:1px solid rgba(247,183,51,0.5);
+    background:linear-gradient(90deg, rgba(247,183,51,0.22), rgba(255,138,61,0.18));
+    color:var(--gold);
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    text-decoration:none;
+    cursor:pointer;
+    transition:background 0.15s ease, transform 0.15s ease;
+  }
+  .my-dl-btn:hover{background:linear-gradient(90deg, rgba(247,183,51,0.32), rgba(255,138,61,0.28)); transform:translateY(-1px);}
+  .my-dl-btn svg{width:15px; height:15px; flex-shrink:0;}
+
   .dl-btn-sm{
     display:inline-flex;
     align-items:center;
@@ -400,6 +425,8 @@
       <div class="stat-pill teal"><span class="num" id="compCount">–</span> Completion 100%</div>
     </div>
 
+    <div class="my-download-wrap" id="myDownloadWrap" style="display:none;"></div>
+
   
     <div class="admin-picker-row" id="adminPickerRow" style="display:none;">
       <label for="adminBatchPicker">🛡️ Admin — Lihat Batch:</label>
@@ -438,6 +465,8 @@
 
 
   var TESTIMONIAL_FOLDER = 'testimonials';
+
+  var currentSession = null;
 
 
   var _e1 = ["aHR0cHM6Ly9zZy1yaWNoYXJkLWhvZi1wcm94eS5yaW", "NoYXJkamFpbGFuaXdpbmFydGEud29ya2Vycy5kZXYv"].join("");
@@ -548,7 +577,6 @@
     fullScore.forEach(function(r){
       var card = document.createElement('div');
       card.className = 'full-card';
-      var file = testimonialPath(r.name);
       card.innerHTML =
         '<div class="trophy">🏆</div>' +
         '<div class="name">' + r.name + '</div>' +
@@ -558,10 +586,7 @@
             '<div class="score">' + r.score.toLocaleString('id-ID') + '</div>' +
             '<div class="score-label">Total Score</div>' +
           '</div>' +
-        '</div>' +
-        '<a class="dl-btn" href="' + file + '" download="' + slugify(r.name) + '-testimonial.png">' +
-          downloadIcon + ' Download Testimonial' +
-        '</a>';
+        '</div>';
       fullGrid.appendChild(card);
     });
 
@@ -573,7 +598,6 @@
     completedNotFull.forEach(function(r, i){
       var row = document.createElement('div');
       row.className = 'comp-row';
-      var file = testimonialPath(r.name);
       row.innerHTML =
         '<div class="comp-rank">' + (i + 1) + '</div>' +
         '<div class="comp-name">' + r.name + '</div>' +
@@ -581,12 +605,44 @@
         '<div class="comp-meta">' +
           '<span class="comp-score">' + (isNaN(r.score) ? '-' : r.score.toLocaleString('id-ID')) + '</span>' +
           '<span class="comp-check">✓ 100%</span>' +
-          '<a class="dl-btn-sm" href="' + file + '" download="' + slugify(r.name) + '-testimonial.png">' +
-            downloadIcon + ' Testimonial' +
-          '</a>' +
         '</div>';
       compList.appendChild(row);
     });
+
+    renderMyDownload(records);
+  }
+
+  function normalizeStudentId(id){
+    return String(id || '').trim();
+  }
+
+  function renderMyDownload(records){
+    var wrap = document.getElementById('myDownloadWrap');
+    if (!wrap) return;
+
+    if (!currentSession || !currentSession.studentId){
+      wrap.style.display = 'none';
+      wrap.innerHTML = '';
+      return;
+    }
+
+    var sid = normalizeStudentId(currentSession.studentId);
+    var myRecord = records.filter(function(r){
+      return normalizeStudentId(r.studentId) === sid;
+    })[0];
+
+    if (!myRecord){
+      wrap.style.display = 'none';
+      wrap.innerHTML = '';
+      return;
+    }
+
+    var file = testimonialPath(myRecord.name);
+    wrap.style.display = 'flex';
+    wrap.innerHTML =
+      '<a class="my-dl-btn" href="' + file + '" download="' + slugify(myRecord.name) + '-testimonial.png">' +
+        downloadIcon + ' Download Testimonial Kamu' +
+      '</a>';
   }
 
   function showError(){
@@ -671,6 +727,7 @@
       .filter(function(r){ return r[1] && r[1].trim() !== ''; })
       .map(function(r){
         return {
+          studentId: (r[0] || '').trim(),
           name: (r[1] || '').trim(),
           track: (r[2] || '').trim().toUpperCase(),
           score: parseScore(r[3]),
@@ -708,6 +765,7 @@
 
   withTimeout(checkLogin(), 20000, 'Verifikasi login').then(function(session){
     if (!session) return; // sudah di-redirect oleh checkLogin()
+    currentSession = session;
     var batchKey = normalizeBatch(session.batch);
 
 
