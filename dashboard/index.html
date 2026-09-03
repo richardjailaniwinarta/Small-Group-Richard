@@ -1257,10 +1257,10 @@
 
     document.getElementById("dashboardBody").innerHTML = `
       <div class="admin-search-box">
-        <input type="text" id="adminSearchInput" placeholder="Cari Student ID atau Nama..." />
+        <input type="text" id="adminSearchInput" placeholder="Check Status Student dengan isi Student ID atau Nama..." />
         <button onclick="adminSearchStudent()">Cari</button>
       </div>
-      <div class="admin-search-hint">Cari lintas semua batch (${Object.keys(IP_LEATH).join(", ")}) berdasarkan Student ID atau nama.</div>
+      
       <div id="adminSearchResults"></div>
     `;
 
@@ -1305,7 +1305,7 @@
     const resultsBox = document.getElementById("adminSearchResults");
     if (!query) return;
 
-    resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Mencari di semua batch...</div>`;
+    resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Mencari...</div>`;
 
     const isNumeric = /^[0-9]+$/.test(query);
     const batchKeys = Object.keys(IP_LEATH);
