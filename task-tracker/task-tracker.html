@@ -828,18 +828,22 @@ function setCache(key, data) {
 let cacheStore = {};
 let taskDefs = null;
 
-// ── .
+// ── buildTaskDefs ──
 function buildTaskDefs(headers) {
   const defs = [];
-  let n = 0;
 
   headers.forEach((h, idx) => {
     if (!h.toLowerCase().includes("score") || NON_TASK_COLS.includes(h)) return;
 
-    n++;
-    const lessonMatch = h.match(/lesson\s*(\d+)/i);
-    const taskMatch   = h.match(/task\s*(\d+)/i);
-    const labelMatch  = h.match(/:\s*(.+?)\s*Score\s*$/i);
+    const prefixMatch = h.match(/^(\d+)([A-Za-z]?)\.\s*/);
+    const originalNo  = prefixMatch ? `${prefixMatch[1]}${prefixMatch[2] || ""}` : null;
+    const bodyAfterPrefix = prefixMatch ? h.slice(prefixMatch[0].length) : h;
+
+    const lessonMatch      = bodyAfterPrefix.match(/lesson\s*(\d+)/i);
+    const moduleMatch      = bodyAfterPrefix.match(/^(EM|LG|SMM)\s+Module\s*(\d+)/i);
+    const taskModMatch     = bodyAfterPrefix.match(/^Task\s*\d+\s+(ECM|MCR)\s*:/i);
+    const feedbackModMatch = bodyAfterPrefix.match(/^(EM|LG|SMM)\s+Feedback/i);
+    const labelMatch       = h.match(/:\s*(.+?)\s*Score\s*$/i);
 
     const maxHeaderRaw = headers[idx + 2] || "";
     const maxMatch      = maxHeaderRaw.match(/\d+(\.\d+)?/);
@@ -851,12 +855,29 @@ function buildTaskDefs(headers) {
       if (keyword.test(h)) { service = svc; break; }
     }
 
+    let lessonLabel;
+    if (lessonMatch) {
+      lessonLabel = `Lesson ${lessonMatch[1]}`;
+    } else if (moduleMatch) {
+      lessonLabel = `${moduleMatch[1].toUpperCase()} Module ${moduleMatch[2]}`;
+    } else if (taskModMatch) {
+      lessonLabel = taskModMatch[1].toUpperCase();
+    } else if (feedbackModMatch) {
+      lessonLabel = `${feedbackModMatch[1].toUpperCase()} Feedback`;
+    } else if (/feedback/i.test(bodyAfterPrefix)) {
+      lessonLabel = "Feedback";
+    } else {
+      lessonLabel = "Lainnya";
+    }
+
     defs.push({
       scoreKey: h,
       maxScore: maxScore,
-      label:    labelMatch  ? labelMatch[1].trim()       : h.replace(/Score\s*$/i, "").replace(/^\d+\.\s*/, "").trim(),
-      lesson:   lessonMatch ? `Lesson ${lessonMatch[1]}` : `Task ${n}`,
-      num:      taskMatch   ? `Task ${taskMatch[1]}`     : `#${n}`,
+      label:    labelMatch ? labelMatch[1].trim()
+                            : h.replace(/Score\s*$/i, "").replace(/^\d+[A-Za-z]?\.\s*/, "").trim(),
+      lesson:   lessonLabel,
+
+      num:      originalNo ? `#${originalNo}` : "",
       service:  service,
     });
   });
