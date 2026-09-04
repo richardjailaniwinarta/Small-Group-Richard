@@ -1,203 +1,467 @@
 <!DOCTYPE html>
 <html lang="id">
-<head><link rel="icon" type="image/x-icon" href="logo-richard-icon.png"> 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — Small Group Richard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #0b0e14;
-    --card: #12161f;
-    --border: rgba(255,255,255,0.09);
-    --border-focus: #6c63ff;
-    --text: #e8eaf0;
-    --muted: #808a9e;
-    --accent: #6c63ff;
-    --accent2: #a78bfa;
-    --gold: #f7b733;
-    --error: #f87171;
-    --success: #2fd0a3;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{
-    font-family:'DM Sans', sans-serif;
-    background:
-      radial-gradient(ellipse 700px 400px at 15% 0%, rgba(108,99,255,0.16), transparent 60%),
-      radial-gradient(ellipse 600px 400px at 90% 100%, rgba(247,183,51,0.10), transparent 55%),
-      var(--bg);
-    color:var(--text);
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-  }
+<head>
+  <link rel="icon" type="image/x-icon" href="logo-richard-icon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Small Group Richard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080b12;
+      --card: #0f1420;
+      --card2: #141928;
+      --border: rgba(255,255,255,0.07);
+      --border-focus: #7c6fff;
+      --text: #e2e6f0;
+      --muted: #6b7690;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --gold: #f7b733;
+      --gold2: #ffd97d;
+      --error: #f87171;
+      --success: #2fd0a3;
+    }
 
-  .card{
-    width:100%;
-    max-width:400px;
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:20px;
-    padding:40px 32px;
-    position:relative;
-    overflow:hidden;
-  }
-  .card::before{
-    content:'';
-    position:absolute; top:0; left:0; right:0;
-    height:2px;
-    background:linear-gradient(90deg, transparent, var(--accent), var(--gold), transparent);
-  }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .eyebrow{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-size:11px;
-    font-weight:600;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    color:var(--accent2);
-    margin-bottom:18px;
-  }
-  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
 
-  h1{
-    font-family:'Syne', sans-serif;
-    font-weight:800;
-    font-size:28px;
-    line-height:1.15;
-    margin-bottom:8px;
-  }
-  .subtitle{
-    color:var(--muted);
-    font-size:13.5px;
-    line-height:1.6;
-    margin-bottom:28px;
-  }
+    /* ── Background orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 {
+      width: 520px; height: 520px;
+      top: -160px; left: -120px;
+      background: radial-gradient(circle, rgba(108,99,255,0.22), transparent 70%);
+      animation: drift1 14s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      bottom: -100px; right: -80px;
+      background: radial-gradient(circle, rgba(247,183,51,0.14), transparent 70%);
+      animation: drift2 18s ease-in-out infinite alternate;
+    }
+    .orb-3 {
+      width: 280px; height: 280px;
+      top: 50%; right: 10%;
+      background: radial-gradient(circle, rgba(167,139,250,0.10), transparent 70%);
+      animation: drift1 22s ease-in-out infinite alternate;
+    }
+    @keyframes drift1 { from { transform: translate(0, 0); } to { transform: translate(30px, 40px); } }
+    @keyframes drift2 { from { transform: translate(0, 0); } to { transform: translate(-25px, -35px); } }
 
-  label{
-    display:block;
-    font-size:12px;
-    font-weight:600;
-    color:var(--muted);
-    letter-spacing:0.03em;
-    text-transform:uppercase;
-    margin-bottom:8px;
-  }
-  .field{margin-bottom:18px;}
-  .field-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-  }
-  input{
-    width:100%;
-    background:#171d2b;
-    border:1px solid var(--border);
-    border-radius:11px;
-    padding:13px 16px;
-    font-size:15px;
-    font-family:'DM Sans', sans-serif;
-    color:var(--text);
-    outline:none;
-    transition:border-color 0.15s, box-shadow 0.15s;
-  }
-  input::placeholder{color:#555f74;}
-  input:focus{
-    border-color:var(--border-focus);
-    box-shadow:0 0 0 3px rgba(108,99,255,0.18);
-  }
-  .hint{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5;}
+    /* ── Stars / sparkles ── */
+    .stars {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      animation: twinkle var(--dur, 3s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.1; transform: scale(1); }
+      50%       { opacity: 0.8; transform: scale(1.6); }
+    }
 
-  .forgot-link{
-    font-size:12px;
-    font-weight:600;
-    color:var(--accent2);
-    text-decoration:none;
-    text-transform:none;
-    letter-spacing:normal;
-  }
-  .forgot-link:hover{text-decoration:underline;}
+    /* ── Card wrapper ── */
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 0;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(108,99,255,0.08),
+        0 24px 60px rgba(0,0,0,0.55),
+        0 0 80px rgba(108,99,255,0.06);
+    }
 
-  button{
-    width:100%;
-    background:linear-gradient(135deg, var(--accent), var(--accent2));
-    border:none;
-    border-radius:11px;
-    padding:14px;
-    font-family:'DM Sans', sans-serif;
-    font-size:14.5px;
-    font-weight:600;
-    color:#fff;
-    cursor:pointer;
-    margin-top:6px;
-    transition:opacity 0.15s, transform 0.1s;
-  }
-  button:hover{opacity:0.9;}
-  button:active{transform:scale(0.98);}
-  button:disabled{opacity:0.5; cursor:not-allowed;}
+    /* ── Hero welcome header ── */
+    .hero {
+      position: relative;
+      padding: 36px 32px 30px;
+      overflow: hidden;
+      background: linear-gradient(160deg, #131829 0%, #0f1420 60%, #0d1119 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 200px 160px at 90% -10%, rgba(247,183,51,0.14), transparent),
+        radial-gradient(ellipse 280px 200px at -10% 110%, rgba(108,99,255,0.20), transparent);
+      pointer-events: none;
+    }
 
-  .msg{
-    margin-top:16px;
-    padding:12px 14px;
-    border-radius:10px;
-    font-size:13.5px;
-    line-height:1.5;
-    display:none;
-  }
-  .msg.show{display:block;}
-  .msg.error{background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--error);}
-  .msg.success{background:rgba(47,208,163,0.1); border:1px solid rgba(47,208,163,0.3); color:var(--success);}
+    /* Animated grid lines */
+    .hero-grid {
+      position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+      opacity: 0.04;
+    }
+    .hero-grid::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
 
-  .footer-link{
-    text-align:center;
-    margin-top:22px;
-    font-size:13px;
-    color:var(--muted);
-  }
-  .footer-link a{color:var(--accent2); text-decoration:none; font-weight:600;}
-  .footer-link a:hover{text-decoration:underline;}
-</style>
+    /* Logo badge */
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+      position: relative;
+    }
+    .logo-ring {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 1px rgba(108,99,255,0.5), 0 8px 24px rgba(108,99,255,0.35);
+      position: relative;
+    }
+    .logo-ring::after {
+      content: '';
+      position: absolute; inset: -3px;
+      border-radius: 17px;
+      border: 1.5px solid transparent;
+      background: linear-gradient(135deg, rgba(108,99,255,0.6), rgba(247,183,51,0.4)) border-box;
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      mask-composite: exclude;
+      animation: rotateGlow 4s linear infinite;
+    }
+    @keyframes rotateGlow {
+      from { filter: hue-rotate(0deg); }
+      to   { filter: hue-rotate(360deg); }
+    }
+    .logo-ring svg {
+      width: 24px; height: 24px;
+    }
+    .logo-meta {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .logo-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px; font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 600;
+      color: var(--success);
+      letter-spacing: 0.04em;
+    }
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* Welcome text */
+    .welcome-label {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+    }
+
+    .welcome-heading {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 26px;
+      line-height: 1.18;
+      margin-bottom: 4px;
+      position: relative;
+    }
+    .welcome-heading .line-static {
+      display: block;
+      color: var(--text);
+    }
+    .welcome-heading .line-gradient {
+      display: block;
+      background: linear-gradient(90deg, var(--accent2) 0%, var(--gold) 60%, var(--accent2) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 4s linear infinite;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .welcome-divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 16px 0 0;
+    }
+    .divider-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      opacity: 0.3;
+    }
+    .divider-icon {
+      font-size: 10px;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+    .divider-line.right {
+      background: linear-gradient(90deg, transparent, var(--gold));
+    }
+
+    /* ── Form area ── */
+    .form-body {
+      padding: 28px 32px 32px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+    }
+    .field { margin-bottom: 16px; }
+    .field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 7px;
+    }
+    .field-row label { margin-bottom: 0; }
+
+    input {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px;
+      font-size: 14.5px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    input::placeholder { color: #3d4660; }
+    input:focus {
+      border-color: var(--border-focus);
+      background: rgba(108,99,255,0.04);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+
+    .forgot-link {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--accent2);
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.15s;
+    }
+    .forgot-link:hover { opacity: 1; text-decoration: underline; }
+
+    /* Login button */
+    .btn-login {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #6c63ff 0%, #8b5cf6 50%, #a78bfa 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.4), 0 1px 3px rgba(0,0,0,0.3);
+      letter-spacing: 0.01em;
+    }
+    .btn-login::before {
+      content: '';
+      position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.5s ease;
+    }
+    .btn-login:hover::before { left: 160%; }
+    .btn-login:hover { opacity: 0.93; box-shadow: 0 6px 28px rgba(108,99,255,0.55); }
+    .btn-login:active { transform: scale(0.98); }
+    .btn-login:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+    .msg {
+      margin-top: 14px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      display: none;
+    }
+    .msg.show { display: block; }
+    .msg.error   { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--error); }
+    .msg.success { background: rgba(47,208,163,0.08);  border: 1px solid rgba(47,208,163,0.25);  color: var(--success); }
+
+    .footer-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .footer-link a {
+      color: var(--accent2);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .footer-link a:hover { opacity: 0.8; text-decoration: underline; }
+
+    /* ── Entrance animation ── */
+    .card {
+      animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  </style>
 </head>
 <body>
 
+<!-- Background -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<div class="stars" id="stars"></div>
+
 <div class="card">
-  <div class="eyebrow"><span class="dot"></span> Small Group RICHARD</div>
-  <h1>Selamat Datang</h1>
-  <p class="subtitle">Login dengan Student ID dan password kamu untuk mengakses SG Richard Dashboard.</p>
 
-  <form id="loginForm">
-    <div class="field">
-      <label for="studentId">Student ID</label>
-      <input type="text" id="studentId" placeholder="Contoh: 20263401122" autocomplete="off" required>
-    </div>
+  <!-- ── Hero welcome section ── -->
+  <div class="hero">
+    <div class="hero-grid"></div>
 
-    <div class="field">
-      <div class="field-row">
-        <label for="password" style="margin-bottom:0;">Password</label>
-        <a href="forgot-password.html" class="forgot-link">Lupa password?</a>
+    <!-- Logo + status -->
+    <div class="logo-wrap">
+      <div class="logo-ring">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7l9 5 9-5-9-5z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M3 12l9 5 9-5" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="M3 17l9 5 9-5" stroke="rgba(255,255,255,0.35)" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
       </div>
-      <input type="password" id="password" placeholder="Password kamu" required style="margin-top:8px;">
+      <div class="logo-meta">
+        <span class="logo-title">SG Richard Dashboard</span>
+        <span class="live-badge"><span class="live-dot"></span>Small Group Richard</span>
+      </div>
     </div>
 
-    <button type="submit" id="submitBtn">Login</button>
+    <!-- Welcome text -->
+    <p class="welcome-label">Portal Masuk</p>
+    <h1 class="welcome-heading">
+      <span class="line-static">Selamat Datang,</span>
+      <span class="line-gradient">Small Group Richard</span>
+    </h1>
 
-    <div class="msg" id="msgBox"></div>
-  </form>
+    <div class="welcome-divider">
+      <div class="divider-line"></div>
+      <span class="divider-icon">✦</span>
+      <div class="divider-line right"></div>
+    </div>
+  </div>
 
-  <div class="footer-link">Belum punya akun? <a href="register.html">Daftar di sini</a></div>
+  <!-- ── Form section ── -->
+  <div class="form-body">
+    <p class="subtitle">Masuk dengan Student ID dan password kamu untuk mengakses dashboard.</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="studentId">Student ID</label>
+        <input type="text" id="studentId" placeholder="Contoh: 20263401122" autocomplete="off" required>
+      </div>
+
+      <div class="field">
+        <div class="field-row">
+          <label for="password">Password</label>
+          <a href="forgot-password.html" class="forgot-link">Lupa password?</a>
+        </div>
+        <input type="password" id="password" placeholder="Masukkan password kamu" required>
+      </div>
+
+      <button type="submit" class="btn-login" id="submitBtn">Masuk ke Dashboard</button>
+
+      <div class="msg" id="msgBox"></div>
+    </form>
+
+    <div class="footer-link">Belum punya akun? <a href="register.html">Daftar di sini</a></div>
+  </div>
 </div>
 
 <script>
+  /* ── Generate twinkling stars ── */
+  (function () {
+    const container = document.getElementById('stars');
+    for (let i = 0; i < 60; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.left   = Math.random() * 100 + '%';
+      s.style.top    = Math.random() * 100 + '%';
+      s.style.setProperty('--dur',   (2 + Math.random() * 4) + 's');
+      s.style.setProperty('--delay', (Math.random() * 5)     + 's');
+      container.appendChild(s);
+    }
+  })();
 
+  /* ── Login logic (unchanged from original) ── */
   const API_LEGEND = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T3AwdEVJWWxVS3hoOFQ5YzhfLTd6RTRGRmpSMlJaTzFpeGZVQkNSYktUZlVnRnlRQk12R2NMMDA3bl9HVHpXZGNWQS9leGVj';
-  const API_L = atob(API_LEGEND);
-
-  // Halaman tujuan setelah login berhasil — GANTI sesuai struktur folder kamu
+  const API_L      = atob(API_LEGEND);
   const REDIRECT_AFTER_LOGIN = 'dashboard/index.html';
 
   const form      = document.getElementById('loginForm');
@@ -206,7 +470,7 @@
 
   function showMessage(text, type) {
     msgBox.textContent = text;
-    msgBox.className = 'msg show ' + type; // type = 'error' atau 'success'
+    msgBox.className   = 'msg show ' + type;
   }
 
   form.addEventListener('submit', async function (e) {
@@ -220,34 +484,32 @@
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Memproses...';
+    submitBtn.disabled     = true;
+    submitBtn.textContent  = 'Memproses…';
 
     try {
-      const url = `${API_L}?action=login&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}&_=${Date.now()}`;
+      const url  = `${API_L}?action=login&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}&_=${Date.now()}`;
       const res  = await fetch(url, { cache: 'no-store' });
       const data = await res.json();
 
       if (data.error) {
         showMessage(data.error, 'error');
       } else {
-        
-        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('token',     data.token);
         sessionStorage.setItem('studentId', data.studentId);
-        sessionStorage.setItem('nama', data.nama);
-        sessionStorage.setItem('batch', data.batch);
+        sessionStorage.setItem('nama',      data.nama);
+        sessionStorage.setItem('batch',     data.batch);
 
-        showMessage('Login berhasil! Mengalihkan...', 'success');
+        showMessage('Login berhasil! Mengalihkan…', 'success');
         setTimeout(() => { window.location.href = REDIRECT_AFTER_LOGIN; }, 1000);
       }
     } catch (err) {
       showMessage('Gagal terhubung ke server. Coba lagi.', 'error');
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Login';
+      submitBtn.disabled    = false;
+      submitBtn.textContent = 'Masuk ke Dashboard';
     }
   });
 </script>
-
 </body>
 </html>
