@@ -176,8 +176,7 @@
 </div>
 
 <script>
-  const API_LEGEND = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J5T3AwdEVJWWxVS3hoOFQ5YzhfLTd6RTRGRmpSMlJaTzFpeGZVQkNSYktUZlVnRnlRQk12R2NMMDA3bl9HVHpXZGNWQS9leGVj';
-  const API_L = atob(API_LEGEND);
+  const API_URL = 'https://sgr-backend.richweinz27.workers.dev';
 
   const form      = document.getElementById('registerForm');
   const submitBtn = document.getElementById('submitBtn');
@@ -204,8 +203,11 @@
     submitBtn.textContent = 'Memproses...';
 
     try {
-      const url = `${API_L}?action=register&studentId=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}`;
-      const res  = await fetch(url);
+      const res  = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId, password }),
+      });
       const data = await res.json();
 
       if (data.error) {

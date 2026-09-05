@@ -1,7 +1,7 @@
 // shared/auth.js
 // Dipakai di semua halaman terproteksi (Dashboard, Directory, Hall of Fame, Tracker)
 
-const API_URL = "https://script.google.com/macros/s/AKfycbyOp0tEIYlUKxh8T9c8_-7zE4FFjR2RZO1ixfUBCRbKTfUgFyQBMvGcL007n_GTzWdcVA/exec";
+const API_URL = "https://sgr-backend.richweinz27.workers.dev";
 
 // Cache singkat hasil verifikasi, supaya pindah antar halaman (Dashboard <->
 // Directory <-> Task Tracker <-> Hall of Fame) tidak perlu menghubungi ulang
@@ -63,7 +63,7 @@ async function checkLogin() {
   }
 
   try {
-    const res = await fetch(`${API_URL}?action=verify&token=${encodeURIComponent(token)}`);
+    const res = await fetch(`${API_URL}/verify?token=${encodeURIComponent(token)}`);
     const data = await res.json();
 
     if (!data.valid) {
