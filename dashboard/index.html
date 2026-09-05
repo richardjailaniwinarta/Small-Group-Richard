@@ -352,6 +352,13 @@
   .status-approved { background: var(--teal-tint); color: var(--teal); }
   .status-pending { background: var(--orange-tint); color: var(--orange); }
   .status-rejected { background: var(--error-tint); color: var(--error); }
+  .status-neutral { background: rgba(var(--purple-rgb),0.15); color: var(--purple-glow); }
+
+  /* Tint halus pada card Portfolio, menyesuaikan warna status-nya */
+  .stat-box-approved { background: rgba(var(--teal-rgb),0.08); border-color: rgba(var(--teal-rgb),0.3); }
+  .stat-box-pending { background: rgba(var(--orange-rgb),0.08); border-color: rgba(var(--orange-rgb),0.3); }
+  .stat-box-rejected { background: rgba(var(--error-rgb),0.08); border-color: rgba(var(--error-rgb),0.3); }
+  .stat-box-neutral { background: rgba(var(--purple-rgb),0.08); border-color: rgba(var(--purple-rgb),0.3); }
 
   .congrat-row {
     display: flex;
@@ -796,7 +803,7 @@
 
   const MASTER_TOTAL_SCORE_COL = 6;
   const MASTER_COMPLETION_RATE_COL = 7;
-  const PORTFOLIO_STATUS_COL = 15; // Column P = "PORTO APPROVAL"
+  const PORTFOLIO_STATUS_COL = 7; // Column H = "Portfolio" (status review)
   const TOTAL_MAX_SCORE = 5400;
 
   const HOF_AVAILABLE_BATCHES = ["34"];
@@ -976,24 +983,31 @@
       .toUpperCase();
   }
 
-  function renderPortfolioPill(statusRaw) {
+  function getPortfolioStatusMeta(statusRaw) {
     const status = (statusRaw || "").toString().trim();
     const lower = status.toLowerCase();
 
     if (!status) {
-      return `<span class="status-pill status-pending">Belum di Review</span>`;
+      return { colorClass: "neutral", label: "Belum di Review" }; // abu-abu/ungu
     }
 
-    let colorClass = "status-pending"; // default: oranye
+    let colorClass = "neutral"; // default: abu-abu/ungu (status tak dikenal)
     if (lower.startsWith("approve")) {
-      colorClass = "status-approved"; // hijau
+      colorClass = "approved"; // hijau
     } else if (lower.startsWith("major")) {
-      colorClass = "status-rejected"; // merah
+      colorClass = "rejected"; // merah
     } else if (lower.startsWith("minor")) {
-      colorClass = "status-pending"; // oranye
+      colorClass = "pending"; // oranye
+    } else if (lower.startsWith("no submission") || lower.startsWith("no-submission")) {
+      colorClass = "neutral"; // abu-abu/ungu
     }
 
-    return `<span class="status-pill ${colorClass}">${status}</span>`;
+    return { colorClass, label: status };
+  }
+
+  function renderPortfolioPill(statusRaw) {
+    const { colorClass, label } = getPortfolioStatusMeta(statusRaw);
+    return `<span class="status-pill status-${colorClass}">${label}</span>`;
   }
 
   function renderCongratPills(completedPct, totalScore) {
@@ -1189,6 +1203,8 @@
     document.getElementById("studentName").textContent = nama;
     document.getElementById("greetingName").textContent = `Hello, ${nama}`;
 
+    const portfolioMeta = getPortfolioStatusMeta(portfolioStatus);
+
     document.getElementById("dashboardBody").innerHTML = `
       <section class="cards-row">
         <div class="card card-selesai">
@@ -1241,9 +1257,9 @@
           <div class="big">${totalScore.toLocaleString("id-ID")}</div>
           <div class="label">Total Score</div>
         </div>
-        <div class="stat-box">
-          <div class="big">${renderPortfolioPill(portfolioStatus)}</div>
+        <div class="stat-box stat-box-${portfolioMeta.colorClass}">
           <div class="label">Portfolio</div>
+          <div class="big">${renderPortfolioPill(portfolioStatus)}</div>
         </div>
       </section>
 
@@ -1378,6 +1394,7 @@
       const completedPct = readCompletionRate(row);
       const pendingPct = Math.round((100 - completedPct) * 10) / 10;
       const discordLink = isValidDiscordLink(discordCell) ? discordCell.trim() : "";
+      const portfolioMeta = getPortfolioStatusMeta(portfolioStatus);
 
       resultsBox.innerHTML = `
         <div class="admin-detail-head">
@@ -1439,9 +1456,9 @@
             <div class="big">${totalScore.toLocaleString("id-ID")}</div>
             <div class="label">Total Score</div>
           </div>
-          <div class="stat-box">
-            <div class="big">${renderPortfolioPill(portfolioStatus)}</div>
+          <div class="stat-box stat-box-${portfolioMeta.colorClass}">
             <div class="label">Portfolio</div>
+            <div class="big">${renderPortfolioPill(portfolioStatus)}</div>
           </div>
         </section>
 
