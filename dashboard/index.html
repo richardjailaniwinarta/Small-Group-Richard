@@ -980,14 +980,14 @@
     const status = (statusRaw || "").toString().trim();
     const lower = status.toLowerCase();
 
-    if (lower === "approved") {
+    if (lower === "approve" || lower === "approved") {
       return `<span class="status-pill status-approved">✓ Approved</span>`;
     }
-    if (lower === "rejected") {
-      return `<span class="status-pill status-rejected">✕ Rejected</span>`;
+    if (lower === "minor revision") {
+      return `<span class="status-pill status-pending">✎ Minor Revision</span>`;
     }
-    if (lower === "pending") {
-      return `<span class="status-pill status-pending">● Pending</span>`;
+    if (lower === "major revision") {
+      return `<span class="status-pill status-rejected">✎ Major Revision</span>`;
     }
     return `<span class="status-pill status-pending">Belum Direview</span>`;
   }
