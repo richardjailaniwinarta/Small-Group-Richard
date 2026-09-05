@@ -754,7 +754,7 @@
 
   function buildFilteredUrl(sheetId, gid, studentId) {
     const safeId = studentId.toString().trim().replace(/[^0-9]/g, "");
-    const tq = `select * where A = ${safeId}`;
+    const tq = `select * where A = ${safeId} or A = '${safeId}'`;
     return `${LEET_ABS_LLR}${sheetId}${LLETS_GGIZ_RALTH}${gid}&headers=2&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
   }
 
@@ -833,7 +833,7 @@
   };
 
   const CACHE_TTL_MS = 5 * 60 * 1000;
-  const CACHE_PREFIX = "sgr_cache_";
+  const CACHE_PREFIX = "sgr_cache_v2_";
 
   function getCache(key) {
     try {
