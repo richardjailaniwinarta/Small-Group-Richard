@@ -796,7 +796,7 @@
 
   const MASTER_TOTAL_SCORE_COL = 6;
   const MASTER_COMPLETION_RATE_COL = 7;
-  const PORTFOLIO_STATUS_COL = 7; // Column P = "PORTO"
+  const PORTFOLIO_STATUS_COL = 15; // Column P = "PORTO APPROVAL"
   const TOTAL_MAX_SCORE = 5400;
 
   const HOF_AVAILABLE_BATCHES = ["34"];
@@ -980,16 +980,20 @@
     const status = (statusRaw || "").toString().trim();
     const lower = status.toLowerCase();
 
-    if (lower === "approve" || lower === "approved") {
-      return `<span class="status-pill status-approved">✓ Approved</span>`;
+    if (!status) {
+      return `<span class="status-pill status-pending">Belum di Review</span>`;
     }
-    if (lower === "minor revision") {
-      return `<span class="status-pill status-pending">✎ Minor Revision</span>`;
+
+    let colorClass = "status-pending"; // default: oranye
+    if (lower.startsWith("approve")) {
+      colorClass = "status-approved"; // hijau
+    } else if (lower.startsWith("major")) {
+      colorClass = "status-rejected"; // merah
+    } else if (lower.startsWith("minor")) {
+      colorClass = "status-pending"; // oranye
     }
-    if (lower === "major revision") {
-      return `<span class="status-pill status-rejected">✎ Major Revision</span>`;
-    }
-    return `<span class="status-pill status-pending">Belum Direview</span>`;
+
+    return `<span class="status-pill ${colorClass}">${status}</span>`;
   }
 
   function renderCongratPills(completedPct, totalScore) {
