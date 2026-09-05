@@ -31,6 +31,10 @@
     --gold-tint: rgba(var(--orange-rgb),0.15);
     --error: #f87171; --error-rgb: 248,113,113;
     --error-tint: rgba(var(--error-rgb),0.14);
+    --rose: #ff6fae; --rose-rgb: 255,111,174;
+    --rose-deep: #c94a83;
+    --sky: #4f8cff; --sky-rgb: 79,140,255;
+    --sky-deep: #2c5fd6;
     --shadow: rgba(0,0,0,0.45);
     --radius-lg: 28px;
     --radius-md: 18px;
@@ -59,6 +63,10 @@
     --gold-tint: rgba(var(--orange-rgb),0.15);
     --error: #c0392b; --error-rgb: 192,57,43;
     --error-tint: rgba(var(--error-rgb),0.14);
+    --rose: #d43e83; --rose-rgb: 212,62,131;
+    --rose-deep: #a32c63;
+    --sky: #3b6fd6; --sky-rgb: 59,111,214;
+    --sky-deep: #2549a0;
     --shadow: rgba(57,56,64,0.16);
   }
 
@@ -325,6 +333,64 @@
     font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
     background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px;
   }
+
+  .bonus-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    margin-bottom: 0;
+  }
+  .bonus-card { min-height: 150px; padding: 18px; }
+  .bonus-card h3 { font-size: 17px; }
+  .bonus-card .card-icon { width: 30px; height: 30px; }
+  .bonus-card .card-icon svg { width: 16px; height: 16px; }
+  .bonus-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    background: rgba(255,255,255,.2); padding: 4px 10px; border-radius: 999px;
+    display: inline-block; margin-top: 14px;
+    border: none; cursor: default;
+  }
+  a.bonus-tag {
+    color: inherit; text-decoration: none; cursor: pointer;
+    transition: background .15s ease;
+  }
+  a.bonus-tag:hover { background: rgba(255,255,255,.32); }
+  .bonus-desc {
+    font-size: 13px; line-height: 1.5; opacity: .92; margin-top: 10px;
+  }
+  .bonus-card.bonus-4c { background: linear-gradient(155deg, var(--purple), var(--purple-deep)); }
+  .bonus-card.bonus-cdp { background: linear-gradient(155deg, var(--teal-glow), var(--teal-deep)); }
+  .bonus-card.bonus-ec { background: linear-gradient(155deg, var(--sky), var(--sky-deep)); }
+  .bonus-card.bonus-gl { background: linear-gradient(155deg, var(--rose), var(--rose-deep)); }
+
+  .btn-admin-override {
+    font-family: inherit; font-size: 13px; font-weight: 700;
+    background: var(--purple); color: #fff; border: none;
+    padding: 10px 18px; border-radius: 999px; cursor: pointer;
+  }
+  .btn-admin-override:hover { background: var(--purple-deep); }
+  .btn-admin-override:disabled { opacity: .6; cursor: not-allowed; }
+  .btn-admin-override.btn-release { background: var(--teal-deep); }
+  .btn-admin-override.btn-release:hover { background: var(--teal); }
+  .btn-admin-override.btn-remove { background: var(--error); }
+  .btn-admin-override.btn-remove:hover { opacity: .88; }
+
+  .bonus-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+  .bonus-admin-item { display: flex; flex-direction: column; gap: 10px; }
+  .bonus-card-hidden { opacity: .45; filter: grayscale(.35); }
+  .bonus-admin-controls {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap;
+  }
+  .bonus-admin-status {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .02em;
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .bonus-admin-status-on { background: var(--teal-tint); color: var(--teal-deep); }
+  .bonus-admin-status-off { background: rgba(148,148,148,.16); color: var(--text-muted, #888); }
 
   .section-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
 
@@ -741,17 +807,20 @@
       gidMaster: 0,
       gidPortfolio: 758194686,
       gidJadwal: 1737722533,
+      gidBonus: 129083659, 
     },
     "35": {
       id: jisencord("c69:MWhQVjhJci11RTBDeGNTOWFLXzd2NExQWllXWTA5andjSXJFQ2VXUjV5dXc="),
       gidMaster: 0,
       gidPortfolio: 758194686,
       gidJadwal: 1039108537,
+      gidBonus: null, 
     },
     "36": {
       id: "batch_id",
       gidMaster: 0,
       gidPortfolio: 0,
+      gidBonus: null,
     },
   };
 
@@ -759,10 +828,11 @@
     return IP_LEATH[normalizeBatch(batch)] || null;
   }
 
-  function buildFilteredUrl(sheetId, gid, studentId) {
+  function buildFilteredUrl(sheetId, gid, studentId, headersCount) {
     const safeId = studentId.toString().trim().replace(/[^0-9]/g, "");
     const tq = `select * where A = ${safeId} or A = '${safeId}'`;
-    return `${LEET_ABS_LLR}${sheetId}${LLETS_GGIZ_RALTH}${gid}&headers=2&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
+    const h = headersCount || 2;
+    return `${LEET_ABS_LLR}${sheetId}${LLETS_GGIZ_RALTH}${gid}&headers=${h}&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
   }
 
   function buildCellUrl(sheetId, gid, cell) {
@@ -771,8 +841,7 @@
 
   function buildAllRowsUrl(sheetId, gid) {
     const tq = `select *`;
-    // Jadwal tab's real header row is row 2 (row 1 is left blank), same as
-    // Master Students / Portfolio Status — hence headers=2, not headers=1.
+
     return `${LEET_ABS_LLR}${sheetId}${LLETS_GGIZ_RALTH}${gid}&headers=2&tqx=out:csv&tq=${encodeURIComponent(tq)}`;
   }
 
@@ -806,6 +875,141 @@
   const PORTFOLIO_STATUS_COL = 7; // Column H = "Portfolio" (status review)
   const TOTAL_MAX_SCORE = 5400;
 
+
+  // ============================================================
+  // ISI/EDIT DI SINI: nama, keterangan, dan link untuk tiap bonus.
+  // - idx    : JANGAN diubah kecuali urutan kolom di sheet berubah.
+  // - label  : nama yang tampil di judul card (boleh diganti bebas).
+  // - description : kalimat singkat yang tampil di dalam card.
+  // - link   : URL (misal ke Drive/Canva/dokumen). Kosongkan "" kalau tidak ada.
+  // ============================================================
+  const BONUS_COLS = [
+    {
+      key: "4C",
+      idx: 3,
+      overrideIdx: 13, 
+      label: "4C (Confidence Coaching for Client Call)",
+      description: "Congratulations, you are eligible to receive Confidence Coaching for Client Call (4C). This bonus program gives you a 2-week hands-on training. Work on real client simulations to gain practical experience and guided by Program Manager.",
+      tagLabel: "The Detail of This Program",
+      link: "https://canva.link/c82m180nphmmvg8",
+    },
+    {
+      key: "CDP",
+      idx: 5,
+      overrideIdx: 14,
+      label: "Free Pass CDP",
+      description: "Congratulations, you are eligible to receive CDP (Career Development Program) Free Pass.",
+      tagLabel: "Review These Guidelines",
+      link: "https://cdp-free-pass-notice-batch-34.netlify.app/",
+    },
+    {
+      key: "EC",
+      idx: 6,
+      overrideIdx: 15, 
+      label: "English Community",
+      description: "This registration is exclusively for eligible students who have been selected to receive the English Community bonus. Please do NOT share the registration form link with others whether through personal chat or through public groups.",
+      tagLabel: "Register Here",
+      link: "https://forms.gle/UK9rqZAfsug8dKEB9",
+    },
+    {
+      key: "GL",
+      idx: 7,
+      overrideIdx: 16, 
+      label: "GL",
+      description: "Congratulations, you are eligible to receive Growth Lab (GL) bonus program. A 2-week guided simulation program designed to help you gain practical experience as a Virtual Assistant, even before landing your first client.",
+      tagLabel: "The Detail of This Program",
+      link: "https://canva.link/g2xyf660gsgo3y3",
+    },
+  ];
+
+
+  const BONUS_HEADER_ROWS = 4;
+
+  const ADMIN_WRITE_URL = "https://script.google.com/macros/s/AKfycbwQuKHMGz7kFauPJq5xiYUDRA-qqJxXp4YfKwzIMCHzZ2kLu5mvmvlDgLFV-TReB6Vv/exec";
+
+  function getBonusOverrideRaw(bonusRow, bonus) {
+    if (!bonusRow) return "";
+    return (bonusRow[bonus.overrideIdx] || "").toString().trim().toUpperCase();
+  }
+
+
+  function isBonusVisible(bonus, bonusRow, portfolioStatus, completedPct) {
+    const override = getBonusOverrideRaw(bonusRow, bonus);
+    if (override === "REMOVED") return false;
+    if (override === "RELEASED") return true;
+    return bonusQualifies(portfolioStatus, completedPct);
+  }
+
+  async function postBonusOverride(spreadsheetId, studentId, bonusKey, action) {
+    if (!ADMIN_WRITE_URL) {
+      throw new Error("ADMIN_WRITE_URL belum diisi di kode. Deploy Apps Script-nya dulu, lalu isi URL-nya.");
+    }
+    const res = await fetch(ADMIN_WRITE_URL, {
+      method: "POST",
+
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        spreadsheetId,
+        sheetName: "Bonus Student",
+        studentId: studentId.toString(),
+        bonusKey,
+        action, // "release" atau "remove"
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.success !== true) {
+      throw new Error(data.error || "Gagal menyimpan perubahan ke Google Sheet.");
+    }
+    return data;
+  }
+
+  async function handleBonusOverrideClick(btn, spreadsheetId, studentId, bonusKey, action) {
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Menyimpan...";
+    try {
+      await postBonusOverride(spreadsheetId, studentId, bonusKey, action);
+
+      deleteCache(`bonus_row_${spreadsheetId}_${studentId}`);
+      deleteCache(`admin_bonus_row_${spreadsheetId}_${studentId}`);
+
+      const card = btn.closest(".bonus-card");
+      if (card) {
+        if (action === "release") {
+          card.classList.remove("bonus-card-hidden");
+          btn.textContent = "Remove dari Student";
+          btn.dataset.action = "remove";
+          btn.classList.remove("btn-release");
+          btn.classList.add("btn-remove");
+        } else {
+          card.classList.add("bonus-card-hidden");
+          btn.textContent = "Release ke Student";
+          btn.dataset.action = "release";
+          btn.classList.remove("btn-remove");
+          btn.classList.add("btn-release");
+        }
+      }
+      btn.disabled = false;
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Gagal menyimpan perubahan.");
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+
+  function isPortfolioApproved(statusRaw) {
+    return (statusRaw || "").toString().trim().toLowerCase().startsWith("approve");
+  }
+
+  function getEarnedBonuses(bonusRow) {
+    if (!bonusRow) return [];
+    return BONUS_COLS.filter(({ idx }) => {
+      const val = (bonusRow[idx] || "").toString().trim();
+      return val !== "" && val !== "0";
+    });
+  }
+
   const HOF_AVAILABLE_BATCHES = ["34"];
 
   const SERVICE_KEYWORDS = [
@@ -837,6 +1041,7 @@
     check: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
     clock: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>`,
     target: `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="#fff"/></svg>`,
+    gift: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8"/><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8"/></svg>`,
   };
 
   const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -860,13 +1065,19 @@
     } catch (e) {}
   }
 
-  function fetchFilteredRow(sheetId, gid, studentId, cacheKey) {
+  function deleteCache(key) {
+    try {
+      sessionStorage.removeItem(CACHE_PREFIX + key);
+    } catch (e) {}
+  }
+
+  function fetchFilteredRow(sheetId, gid, studentId, cacheKey, headersCount) {
     const ck = cacheKey ? `${cacheKey}_${sheetId}_${studentId}` : null;
     if (ck) {
       const cached = getCache(ck);
       if (cached) return Promise.resolve(cached);
     }
-    const url = buildFilteredUrl(sheetId, gid, studentId);
+    const url = buildFilteredUrl(sheetId, gid, studentId, headersCount);
     return new Promise((resolve, reject) => {
       Papa.parse(url, {
         download: true,
@@ -1010,6 +1221,81 @@
     return `<span class="status-pill status-${colorClass}">${label}</span>`;
   }
 
+  function bonusQualifies(portfolioStatus, completedPct) {
+    return isPortfolioApproved(portfolioStatus) && completedPct > 80;
+  }
+
+  function renderBonusCard(bonus) {
+    const tagText = bonus.tagLabel || "Bonus SGB VA";
+    const tagHtml = bonus.link
+      ? `<a class="bonus-tag" href="${bonus.link}" target="_blank" rel="noopener noreferrer">${tagText}</a>`
+      : `<div class="bonus-tag">${tagText}</div>`;
+    return `
+      <div class="card bonus-card bonus-${bonus.key.toLowerCase()}">
+        <div class="card-head">
+          <h3>${bonus.label || bonus.key}</h3>
+          <div class="card-icon">${ICONS.gift}</div>
+        </div>
+        ${bonus.description ? `<div class="bonus-desc">${bonus.description}</div>` : ""}
+        ${tagHtml}
+      </div>
+    `;
+  }
+
+
+  function renderBonusSection(portfolioStatus, completedPct, bonuses, bonusRow) {
+    if (!bonuses || bonuses.length === 0) return "";
+
+    const visibleBonuses = bonuses.filter((b) => isBonusVisible(b, bonusRow, portfolioStatus, completedPct));
+    if (visibleBonuses.length === 0) return "";
+
+    return `
+      <h2 class="section-title" style="margin-top:26px;">Bonus SGB VA</h2>
+      <section class="cards-row bonus-grid">
+        ${visibleBonuses.map(renderBonusCard).join("")}
+      </section>
+    `;
+  }
+
+
+  function renderAdminBonusSection(portfolioStatus, completedPct, bonuses, bonusRow, spreadsheetId, studentId) {
+    if (!bonuses || bonuses.length === 0) return "";
+
+    const cardsHtml = bonuses.map((bonus) => {
+      const visible = isBonusVisible(bonus, bonusRow, portfolioStatus, completedPct);
+      const action = visible ? "remove" : "release";
+      const btnLabel = visible ? "Remove dari Student" : "Release ke Student";
+      const btnClass = visible ? "btn-remove" : "btn-release";
+      const statusLabel = visible
+        ? '<span class="bonus-admin-status bonus-admin-status-on">Terlihat oleh Student</span>'
+        : '<span class="bonus-admin-status bonus-admin-status-off">Belum terlihat Student</span>';
+
+      return `
+        <div class="bonus-admin-item">
+          <div class="${visible ? "" : "bonus-card-hidden"}">
+            ${renderBonusCard(bonus)}
+          </div>
+          <div class="bonus-admin-controls">
+            ${statusLabel}
+            <button
+              type="button"
+              class="btn-admin-override ${btnClass}"
+              data-action="${action}"
+              onclick="handleBonusOverrideClick(this, ${JSON.stringify(spreadsheetId)}, ${JSON.stringify(studentId.toString())}, ${JSON.stringify(bonus.key)}, this.dataset.action)"
+            >${btnLabel}</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <h2 class="section-title" style="margin-top:26px;">Bonus</h2>
+      <div class="bonus-admin-grid">
+        ${cardsHtml}
+      </div>
+    `;
+  }
+
   function renderCongratPills(completedPct, totalScore) {
     const pills = [];
     if (completedPct >= 100) {
@@ -1081,14 +1367,13 @@
     const str = (raw || "").toString().trim();
     if (!str) return "";
 
-    // Already YYYY-MM-DD (optionally with a time suffix like "2026-08-31 0:00:00")
+
     let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
     if (m) {
       return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
     }
 
-    // Google's gviz CSV export commonly formats Date-type cells as M/D/YYYY
-    // (or M/D/YYYY H:MM:SS) regardless of the sheet's display format
+
     m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
     if (m) {
       return `${m[3]}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}`;
@@ -1195,7 +1480,7 @@
     `;
   }
 
-  function renderDashboard({ nama, batch, hids, completed, pending, completedPct, pendingPct, totalScore, portfolioStatus, discordLink }) {
+  function renderDashboard({ nama, batch, hids, completed, pending, completedPct, pendingPct, totalScore, portfolioStatus, discordLink, bonuses, bonusRow }) {
     document.getElementById("avatarInitials").innerHTML = `
       ${initials(nama)}
       <span class="batch-badge">Batch ${batch || "—"}</span>
@@ -1264,6 +1549,8 @@
       </section>
 
       ${renderBottomRow(completedPct, totalScore, discordLink)}
+
+      ${renderBonusSection(portfolioStatus, completedPct, bonuses, bonusRow)}
     `;
   }
 
@@ -1378,13 +1665,18 @@
     const studentId = row[0];
 
     try {
-      const [portfolioRows, discordCell] = await Promise.all([
+      const [portfolioRows, discordCell, bonusRows] = await Promise.all([
         fetchFilteredRow(sheet.id, sheet.gidPortfolio, studentId, "admin_portfolio_row"),
         fetchCellValue(sheet.id, sheet.gidMaster, "A1", "discord_cell"),
+        (sheet.gidBonus !== undefined && sheet.gidBonus !== null)
+          ? fetchFilteredRow(sheet.id, sheet.gidBonus, studentId, "admin_bonus_row", BONUS_HEADER_ROWS).catch(() => [])
+          : Promise.resolve([]),
       ]);
 
       const portfolioRow = findStudentRow(portfolioRows, studentId);
       const portfolioStatus = portfolioRow ? portfolioRow[PORTFOLIO_STATUS_COL] : "";
+      const bonusRow = findStudentRow(bonusRows, studentId);
+      const bonuses = getEarnedBonuses(bonusRow);
 
       const hidsRaw = row[4];
       const hidsTrim = (hidsRaw || "").toString().trim();
@@ -1463,6 +1755,8 @@
         </section>
 
         ${renderBottomRow(completedPct, totalScore, discordLink)}
+
+        ${renderAdminBonusSection(portfolioStatus, completedPct, bonuses, bonusRow, sheet.id, studentId)}
       `;
     } catch (e) {
       console.error(e);
@@ -1562,19 +1856,27 @@
         })
       : Promise.resolve([]);
 
+    const bonusPromise = (batchSheet.gidBonus !== undefined && batchSheet.gidBonus !== null)
+      ? fetchFilteredRow(batchSheet.id, batchSheet.gidBonus, session.studentId, "bonus_row", BONUS_HEADER_ROWS).catch((err) => {
+          console.error("Gagal memuat bonus:", err);
+          return [];
+        })
+      : Promise.resolve([]);
+
     const dataPromise = withTimeout(
       Promise.all([
         fetchFilteredRow(batchSheet.id, batchSheet.gidMaster, session.studentId, "master_row"),
         fetchFilteredRow(batchSheet.id, batchSheet.gidPortfolio, session.studentId, "portfolio_row"),
         fetchCellValue(batchSheet.id, batchSheet.gidMaster, "A1", "discord_cell"),
         jadwalPromise,
+        bonusPromise,
       ]),
       15000,
       "Ambil data"
     );
 
     try {
-      const [masterRows, portfolioRows, discordCell, jadwalRows] = await dataPromise;
+      const [masterRows, portfolioRows, discordCell, jadwalRows, bonusRows] = await dataPromise;
 
       const masterRow = findStudentRow(masterRows, session.studentId);
       if (!masterRow) {
@@ -1595,6 +1897,9 @@
 
       const discordLink = isValidDiscordLink(discordCell) ? discordCell.trim() : "";
 
+      const bonusRow = findStudentRow(bonusRows, session.studentId);
+      const bonuses = getEarnedBonuses(bonusRow);
+
       renderDashboard({
         nama: session.nama || masterRow[1],
         batch: session.batch,
@@ -1606,6 +1911,8 @@
         totalScore,
         portfolioStatus,
         discordLink,
+        bonuses,
+        bonusRow,
       });
 
       renderCalendarPanel(jadwalRows);
