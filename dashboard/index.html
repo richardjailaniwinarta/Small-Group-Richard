@@ -1613,6 +1613,8 @@
     if (!query) return;
 
     resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Mencari...</div>`;
+    const calendarPanelEl = document.getElementById("calendarPanel");
+    if (calendarPanelEl) calendarPanelEl.style.display = "none";
 
     const isNumeric = /^[0-9]+$/.test(query);
     const batchKeys = Object.keys(IP_LEATH);
@@ -1665,12 +1667,20 @@
     const studentId = row[0];
 
     try {
-      const [portfolioRows, discordCell, bonusRows] = await Promise.all([
+      const jadwalPromise = (sheet.gidJadwal !== undefined && sheet.gidJadwal !== null)
+        ? fetchAllRows(sheet.id, sheet.gidJadwal, "admin_jadwal_rows").catch((err) => {
+            console.error("Gagal memuat jadwal (admin):", err);
+            return [];
+          })
+        : Promise.resolve([]);
+
+      const [portfolioRows, discordCell, bonusRows, jadwalRows] = await Promise.all([
         fetchFilteredRow(sheet.id, sheet.gidPortfolio, studentId, "admin_portfolio_row"),
         fetchCellValue(sheet.id, sheet.gidMaster, "A1", "discord_cell"),
         (sheet.gidBonus !== undefined && sheet.gidBonus !== null)
           ? fetchFilteredRow(sheet.id, sheet.gidBonus, studentId, "admin_bonus_row", BONUS_HEADER_ROWS).catch(() => [])
           : Promise.resolve([]),
+        jadwalPromise,
       ]);
 
       const portfolioRow = findStudentRow(portfolioRows, studentId);
@@ -1758,6 +1768,8 @@
 
         ${renderAdminBonusSection(portfolioStatus, completedPct, bonuses, bonusRow, sheet.id, studentId)}
       `;
+
+      renderCalendarPanel(jadwalRows);
     } catch (e) {
       console.error(e);
       resultsBox.innerHTML = `
@@ -1775,6 +1787,8 @@
     if (resultsBox) resultsBox.innerHTML = "";
     const input = document.getElementById("adminSearchInput");
     if (input) { input.value = ""; input.focus(); }
+    const calendarPanel = document.getElementById("calendarPanel");
+    if (calendarPanel) calendarPanel.style.display = "none";
   }
 
   function renderError(message) {
