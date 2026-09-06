@@ -317,6 +317,22 @@
   .dl-btn-sm:hover{background:rgba(47,208,163,0.24); transform:translateY(-1px);}
   .dl-btn-sm svg{width:11px; height:11px; flex-shrink:0;}
 
+  .full-card.admin-clickable, .comp-row.admin-clickable{cursor:pointer;}
+  .full-card.admin-clickable:hover, .comp-row.admin-clickable:hover{border-color:rgba(247,183,51,0.8);}
+  .admin-dl-slot{margin-top:12px;}
+  .admin-dl-slot:empty{margin-top:0;}
+  .admin-dl-checking{font-size:11.5px; color:var(--cream-dim); padding:6px 0; text-align:center;}
+  .admin-dl-missing{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    padding:8px 10px; border-radius:10px;
+    border:1px solid rgba(255,138,61,0.45);
+    background:rgba(255,138,61,0.1);
+    color:var(--orange);
+    font-size:11.5px; font-weight:600; text-align:center;
+  }
+  .admin-dl-missing svg{width:13px; height:13px; flex-shrink:0;}
+  .comp-row .admin-dl-slot{grid-column:1/-1;}
+
   .comp-list{
     display:flex;
     flex-direction:column;
@@ -582,6 +598,8 @@
       .filter(function(r){ return r.score === FULL_SCORE_THRESHOLD; })
       .sort(function(a,b){ return a.name.localeCompare(b.name, 'id'); });
 
+    fullScore = moveMyCardToFront(fullScore);
+
     var fullNames = fullScore.map(function(r){ return r.name; });
 
     var completedNotFull = records
@@ -599,6 +617,7 @@
     fullScore.forEach(function(r){
       var card = document.createElement('div');
       card.className = 'full-card';
+      card.setAttribute('data-student-name', r.name);
       card.innerHTML =
         '<div class="trophy">🏆</div>' +
         '<div class="name">' + r.name + '</div>' +
@@ -608,7 +627,8 @@
             '<div class="score">' + r.score.toLocaleString('id-ID') + '</div>' +
             '<div class="score-label">Total Score</div>' +
           '</div>' +
-        '</div>';
+        '</div>' +
+        '<div class="admin-dl-slot"></div>';
       fullGrid.appendChild(card);
     });
 
@@ -620,6 +640,7 @@
     completedNotFull.forEach(function(r, i){
       var row = document.createElement('div');
       row.className = 'comp-row';
+      row.setAttribute('data-student-name', r.name);
       row.innerHTML =
         '<div class="comp-rank">' + (i + 1) + '</div>' +
         '<div class="comp-name">' + r.name + '</div>' +
@@ -627,15 +648,79 @@
         '<div class="comp-meta">' +
           '<span class="comp-score">' + (isNaN(r.score) ? '-' : r.score.toLocaleString('id-ID')) + '</span>' +
           '<span class="comp-check">✓ 100%</span>' +
-        '</div>';
+        '</div>' +
+        '<div class="admin-dl-slot"></div>';
       compList.appendChild(row);
     });
 
     renderMyDownload(records);
+    setupAdminCardDownload();
+  }
+
+  function setupAdminCardDownload(){
+    if (!currentSession || !currentSession.isAdmin) return;
+
+    var cards = document.querySelectorAll('.full-card[data-student-name], .comp-row[data-student-name]');
+    cards.forEach(function(card){
+      card.classList.add('admin-clickable');
+      card.addEventListener('click', function(ev){
+        // Jangan trigger ulang kalau yang diklik adalah link/tombol di dalam slot
+        if (ev.target.closest('a')) return;
+
+        var slot = card.querySelector('.admin-dl-slot');
+        if (!slot) return;
+
+        // Toggle: kalau slot sudah terisi, klik lagi untuk menutup
+        if (slot.dataset.open === '1'){
+          slot.innerHTML = '';
+          slot.dataset.open = '0';
+          return;
+        }
+
+        var name = card.getAttribute('data-student-name');
+        var file = testimonialPath(name);
+        slot.dataset.open = '1';
+        slot.innerHTML = '<div class="admin-dl-checking">Memeriksa testimonial…</div>';
+
+        fetch(file, { method: 'HEAD' })
+          .then(function(res){
+            if (slot.dataset.open !== '1') return; // sudah ditutup sebelum fetch selesai
+            if (res.ok){
+              slot.innerHTML =
+                '<a class="dl-btn-sm" style="width:100%;" href="' + file + '" download="' + slugify(name) + '-testimonial.png">' +
+                  downloadIcon + ' Download Testimonial ' + name +
+                '</a>';
+            } else {
+              slot.innerHTML = '<div class="admin-dl-missing">' + missingIcon + ' File Testimoni Belum Tersedia</div>';
+            }
+          })
+          .catch(function(){
+            if (slot.dataset.open !== '1') return;
+            slot.innerHTML = '<div class="admin-dl-missing">' + missingIcon + ' File Testimoni Belum Tersedia</div>';
+          });
+      });
+    });
   }
 
   function normalizeStudentId(id){
     return String(id || '').trim();
+  }
+
+  // Menaruh card milik student yang sedang login di posisi paling atas
+  // pada daftar Full Score. Urutan student lain tetap (alfabetis).
+  // Tidak berlaku untuk daftar Completion 100%.
+  function moveMyCardToFront(list){
+    if (!currentSession || !currentSession.studentId) return list;
+    var sid = normalizeStudentId(currentSession.studentId);
+    var myIndex = -1;
+    for (var i = 0; i < list.length; i++){
+      if (normalizeStudentId(list[i].studentId) === sid){ myIndex = i; break; }
+    }
+    if (myIndex <= 0) return list; // tidak ketemu, atau sudah di posisi pertama
+    var copy = list.slice();
+    var mine = copy.splice(myIndex, 1)[0];
+    copy.unshift(mine);
+    return copy;
   }
 
   function renderMyDownload(records){
