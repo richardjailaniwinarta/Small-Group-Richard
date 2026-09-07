@@ -810,10 +810,10 @@
       gidBonus: 129083659, 
     },
     "35": {
-      id: jisencord("c69:MWhQVjhJci11RTBDeGNTOWFLXzd2NExQWllXWTA5andjSXJFQ2VXUjV5dXc="),
+      id: jisencord("c69:MVhtY1Mwa1VqU1FZbWNZVmVuVkhqSTF3c2JKVjRGMGJ6ZkQxLTNiZDVOTms="),
       gidMaster: 0,
       gidPortfolio: 758194686,
-      gidJadwal: 1039108537,
+      gidJadwal: 1737722533,
       gidBonus: null, 
     },
     "36": {
@@ -875,14 +875,6 @@
   const PORTFOLIO_STATUS_COL = 7; // Column H = "Portfolio" (status review)
   const TOTAL_MAX_SCORE = 5400;
 
-
-  // ============================================================
-  // ISI/EDIT DI SINI: nama, keterangan, dan link untuk tiap bonus.
-  // - idx    : JANGAN diubah kecuali urutan kolom di sheet berubah.
-  // - label  : nama yang tampil di judul card (boleh diganti bebas).
-  // - description : kalimat singkat yang tampil di dalam card.
-  // - link   : URL (misal ke Drive/Canva/dokumen). Kosongkan "" kalau tidak ada.
-  // ============================================================
   const BONUS_COLS = [
     {
       key: "4C",
@@ -1664,8 +1656,6 @@
     const resultsBox = document.getElementById("adminSearchResults");
     resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Memuat detail siswa...</div>`;
 
-    // Simpan supaya halaman lain (Directory/Task Tracker) tahu Admin
-    // sedang meninjau student ini.
     setAdminViewing(row[0], row[1], batchKey);
 
     const sheet = IP_LEATH[batchKey];
@@ -1764,7 +1754,7 @@
             <div class="label">Total Score</div>
           </div>
           <div class="stat-box stat-box-${portfolioMeta.colorClass}">
-            <div class="label">Portfolio</div>
+            <div class="label">Final Portfolio</div>
             <div class="big">${renderPortfolioPill(portfolioStatus)}</div>
           </div>
         </section>
@@ -1797,8 +1787,6 @@
     if (calendarPanel) calendarPanel.style.display = "none";
   }
 
-  // Ambil ulang data 1 student spesifik (dipakai saat melanjutkan
-  // peninjauan dari halaman lain lewat sessionStorage).
   async function loadAdminViewing(viewing) {
     renderAdminHome(currentAdminSession);
     const resultsBox = document.getElementById("adminSearchResults");
