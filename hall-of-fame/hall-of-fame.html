@@ -393,6 +393,36 @@
     white-space:nowrap;
   }
 
+  .full-card.admin-viewing-highlight, .comp-row.admin-viewing-highlight{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(247,183,51,0.5), 0 0 24px rgba(247,183,51,0.35);
+    animation: adminViewPulse 1.6s ease-in-out 2;
+  }
+  @keyframes adminViewPulse{
+    0%, 100% { box-shadow: 0 0 0 2px rgba(247,183,51,0.5), 0 0 24px rgba(247,183,51,0.35); }
+    50%      { box-shadow: 0 0 0 3px rgba(247,183,51,0.8), 0 0 34px rgba(247,183,51,0.55); }
+  }
+
+  .admin-viewing-banner{
+    display:none;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+    text-align:center;
+    margin-top:18px;
+    padding:11px 18px;
+    background:rgba(247,183,51,0.12);
+    border:1px solid rgba(247,183,51,0.4);
+    border-radius:12px;
+    font-size:13.5px;
+    color:var(--cream);
+    max-width:640px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .admin-viewing-banner a{ color:var(--gold); font-weight:700; text-decoration:underline; cursor:pointer; }
+
   .back-btn{
     display:inline-flex;
     align-items:center;
@@ -464,6 +494,8 @@
 
     <div class="my-download-wrap" id="myDownloadWrap" style="display:none;"></div>
 
+    <div class="admin-viewing-banner" id="adminViewingBanner"></div>
+
   
     <div class="admin-picker-row" id="adminPickerRow" style="display:none;">
       <label for="adminBatchPicker">🛡️ Admin — Lihat Batch:</label>
@@ -504,6 +536,8 @@
   var TESTIMONIAL_FOLDER = 'testimonials';
 
   var currentSession = null;
+  var lastLoadedBatchKey = null;
+  var adminViewingHandled = false;
 
 
   var _e1 = ["aHR0cHM6Ly9zZy1yaWNoYXJkLWhvZi1wcm94eS5yaW", "NoYXJkamFpbGFuaXdpbmFydGEud29ya2Vycy5kZXYv"].join("");
@@ -618,6 +652,7 @@
       var card = document.createElement('div');
       card.className = 'full-card';
       card.setAttribute('data-student-name', r.name);
+      card.setAttribute('data-student-id', normalizeStudentId(r.studentId));
       card.innerHTML =
         '<div class="trophy">🏆</div>' +
         '<div class="name">' + r.name + '</div>' +
@@ -641,6 +676,7 @@
       var row = document.createElement('div');
       row.className = 'comp-row';
       row.setAttribute('data-student-name', r.name);
+      row.setAttribute('data-student-id', normalizeStudentId(r.studentId));
       row.innerHTML =
         '<div class="comp-rank">' + (i + 1) + '</div>' +
         '<div class="comp-name">' + r.name + '</div>' +
@@ -655,6 +691,81 @@
 
     renderMyDownload(records);
     setupAdminCardDownload();
+
+    if (currentSession && currentSession.isAdmin && !adminViewingHandled) {
+      adminViewingHandled = true;
+      applyAdminViewingFocus(records);
+    }
+  }
+
+  function findStudentElement(sid){
+    var candidates = document.querySelectorAll('[data-student-id]');
+    for (var i = 0; i < candidates.length; i++){
+      if (candidates[i].getAttribute('data-student-id') === sid) return candidates[i];
+    }
+    return null;
+  }
+
+  // Lapis 1 (batch) sudah ditangani sebelum loadData dipanggil (lihat boot logic).
+  // Lapis 2 (student): highlight card/row-nya, scroll ke sana, dan otomatis
+  // buka slot download testimonial-nya, seolah admin baru saja klik card itu.
+  function applyAdminViewingFocus(records){
+    var viewing = (typeof getAdminViewing === 'function') ? getAdminViewing() : null;
+    var banner = document.getElementById('adminViewingBanner');
+    if (!viewing) {
+      if (banner) banner.style.display = 'none';
+      return;
+    }
+
+    var sid = normalizeStudentId(viewing.studentId);
+    var viewingBatchKey = normalizeBatch(viewing.batch);
+    var batchMismatch = viewingBatchKey && lastLoadedBatchKey && viewingBatchKey !== lastLoadedBatchKey;
+
+    var rec = null;
+    for (var i = 0; i < records.length; i++){
+      if (normalizeStudentId(records[i].studentId) === sid){ rec = records[i]; break; }
+    }
+
+    if (banner) {
+      banner.style.display = 'flex';
+      var displayName = (rec && rec.name) || viewing.nama || viewing.studentId;
+      var statusHtml;
+      if (batchMismatch) {
+        statusHtml = 'Batch ' + viewing.batch + ' belum terdaftar di Hall of Fame, menampilkan Batch ' + lastLoadedBatchKey + ' sebagai gantinya.';
+      } else if (rec && rec.score === FULL_SCORE_THRESHOLD) {
+        statusHtml = 'Full Score 🏆';
+      } else if (rec && rec.completion === 100) {
+        statusHtml = 'Completion 100%';
+      } else {
+        statusHtml = 'belum masuk kriteria Hall of Fame batch ini (belum Full Score / belum Completion 100%).';
+      }
+      banner.innerHTML = '🛡️ Sedang meninjau <strong>' + displayName + '</strong> — ' + statusHtml +
+        ' <a id="closeAdminViewingBtn" href="#">Tutup peninjauan</a>';
+      var closeBtn = document.getElementById('closeAdminViewingBtn');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', function(e){
+          e.preventDefault();
+          clearAdminViewing();
+          location.reload();
+        });
+      }
+    }
+
+    if (!rec || batchMismatch) return;
+
+    var el = findStudentElement(sid);
+    if (!el) return;
+
+    el.classList.add('admin-viewing-highlight');
+    setTimeout(function(){
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
+
+    // Otomatis "klik" card-nya supaya slot download testimonial langsung
+    // terbuka, sama seperti kalau admin klik manual.
+    setTimeout(function(){
+      el.click();
+    }, 450);
   }
 
   function setupAdminCardDownload(){
@@ -818,6 +929,7 @@
   }
 
   function loadData(epRef, batchKey){
+    lastLoadedBatchKey = batchKey;
     var cachedText = getDataCache(batchKey);
     if (cachedText) {
       renderFromText(cachedText);
@@ -875,6 +987,8 @@
 
     picker.addEventListener('change', function(){
       var selected = picker.value;
+      var banner = document.getElementById('adminViewingBanner');
+      if (banner) banner.style.display = 'none';
       updateBatchLabel(selected);
       document.getElementById('fullGrid').innerHTML = '<div class="state-msg">Memuat data…</div>';
       document.getElementById('compList').innerHTML = '';
@@ -889,7 +1003,11 @@
 
 
     if (session.isAdmin) {
-      var defaultKey = resolveEndpoint(batchKey) ? batchKey : REQUIRED_BATCHES[0];
+      var viewing = (typeof getAdminViewing === 'function') ? getAdminViewing() : null;
+      var viewingBatchKey = viewing ? normalizeBatch(viewing.batch) : null;
+      var defaultKey = (viewingBatchKey && resolveEndpoint(viewingBatchKey))
+        ? viewingBatchKey
+        : (resolveEndpoint(batchKey) ? batchKey : REQUIRED_BATCHES[0]);
       if (!defaultKey) { showAccessDenied(); return; }
       setupAdminPicker(defaultKey);
       updateBatchLabel(defaultKey);

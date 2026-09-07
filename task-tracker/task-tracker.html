@@ -526,6 +526,24 @@
     .badge-miss   { background: rgba(var(--danger-rgb),0.1);  color: var(--danger);  border: 1px solid rgba(var(--danger-rgb),0.2); }
     .badge-skip   { background: rgba(var(--skip-rgb),0.2);    color: var(--skip);    border: 1px solid rgba(var(--skip-rgb),0.3); }
 
+    .task-row-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+    .task-link-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      background: rgba(var(--accent-rgb),0.12);
+      color: var(--accent);
+      border: 1px solid rgba(var(--accent-rgb),0.3);
+      flex-shrink: 0;
+    }
+    .task-link-icon svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .task-row.has-link { cursor: pointer; }
+    .task-row.has-link:hover { border-color: var(--accent); background: rgba(var(--accent-rgb),0.04); }
+    .task-row.has-link:hover .task-link-icon { background: rgba(var(--accent-rgb),0.22); }
+    .task-row.has-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
     /* ── PROGRESS BAR ── */
     .progress-wrap {
       margin-top: 20px;
@@ -697,7 +715,7 @@ function applyTheme(theme) {
   }
 }
 
-const THEME_KEY = 'sgr-theme'; // key bersama, dipakai oleh semua halaman (dashboard/directory/tracker)
+const THEME_KEY = 'sgr-theme'; 
 
 function toggleTheme() {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -775,7 +793,7 @@ const NON_TASK_COLS = [
   "Completion Rate"
 ];
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 menit — samakan dengan Dashboard, gampang diubah kalau perlu
+const CACHE_TTL_MS = 5 * 60 * 1000; 
 const CACHE_PREFIX = "sgr_cache_";
 
 
@@ -809,10 +827,10 @@ function getCache(key) {
     const raw = sessionStorage.getItem(CACHE_PREFIX + key);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (Date.now() - parsed.ts > CACHE_TTL_MS) return null; // sudah kadaluarsa
+    if (Date.now() - parsed.ts > CACHE_TTL_MS) return null; 
     return parsed.data;
   } catch (e) {
-    return null; // sessionStorage error/disabled -> anggap tidak ada cache
+    return null; 
   }
 }
 
@@ -820,7 +838,7 @@ function setCache(key, data) {
   try {
     sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ ts: Date.now(), data }));
   } catch (e) {
-    // storage penuh/diblok -> abaikan, tidak fatal
+    
   }
 }
 
@@ -885,7 +903,7 @@ function buildTaskDefs(headers) {
   return defs;
 }
 
-// ──  ──
+
 function parseRows(txt) {
   const allLines = txt.split("\n").filter(l => l.trim() !== "");
 
@@ -893,11 +911,11 @@ function parseRows(txt) {
     l.split(",").some(c => c.trim().replace(/^"|"$/g, "") === "StudentID")
   );
 
-  if (headerIndex === -1) return { rows: [], headers: [] };
+  if (headerIndex === -1) return { rows: [], headers: [], linksRow: null };
 
   const headers = allLines[headerIndex].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
 
-  const rows = allLines.slice(headerIndex + 1).map(line => {
+  const parsedLines = allLines.slice(headerIndex + 1).map(line => {
     const cols = []; let cur = "", inQ = false;
     for (const ch of line) {
       if (ch === '"') { inQ = !inQ; }
@@ -908,9 +926,17 @@ function parseRows(txt) {
     const o = {};
     headers.forEach((h, i) => o[h] = (cols[i] || "").replace(/^"|"$/g, "").trim());
     return o;
-  }).filter(row => row["StudentID"] && row["StudentID"].trim() !== "");
+  });
 
-  return { rows, headers };
+  const linksRow = parsedLines.find(row => (row["StudentID"] || "").trim().toUpperCase() === "LINKS") || null;
+
+  const rows = parsedLines.filter(row =>
+    row["StudentID"] &&
+    row["StudentID"].trim() !== "" &&
+    row["StudentID"].trim().toUpperCase() !== "LINKS"
+  );
+
+  return { rows, headers, linksRow };
 }
 
 async function getDataForBatch(batchKey) {
@@ -927,8 +953,16 @@ async function getDataForBatch(batchKey) {
 
   const r = await fetch(sourceUrl);
   if (!r.ok) throw new Error("Gagal mengambil data Batch " + batchKey + ".");
-  const { rows, headers } = parseRows(await r.text());
+  const { rows, headers, linksRow } = parseRows(await r.text());
   const defs = buildTaskDefs(headers);
+
+
+  if (linksRow) {
+    defs.forEach(d => {
+      const raw = (linksRow[d.scoreKey] || "").trim();
+      d.link = /^https?:\/\//i.test(raw) ? raw : "";
+    });
+  }
 
   cacheStore[batchKey] = { rows, taskDefs: defs };
   setCache("task_tracker_rows_" + batchKey, { rows, taskDefs: defs });
@@ -994,12 +1028,13 @@ function icon(type) {
     id:     `<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
     star:   `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
     person: `<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+    link:   `<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
     pkg:    `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73L13 2.27a2 2 0 0 0-2 0L4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
   };
   return icons[type] || "";
 }
 
-let currentSession = null; // dipakai admin search buat balik ke data sendiri
+let currentSession = null; 
 
 async function showStudentTracker(studentIdOrName, opts) {
   opts = opts || {};
@@ -1041,7 +1076,21 @@ async function showStudentTracker(studentIdOrName, opts) {
       }
     } else {
       const hint = document.getElementById("adminSearchHint");
-      if (hint) hint.style.display = "none";
+      if (hint) {
+        if (opts.fromViewing) {
+          hint.style.display = "block";
+          hint.textContent = `🛡️ Melanjutkan peninjauan dari halaman lain: ${matches[0]["Students Name"] || matches[0]["StudentID"]}.`;
+        } else {
+          hint.style.display = "none";
+        }
+      }
+    }
+
+
+    if (currentSession && currentSession.isAdmin && opts.crossBatch) {
+      setAdminViewing(matches[0]["StudentID"], matches[0]["Students Name"], matchedBatch);
+      const input = document.getElementById("adminStudentSearch");
+      if (input) input.value = matches[0]["StudentID"];
     }
 
     const label = document.getElementById("studentIdLabel");
@@ -1079,6 +1128,7 @@ function setupAdminSearch(session) {
   resetBtn.addEventListener("click", function () {
     input.value = "";
     document.getElementById("adminSearchHint").style.display = "none";
+    clearAdminViewing();
     showStudentTracker(String(session.studentId).trim());
   });
 }
@@ -1114,6 +1164,16 @@ async function init() {
 
   if (session.isAdmin) {
     setupAdminSearch(session);
+  }
+
+  if (session.isAdmin) {
+    const viewing = getAdminViewing();
+    if (viewing) {
+      const input = document.getElementById("adminStudentSearch");
+      if (input) input.value = viewing.studentId;
+      showStudentTracker(viewing.studentId, { allowNameSearch: true, crossBatch: true, fromViewing: true });
+      return;
+    }
   }
 
   if (session.isAdmin && !hasOwnBatchData) {
@@ -1170,19 +1230,22 @@ function renderResult(s, el) {
     total++;
     if (!score || score === "0") {
       miss++;
-      badge = `<span class="task-badge badge-miss">${icon("clock")} Belum dikerjakan/Belum diberi Score</span>`;
+      badge = `<span class="task-badge badge-miss">${icon("clock")} Belum diberi Score</span>`;
     } else {
       done++;
       const scoreLabel = t.maxScore ? `${escHtml(score)}/${escHtml(t.maxScore)}` : escHtml(score);
       badge = `<span class="task-badge badge-done">${icon("check")} Skor: ${scoreLabel}</span>`;
     }
 
-    return `<div class="task-row">
+    return `<div class="task-row${t.link ? " has-link" : ""}"${t.link ? ` data-link="${escHtml(t.link)}" role="link" tabindex="0"` : ""}>
       <div class="task-left">
         <div class="task-eyebrow">${escHtml(t.lesson)} &middot; ${escHtml(t.num)}</div>
         <div class="task-name">${escHtml(t.label)}</div>
       </div>
-      ${badge}
+      <div class="task-row-right">
+        ${t.link ? `<span class="task-link-icon" title="Buka Google Classroom">${icon("link")}</span>` : ""}
+        ${badge}
+      </div>
     </div>`;
   }).filter(Boolean).join("");
 
@@ -1250,6 +1313,18 @@ function renderResult(s, el) {
     const bar = document.getElementById("pbar");
     if (bar) bar.style.width = pct + "%";
   }, 80);
+
+
+  el.querySelectorAll(".task-row[data-link]").forEach(row => {
+    const openLink = () => {
+      const url = row.getAttribute("data-link");
+      if (url) window.open(url, "_blank", "noopener");
+    };
+    row.addEventListener("click", openLink);
+    row.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLink(); }
+    });
+  });
 }
 
 init();

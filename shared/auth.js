@@ -90,5 +90,45 @@ async function checkLogin() {
 function logout() {
   sessionStorage.removeItem("token");
   sessionStorage.removeItem(SESSION_CACHE_KEY);
+  sessionStorage.removeItem(ADMIN_VIEW_KEY);
   window.location.href = "../login.html";
+}
+
+// ============ ADMIN "SEDANG MENINJAU" STATE ============
+// Dipakai supaya ketika Admin search seorang Student di satu halaman
+// (Dashboard/Task Tracker/dst), lalu pindah ke halaman lain, halaman
+// tsb bisa otomatis menampilkan Student yang sama tanpa perlu search ulang.
+// Cukup simpan ID + nama + batch (bukan seluruh data), tiap halaman
+// tetap fetch datanya sendiri-sendiri supaya selalu fresh.
+const ADMIN_VIEW_KEY = "sgr_admin_viewing";
+
+function setAdminViewing(studentId, nama, batch) {
+  try {
+    sessionStorage.setItem(
+      ADMIN_VIEW_KEY,
+      JSON.stringify({ studentId: String(studentId || "").trim(), nama: nama || "", batch: batch || "" })
+    );
+  } catch (e) {
+    // storage penuh/diblok -> abaikan, tidak fatal
+  }
+}
+
+function getAdminViewing() {
+  try {
+    const raw = sessionStorage.getItem(ADMIN_VIEW_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !parsed.studentId) return null;
+    return parsed;
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearAdminViewing() {
+  try {
+    sessionStorage.removeItem(ADMIN_VIEW_KEY);
+  } catch (e) {
+    // storage penuh/diblok -> abaikan, tidak fatal
+  }
 }

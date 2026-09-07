@@ -918,6 +918,7 @@
     </div>
 
     <div class="search-bar" id="searchBar">
+      <div id="adminViewingBanner" style="display:none; margin-bottom:12px; padding:10px 14px; border-radius:10px; background:rgba(var(--accent-rgb),0.1); border:1px solid rgba(var(--accent-rgb),0.3); font-size:13px;"></div>
       <div class="search-input-wrap">
         <svg class="search-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="searchInput" placeholder="Search for File">
@@ -1614,7 +1615,11 @@ function setupAdminBatchPicker(defaultBatchKey) {
 
   if (session.isAdmin) {
     const availableBatches = Object.keys(LEGENDS);
-    const defaultKey = resolveApiUrlForBatch(batchNum) ? batchNum : availableBatches[0];
+    const viewing = getAdminViewing();
+    const viewingBatchAvailable = viewing && viewing.batch && resolveApiUrlForBatch(viewing.batch);
+    const defaultKey = viewingBatchAvailable
+      ? viewing.batch
+      : (resolveApiUrlForBatch(batchNum) ? batchNum : availableBatches[0]);
     if (!defaultKey) {
       document.getElementById('scheduleContent').innerHTML = `
         <div class="empty-state">Belum ada Directory batch manapun yang terdaftar.</div>`;
@@ -1624,6 +1629,12 @@ function setupAdminBatchPicker(defaultBatchKey) {
     setupAdminBatchPicker(defaultKey);
     DIRECTORY_API_URL = resolveApiUrlForBatch(defaultKey);
     loadData();
+
+    const banner = document.getElementById('adminViewingBanner');
+    if (banner && viewing) {
+      banner.style.display = 'block';
+      banner.innerHTML = `🛡️ Sedang meninjau <strong>${viewing.nama || viewing.studentId}</strong> (Batch ${viewing.batch})${viewingBatchAvailable ? '' : ' — Directory batch ini belum terdaftar, menampilkan default'}. <a href="#" onclick="clearAdminViewing(); location.reload(); return false;" style="color:var(--accent); font-weight:600;">Tutup peninjauan</a>`;
+    }
     return;
   }
 

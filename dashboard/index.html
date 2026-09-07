@@ -1658,10 +1658,15 @@
     if (match) renderAdminStudentDetail(match);
   }
 
-  async function renderAdminStudentDetail(match) {
+  async function renderAdminStudentDetail(match, opts) {
+    opts = opts || {};
     const { batchKey, headerRow, row } = match;
     const resultsBox = document.getElementById("adminSearchResults");
     resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Memuat detail siswa...</div>`;
+
+    // Simpan supaya halaman lain (Directory/Task Tracker) tahu Admin
+    // sedang meninjau student ini.
+    setAdminViewing(row[0], row[1], batchKey);
 
     const sheet = IP_LEATH[batchKey];
     const studentId = row[0];
@@ -1702,7 +1707,7 @@
         <div class="admin-detail-head">
           <div>
             <div class="admin-detail-name">${row[1] || "—"}</div>
-            <div class="admin-detail-meta">ID ${studentId} · Batch ${batchKey}</div>
+            <div class="admin-detail-meta">ID ${studentId} · Batch ${batchKey}${opts.fromViewing ? ' · <span style="color:var(--purple)">🛡️ dilanjutkan dari halaman lain</span>' : ''}</div>
           </div>
           <button class="logout-btn" style="background:var(--purple-deep)" onclick="backToAdminSearch()">← Cari Lagi</button>
         </div>
@@ -1783,6 +1788,7 @@
   }
 
   function backToAdminSearch() {
+    clearAdminViewing();
     const resultsBox = document.getElementById("adminSearchResults");
     if (resultsBox) resultsBox.innerHTML = "";
     const input = document.getElementById("adminSearchInput");
@@ -1790,6 +1796,37 @@
     const calendarPanel = document.getElementById("calendarPanel");
     if (calendarPanel) calendarPanel.style.display = "none";
   }
+
+  // Ambil ulang data 1 student spesifik (dipakai saat melanjutkan
+  // peninjauan dari halaman lain lewat sessionStorage).
+  async function loadAdminViewing(viewing) {
+    renderAdminHome(currentAdminSession);
+    const resultsBox = document.getElementById("adminSearchResults");
+    if (resultsBox) resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Memuat data yang sedang ditinjau...</div>`;
+
+    const sheet = resolveBatchSheet(viewing.batch);
+    if (!sheet || !sheet.id || sheet.id === "batch_id") {
+      clearAdminViewing();
+      return false;
+    }
+
+    try {
+      const { headerRow, rows } = await fetchAdminSearchRows(sheet.id, sheet.gidMaster, viewing.studentId, true);
+      if (rows.length === 0) {
+        clearAdminViewing();
+        if (resultsBox) resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Data yang sedang ditinjau tidak ditemukan lagi.</div>`;
+        return true;
+      }
+      renderAdminStudentDetail({ batchKey: viewing.batch, headerRow, row: rows[0] }, { fromViewing: true });
+      return true;
+    } catch (e) {
+      console.error(e);
+      if (resultsBox) resultsBox.innerHTML = `<div class="state-msg" style="padding:30px 0;">Gagal memuat data yang sedang ditinjau.</div>`;
+      return true;
+    }
+  }
+
+  let currentAdminSession = null;
 
   function renderError(message) {
     document.getElementById("dashboardBody").innerHTML = `
@@ -1852,6 +1889,15 @@
       document.getElementById("adminTag").style.display = "inline-block";
     }
     updateHallOfFameNav(session.batch, session.isAdmin);
+    currentAdminSession = session;
+
+    if (session.isAdmin) {
+      const viewing = getAdminViewing();
+      if (viewing) {
+        const handled = await loadAdminViewing(viewing);
+        if (handled) return;
+      }
+    }
 
     const batchSheet = resolveBatchSheet(session.batch);
     if (!batchSheet) {
