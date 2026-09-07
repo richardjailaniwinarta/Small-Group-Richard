@@ -26,17 +26,22 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body {
+      height: 100%;
+    }
+
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: safe center;
       justify-content: center;
       padding: 24px;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     /* ── Background orbs ── */
@@ -90,6 +95,7 @@
     .card {
       width: 100%;
       max-width: 420px;
+      margin: 24px 0;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 24px;
@@ -158,8 +164,9 @@
       border: 1.5px solid transparent;
       background: linear-gradient(135deg, rgba(108,99,255,0.6), rgba(247,183,51,0.4)) border-box;
       -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+              mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: destination-out;
-      mask-composite: exclude;
+              mask-composite: exclude;
       animation: rotateGlow 4s linear infinite;
     }
     @keyframes rotateGlow {
