@@ -846,7 +846,7 @@
   }
 
   function isValidDiscordLink(url) {
-    return typeof url === "string" && /^https:\/\/(discord\.gg\/|discord\.com\/invite\/)/i.test(url.trim());
+    return typeof url === "string" && /^https:\/\/(chat\.whatsapp\.com\/|wa\.me\/)/i.test(url.trim());
   }
 
   function fetchCellValue(sheetId, gid, cell, cacheKey) {
@@ -1300,9 +1300,9 @@
   }
 
   function renderDiscordButton(discordLink) {
-    const WHATSAPP_LINK = "https://chat.whatsapp.com/EKmasAmsPcHDf0ypDeBoJU";
+    if (!discordLink) return "";
     return `
-      <a class="discord-btn" href="${WHATSAPP_LINK}" target="_blank" rel="noopener noreferrer" aria-label="Join WhatsApp Group">
+      <a class="discord-btn" href="${discordLink}" target="_blank" rel="noopener noreferrer" aria-label="Join WhatsApp Group">
         <span class="discord-btn-label">JOIN</span>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="#25D366" style="filter:drop-shadow(0 0 4px rgba(37,211,102,0.9))"><path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.5 1.34 5.02L2 22l5.13-1.35A9.96 9.96 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10zm0 18.12c-1.6 0-3.16-.43-4.52-1.24l-.32-.19-3.05.8.82-2.97-.21-.31a8.07 8.07 0 0 1-1.26-4.31c0-4.47 3.64-8.11 8.11-8.11 4.47 0 8.11 3.64 8.11 8.11 0 4.47-3.64 8.12-8.11 8.12zm4.47-6.07c-.24-.12-1.44-.71-1.67-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.78.96-.14.16-.29.18-.53.06-.24-.12-1.02-.38-1.95-1.2-.72-.64-1.21-1.44-1.35-1.68-.14-.24-.02-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42-.14-.01-.3-.01-.46-.01-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z"/></svg>
       </a>`;
